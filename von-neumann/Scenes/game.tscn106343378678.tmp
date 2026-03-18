@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://dmbx04csi10wu"]
+
+[ext_resource type="Script" uid="uid://cmwwlm2a8xp1w" path="res://Scripts/game.gd" id="1_ebmjs"]
+[ext_resource type="Texture2D" uid="uid://m12mssxymvsu" path="res://Images/star.png" id="2_qxrlw"]
+
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam")]
+script = ExtResource("1_ebmjs")
+cam = NodePath("Camera2D")
+cam_speed = 10000.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="MARKER - BOTTOM RIGHT CORNER" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(10000, 10000)
+scale = Vector2(10, 10)
+texture = ExtResource("2_qxrlw")
+
+[node name="MARKER - TOP LEFT CORNER" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(10, 10)
+texture = ExtResource("2_qxrlw")
+
+[node name="MARKER - CENTER" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(5000, 5000)
+scale = Vector2(10, 10)
+texture = ExtResource("2_qxrlw")
+
+[node name="MARKER - MAP POSITION" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-100000, -100000)
+scale = Vector2(2, 2)
+texture = ExtResource("2_qxrlw")
