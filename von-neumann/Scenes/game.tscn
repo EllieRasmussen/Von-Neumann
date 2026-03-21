@@ -49,3 +49,6 @@ texture = ExtResource("2_qxrlw")
 [node name="workstation" type="Sprite2D" parent="."]
 position = Vector2(960, 540)
 texture = ExtResource("3_wrm1d")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(960, 540)
