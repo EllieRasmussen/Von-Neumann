@@ -10,7 +10,7 @@ var quad_tree_root
 
 var star_imgs: Array
 
-var galaxy_size = 5000.0
+var galaxy_size = 10000.0
 var max_quad_lvl = 0
 
 var map_pos = Vector2(-galaxy_size,-galaxy_size)
@@ -18,7 +18,7 @@ var map_scale = 15 #ratio between map and galaxy --- map_scale:galaxy_size
 var cam_zoom_swap = 0.1
 var cam_on_map = false
 
-var num_stars = 10000
+var num_stars = 1000
 
 var stars: Array[Sprite2D] = []
 
@@ -37,7 +37,7 @@ func _ready() -> void:
 	for s in num_stars:
 		var new_star = Star.new()
 		new_star.texture = star_imgs[randi()%len(star_imgs)]
-		new_star.scale = Vector2(1,1)
+		new_star.scale = Vector2(5,5)
 		var theta = randf() * 6.283
 		var radius = (galaxy_size / 2) * randf()
 		new_star.position = Vector2((galaxy_size/2)+(cos(theta) * radius),(galaxy_size/2)+(sin(theta) * radius))
@@ -62,22 +62,24 @@ func _process(delta: float) -> void:
 		
 	if Input.is_action_just_pressed("Scroll Up"):
 		cam.zoom += Vector2(0.01,0.01)
-		if cam.zoom.x > cam_zoom_swap and cam_on_map:
-			cam_pos = Vector2((cam.position.x + galaxy_size)*map_scale,(cam.position.y + galaxy_size)*map_scale)
-			print(cam_pos)
-			cam_speed *= map_scale
-			cam_on_map = false
 		if cam.zoom.x > 1:
 			cam.zoom = Vector2(1, 1)
+		#if cam.zoom.x > cam_zoom_swap and cam_on_map:
+			#cam_pos = Vector2((cam.position.x + galaxy_size)*map_scale,(cam.position.y + galaxy_size)*map_scale)
+			#print(cam_pos)
+			#cam_speed *= map_scale
+			#cam_on_map = false
+		
 	if Input.is_action_just_pressed("Scroll Down"):
 		cam.zoom -= Vector2(0.01,0.01)
-		if cam.zoom.x < cam_zoom_swap and not(cam_on_map):
-			cam_pos = Vector2((cam.position.x / galaxy_size) * (galaxy_size / map_scale) - galaxy_size, (cam.position.y / galaxy_size) * (galaxy_size / map_scale) - galaxy_size)
-			print(cam_pos)
-			cam_speed /= map_scale
-			cam_on_map = true
-		elif cam.zoom.x < 0.015:
+		if cam.zoom.x < 0.015:
 			cam.zoom = Vector2(0.015, 0.015)
+		#if cam.zoom.x < cam_zoom_swap and not(cam_on_map):
+			#cam_pos = Vector2((cam.position.x / galaxy_size) * (galaxy_size / map_scale) - galaxy_size, (cam.position.y / galaxy_size) * (galaxy_size / map_scale) - galaxy_size)
+			#print(cam_pos)
+			#cam_speed /= map_scale
+			#cam_on_map = true
+		
 			
 	if Input.is_action_pressed("Click"):
 		left_click = true

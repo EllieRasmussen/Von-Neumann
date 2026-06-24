@@ -6,7 +6,7 @@
 
 [node name="Game" type="Node2D" node_paths=PackedStringArray("cam")]
 script = ExtResource("1_ebmjs")
-cam = NodePath("")
+cam = NodePath("Camera2D")
 cam_speed = 10000.0
 
 [node name="MARKER - BOTTOM RIGHT CORNER" type="Sprite2D" parent="."]
@@ -33,6 +33,7 @@ scale = Vector2(2, 2)
 texture = ExtResource("2_qxrlw")
 
 [node name="workstation" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(960, 540)
 texture = ExtResource("3_wrm1d")
 
