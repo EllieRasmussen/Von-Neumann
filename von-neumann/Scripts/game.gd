@@ -1,6 +1,6 @@
 extends Node2D
 
-var star_adj_max = 10
+var star_adj_max = 100
 
 @export var cam: Camera2D
 @export var cam_speed: float
@@ -38,9 +38,15 @@ func _ready() -> void:
 		var new_star = Star.new()
 		new_star.texture = star_imgs[randi()%len(star_imgs)]
 		new_star.scale = Vector2(5,5)
-		var theta = randf() * 6.283
-		var radius = (galaxy_size / 2) * randf()
-		new_star.position = Vector2((galaxy_size/2)+(cos(theta) * radius),(galaxy_size/2)+(sin(theta) * radius))
+		var starX = randf() * galaxy_size
+		var starY = randf() * galaxy_size
+		var dist_to_center = Vector2(galaxy_size/2,galaxy_size/2).distance_to(Vector2(starX,starY))
+		while(dist_to_center > galaxy_size/2):
+			starX = randf() * galaxy_size
+			starY = randf() * galaxy_size
+			dist_to_center = Vector2(galaxy_size/2,galaxy_size/2).distance_to(Vector2(starX,starY))
+			
+		new_star.position = Vector2(starX,starY)
 		add_child(new_star)
 		quad_tree_root.add_star(new_star,self)
 		
