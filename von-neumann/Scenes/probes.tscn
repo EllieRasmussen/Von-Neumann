@@ -1,0 +1,232 @@
+[gd_scene load_steps=2 format=3 uid="uid://dnaog057evwu1"]
+
+[ext_resource type="Script" uid="uid://dg524ow8dus8g" path="res://Scenes/probes.gd" id="1_qad3q"]
+
+[node name="root" type="Node2D" node_paths=PackedStringArray("star_viewer_viewport")]
+script = ExtResource("1_qad3q")
+star_viewer_viewport = NodePath("FoldableContainer/TabContainer/STAR VIEWER/SubViewport/SubViewport")
+
+[node name="FoldableContainer" type="FoldableContainer" parent="."]
+offset_left = 840.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="TabContainer" type="TabContainer" parent="FoldableContainer"]
+layout_mode = 2
+current_tab = 0
+
+[node name="STAR VIEWER" type="CenterContainer" parent="FoldableContainer/TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="SubViewport" type="SubViewportContainer" parent="FoldableContainer/TabContainer/STAR VIEWER"]
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/SubViewport"]
+handle_input_locally = false
+size = Vector2i(1000, 1000)
+render_target_update_mode = 4
+
+[node name="INTERSTELLAR PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+metadata/_tab_index = 1
+
+[node name="Grid Container" type="GridContainer" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES"]
+layout_mode = 2
+theme_override_constants/h_separation = 30
+columns = 7
+
+[node name="Button" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button2" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button3" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button4" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button5" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button6" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button7" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button8" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button9" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button10" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button11" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button12" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button13" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button14" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button15" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="PLANETARY PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+metadata/_tab_index = 2
+
+[node name="Grid Container" type="GridContainer" parent="FoldableContainer/TabContainer/PLANETARY PROBES"]
+layout_mode = 2
+theme_override_constants/h_separation = 30
+columns = 7
+
+[node name="Button" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button2" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button3" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button4" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button5" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button6" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button7" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button8" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button9" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button10" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button11" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button12" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button13" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button14" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button15" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button16" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button17" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button18" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button19" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button20" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button21" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button22" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button23" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button24" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button25" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button26" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button27" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button28" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button29" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="Button30" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
+layout_mode = 2
+text = "UPGRADE"

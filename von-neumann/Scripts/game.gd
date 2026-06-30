@@ -8,9 +8,7 @@ var cam_pos: Vector2
 
 var quad_tree_root
 
-var star_imgs: Array
-
-var galaxy_size = 10000.0
+var galaxy_size = 100000.0
 var max_quad_lvl = 0
 
 var map_pos = Vector2(-galaxy_size,-galaxy_size)
@@ -25,18 +23,12 @@ var stars: Array[Sprite2D] = []
 var left_click = false
 
 func _ready() -> void:
-	star_imgs.append(load("res://Images/Star_0.png"))
-	star_imgs.append(load("res://Images/Star_1.png"))
-	star_imgs.append(load("res://Images/Star_2.png"))
-	star_imgs.append(load("res://Images/Star_3.png"))
-	
 	cam.position = Vector2(galaxy_size/2 - get_viewport_rect().size.x,galaxy_size/2 + get_viewport_rect().size.y)
 	cam_pos = cam.position	
 	quad_tree_root = Quad.new()
 	quad_tree_root.set_quad(0,0,galaxy_size,0,quad_tree_root)
 	for s in num_stars:
 		var new_star = Star.new()
-		new_star.texture = star_imgs[randi()%len(star_imgs)]
 		new_star.scale = Vector2(5,5)
 		var starX = randf() * galaxy_size
 		var starY = randf() * galaxy_size
@@ -47,6 +39,12 @@ func _ready() -> void:
 			dist_to_center = Vector2(galaxy_size/2,galaxy_size/2).distance_to(Vector2(starX,starY))
 			
 		new_star.position = Vector2(starX,starY)
+		var starArea = Area2D.new()
+		var starShape = CollisionShape2D.new()
+		starShape.shape = CircleShape2D
+		starArea.input_event.connect(star_input)
+		starArea.add_child(starShape)
+		new_star.add_child(starArea)
 		add_child(new_star)
 		quad_tree_root.add_star(new_star,self)
 		
@@ -55,6 +53,9 @@ func _ready() -> void:
 	max_quad_lvl = get_max_quad_lvl(quad_tree_root)
 	generate_map(quad_tree_root)
 	
+
+func star_input(pStar) -> void:
+	print(pStar.name)
 
 func _process(delta: float) -> void:
 	if Input.is_action_pressed("Up"):
@@ -129,12 +130,19 @@ func get_max_quad_lvl(quad: Quad) -> int:
 class Star extends Sprite2D:
 	var adj = []
 	func _draw() -> void:
-		for s in len(adj):
-			if position.x < adj[s].position.x:
-				draw_line(Vector2(0,0),(adj[s].position - position) * (1/scale.x),Color.WEB_GRAY,1)
+		pass
+		#for s in len(adj):
+			#if position.x < adj[s].position.x:
+				#draw_line(Vector2(0,0),(adj[s].position - position) * (1/scale.x),Color.WEB_GRAY,1)
 		pass
 	func add_adjacent(pStar: Star) -> void:
 		if not(adj.has(pStar)):
+			var line = Line2D.new()
+			line.default_color = Color.AQUA
+			line.points = []
+			line.points.append(Vector2(0,0))
+			line.points.append(Vector2(pStar.position))
+			add_child(line)
 			adj.append(pStar)
 
 
