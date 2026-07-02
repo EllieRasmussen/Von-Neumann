@@ -1,15 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://dnaog057evwu1"]
+[gd_scene load_steps=2 format=3 uid="uid://dnaog057evwu1"]
 
 [ext_resource type="Script" uid="uid://dg524ow8dus8g" path="res://Scripts/probes.gd" id="1_qad3q"]
-[ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="2_x5gcp"]
 
-[node name="root" type="Node2D" node_paths=PackedStringArray("star_viewer_viewport", "lbl_star_viewer_probe", "lbl_interstellar_probe_travel_dist", "lbl_interstellar_probe_replication_attempt_rate", "lbl_interstellar_probe_replication_chance")]
+[node name="root" type="Node2D" node_paths=PackedStringArray("star_viewer_viewport")]
 script = ExtResource("1_qad3q")
 star_viewer_viewport = NodePath("FoldableContainer/TabContainer/STAR VIEWER/Viewport Center/SubViewport/SubViewport")
-lbl_star_viewer_probe = NodePath("FoldableContainer/TabContainer/STAR VIEWER/Interstellar Probes Label")
-lbl_interstellar_probe_travel_dist = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Travel Dist")
-lbl_interstellar_probe_replication_attempt_rate = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Rep Attempt Rate")
-lbl_interstellar_probe_replication_chance = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Rep Chance")
 
 [node name="FoldableContainer" type="FoldableContainer" parent="."]
 offset_left = 840.0
@@ -24,13 +19,10 @@ current_tab = 0
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="Interstellar Probes Label" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER"]
+[node name="Label" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER"]
 z_index = 1
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-text = "INTERSTELLAR PROBES: 1 / 100"
-label_settings = ExtResource("2_x5gcp")
+text = "INTERSTELLAR PROBES: "
 
 [node name="Viewport Center" type="CenterContainer" parent="FoldableContainer/TabContainer/STAR VIEWER"]
 layout_mode = 2
@@ -53,38 +45,15 @@ metadata/_tab_index = 1
 [node name="Grid Container" type="GridContainer" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES"]
 layout_mode = 2
 theme_override_constants/h_separation = 30
-columns = 2
+columns = 7
 
 [node name="Travel Dist" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
 layout_mode = 2
 text = "TRAVEL DISTANCE"
-alignment = 0
 
-[node name="lbl Travel Dist" type="Label" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
+[node name="Replication Rate" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
 layout_mode = 2
-text = "100 LIGHTYEARS"
-label_settings = ExtResource("2_x5gcp")
-
-[node name="Replication Time" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
-layout_mode = 2
-text = "REPLICATION TIME
-"
-alignment = 0
-
-[node name="lbl Rep Attempt Rate" type="Label" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
-layout_mode = 2
-text = "0.25 / SECOND"
-label_settings = ExtResource("2_x5gcp")
-
-[node name="Replication Chance" type="Button" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
-layout_mode = 2
-text = "REPLICATION CHANCE"
-alignment = 0
-
-[node name="lbl Rep Chance" type="Label" parent="FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container"]
-layout_mode = 2
-text = "50%"
-label_settings = ExtResource("2_x5gcp")
+text = "REPLICATION RATE"
 
 [node name="PLANETARY PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
 visible = false
@@ -217,5 +186,3 @@ text = "UPGRADE"
 [node name="Button30" type="Button" parent="FoldableContainer/TabContainer/PLANETARY PROBES/Grid Container"]
 layout_mode = 2
 text = "UPGRADE"
-
-[connection signal="tab_selected" from="FoldableContainer/TabContainer" to="." method="_on_tab_container_tab_selected"]
