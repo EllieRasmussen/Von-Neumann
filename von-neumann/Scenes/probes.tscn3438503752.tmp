@@ -1,19 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://dnaog057evwu1"]
+[gd_scene load_steps=4 format=3 uid="uid://dnaog057evwu1"]
 
 [ext_resource type="Script" uid="uid://dg524ow8dus8g" path="res://Scripts/probes.gd" id="1_qad3q"]
 [ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="2_x5gcp"]
 
-[node name="root" type="Node2D" node_paths=PackedStringArray("UI_contianer_root", "star_viewer_root", "viewport_star", "lbl_num_star_probes", "lbl_star_probe_travel_dist", "lbl_star_probe_replication_attempt_rate", "lbl_star_probe_replication_success_rate", "prgBar_add_interstellar_probe", "star_activity_log_container")]
+[sub_resource type="LabelSettings" id="LabelSettings_x5gcp"]
+
+[node name="root" type="Node2D" node_paths=PackedStringArray("viewport_star", "lbl_num_star_probes", "lbl_star_probe_travel_dist", "lbl_star_probe_replication_attempt_rate", "lbl_star_probe_replication_success_rate")]
 script = ExtResource("1_qad3q")
-UI_contianer_root = NodePath("FoldableContainer")
-star_viewer_root = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer")
-viewport_star = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/SubViewport/star viewport")
-lbl_num_star_probes = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer/Interstellar Probes Label")
+viewport_star = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/SubViewport/SubViewport")
+lbl_num_star_probes = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/Interstellar Probes Label")
 lbl_star_probe_travel_dist = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Travel Dist")
 lbl_star_probe_replication_attempt_rate = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Rep Attempt Rate")
 lbl_star_probe_replication_success_rate = NodePath("FoldableContainer/TabContainer/INTERSTELLAR PROBES/Grid Container/lbl Rep Success Rate")
-prgBar_add_interstellar_probe = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer/ProgressBar")
-star_activity_log_container = NodePath("FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/ScrollContainer/VBoxContainer")
 
 [node name="FoldableContainer" type="FoldableContainer" parent="."]
 offset_left = 840.0
@@ -28,14 +26,14 @@ current_tab = 0
 layout_mode = 2
 metadata/_tab_index = 0
 
+[node name="Viewport Center" type="CenterContainer" parent="FoldableContainer/TabContainer/STAR VIEWER"]
+layout_mode = 2
+
 [node name="VFlowContainer" type="VFlowContainer" parent="FoldableContainer/TabContainer/STAR VIEWER"]
 layout_mode = 2
 theme_override_constants/v_separation = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
-layout_mode = 2
-
-[node name="Interstellar Probes Label" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer"]
+[node name="Interstellar Probes Label" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
 z_index = 1
 layout_mode = 2
 size_flags_horizontal = 0
@@ -43,51 +41,14 @@ size_flags_vertical = 0
 text = "INTERSTELLAR PROBES: 1 / 100"
 label_settings = ExtResource("2_x5gcp")
 
-[node name="ProgressBar" type="ProgressBar" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 30)
-layout_mode = 2
-value = 1.0
-show_percentage = false
-
-[node name="btn Replicate Probe" type="Button" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer"]
-layout_mode = 2
-text = "REPLICATE PROBE"
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="SubViewport" type="SubViewportContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2"]
+[node name="SubViewport" type="SubViewportContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="star viewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/SubViewport"]
+[node name="SubViewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/SubViewport"]
 handle_input_locally = false
 size = Vector2i(750, 750)
 render_target_update_mode = 4
-
-[node name="VBoxContainer" type="VBoxContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2"]
-layout_mode = 2
-
-[node name="SubViewport2" type="SubViewportContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="planet viewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer/SubViewport2"]
-handle_input_locally = false
-size = Vector2i(250, 250)
-render_target_update_mode = 4
-
-[node name="lbl planet" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-text = "PLANET:"
-label_settings = ExtResource("2_x5gcp")
-
-[node name="lbl planet info" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-label_settings = ExtResource("2_x5gcp")
 
 [node name="lbl Star Activity Log" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
 layout_mode = 2
@@ -98,10 +59,17 @@ label_settings = ExtResource("2_x5gcp")
 [node name="ScrollContainer" type="ScrollContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer"]
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
-horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/ScrollContainer"]
+[node name="VFlowContainer" type="VFlowContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/ScrollContainer"]
 layout_mode = 2
+
+[node name="LOG" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/ScrollContainer/VFlowContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Gabagool"
+label_settings = SubResource("LabelSettings_x5gcp")
+autowrap_mode = 2
 
 [node name="INTERSTELLAR PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
 visible = false
@@ -279,4 +247,3 @@ layout_mode = 2
 text = "UPGRADE"
 
 [connection signal="tab_selected" from="FoldableContainer/TabContainer" to="." method="_on_tab_container_tab_selected"]
-[connection signal="button_down" from="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer/btn Replicate Probe" to="." method="_on_btn_replicate_probe_button_down"]

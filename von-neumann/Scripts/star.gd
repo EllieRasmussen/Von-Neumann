@@ -3,33 +3,43 @@ extends Sprite2D
 const Planet = preload("res://Scripts/planet.gd")
 const ProgBar = preload("res://Scripts/prog_bar.gd")
 
+var time: float
+
+var star_viewer_img: Sprite2D
 var planets: Array[Planet]
 
-var interstellar_probes = 0
-var max_interstellar_probes = 100
+var star_probes = 0
+var max_star_probes = 100
 
-var star_viewer: SubViewport
-var lbl_star_interstellar_probes: Label
+var viewport_star: SubViewport
+var lbl_star_probes: Label
 
-var total_probes_bar: ProgBar
-var next_probe_bar: ProgBar
-var next_probe_tracker: float
-var next_probe_max: float
+var bar_total_star_probes: ProgBar
+var bar_next_star_probe: ProgBar
+var time_since_last_star_probe: float
+var time_per_star_probe_replication: float
 
-signal interstellar_probe_replicate_attempt
+var activity_log = []
+
+signal star_selected
+signal star_deselected
+signal log_added
+signal star_probe_replicate_attempt
+signal star_probe_count_changed
 
 var selected = false
 var hover = false
 var adj = []
 
 func set_star_viewer_viewport(pViewport) -> void:
-	star_viewer = pViewport
+	viewport_star = pViewport
 	
 func set_star_interstellar_probes_label(pLabel) -> void:
-	lbl_star_interstellar_probes = pLabel
+	lbl_star_probes = pLabel
 
 func _ready() -> void:
-	next_probe_tracker = 0
+	time = 0
+	time_since_last_star_probe = 0
 	
 	#SET TEXTURE
 	var star_imgs = []
@@ -39,58 +49,87 @@ func _ready() -> void:
 	star_imgs.append(load("res://Images/Star_3.png"))
 	self.texture = star_imgs[randi()%len(star_imgs)]
 	
-	var num_planets = randi_range(3,10)
+	star_viewer_img = Sprite2D.new()
+	star_viewer_img.scale = Vector2(0.3,0.3)
+	star_viewer_img.texture = load("res://Images/star.png")
+	viewport_star.add_child(star_viewer_img)
+	star_viewer_img.position = Vector2(375,375)
+	star_viewer_img.visible = false
+	
+	var num_planets = randi_range(1,5)
 	for i in num_planets:
 		var p = Planet.new()
+		p.centered = true
 		p.visible = false
 		p.scale = Vector2(0.05,0.05)
 		planets.append(p)
 		
-	total_probes_bar = ProgBar.new()
-	add_child(total_probes_bar)
-	total_probes_bar.position = Vector2(-25,15)
-	total_probes_bar.set_bar_width(5)
-	total_probes_bar.set_bar_length(50)
-	total_probes_bar.set_bg_color(Color.SLATE_GRAY)
-	total_probes_bar.set_fg_color(Color.BLUE)
-	total_probes_bar.set_value(interstellar_probes)
-	total_probes_bar.set_max_value(max_interstellar_probes)
+	bar_total_star_probes = ProgBar.new()
+	add_child(bar_total_star_probes)
+	bar_total_star_probes.position = Vector2(-25,15)
+	bar_total_star_probes.set_bar_width(5)
+	bar_total_star_probes.set_bar_length(50)
+	bar_total_star_probes.set_bg_color(Color.SLATE_GRAY)
+	bar_total_star_probes.set_fg_color(Color.BLUE)
+	bar_total_star_probes.set_value(star_probes)
+	bar_total_star_probes.set_max_value(max_star_probes)
 	
 	
-	next_probe_bar = ProgBar.new()
-	add_child(next_probe_bar)
-	next_probe_bar.position = Vector2(-25,20)
-	next_probe_bar.set_bar_width(2)
-	next_probe_bar.set_bar_length(50)
-	next_probe_bar.set_bg_color(Color.DARK_SLATE_GRAY)
-	next_probe_bar.set_fg_color(Color.AQUA)
-	next_probe_bar.set_value(0)
-	next_probe_bar.set_max_value(next_probe_max)
+	bar_next_star_probe = ProgBar.new()
+	add_child(bar_next_star_probe)
+	bar_next_star_probe.position = Vector2(-25,20)
+	bar_next_star_probe.set_bar_width(2)
+	bar_next_star_probe.set_bar_length(50)
+	bar_next_star_probe.set_bg_color(Color.DARK_SLATE_GRAY)
+	bar_next_star_probe.set_fg_color(Color.AQUA)
+	bar_next_star_probe.set_value(0)
+	bar_next_star_probe.set_max_value(time_per_star_probe_replication)
 	
-	if interstellar_probes == 0:
-		total_probes_bar.visible = false
-		next_probe_bar.visible = false
+	if star_probes == 0:
+		bar_total_star_probes.visible = false
+		bar_next_star_probe.visible = false
 
 func _process(delta: float) -> void:
-	if Input.is_action_just_pressed("Click"):
+	time += delta
+	planet_time += delta
+	if Input.is_action_just_pressed("Click") and get_global_mouse_position().x < 840:
 		if hover and not selected:
 			select()
 		elif not hover and selected:
 			deselect()
 			
-	if interstellar_probes > 0 and interstellar_probes < max_interstellar_probes:
-		next_probe_tracker += delta
-		next_probe_bar.set_value(next_probe_tracker)
-		if next_probe_tracker >= next_probe_max:
-			next_probe_tracker = 0
-			interstellar_probe_replicate_attempt.emit()
-			if selected:
-				update_probes_label()
+	handle_interstellar_probe_replication(delta)
+	
+	if selected:
+		for p in planets.size():
+			var dist_to_mouse = viewport_star.get_mouse_position().distance_squared_to(planets[p].position)
+			if dist_to_mouse < 500 and not planets[p].hover:
+				enter_hover_planet(planets[p])
+			elif planets[p].hover:
+				exit_hover_planet(planets[p])
+	
+func handle_interstellar_probe_replication(delta: float) -> void:
+	if star_probes > 0 and star_probes < max_star_probes:
+		time_since_last_star_probe += delta
+		bar_next_star_probe.set_value(time_since_last_star_probe)
+		if time_since_last_star_probe >= time_per_star_probe_replication:
+			time_since_last_star_probe = 0
+			star_probe_replicate_attempt.emit()
 
-func _draw() -> void:
-	#if hover or selected:
-		#draw_circle(Vector2(0,0), 15,Color.GREEN,false)
-	pass
+func add_log(log: String):
+	activity_log.push_front(log)
+	log_added.emit()
+	
+var planet_time: float
+func orbit_planets():
+	star_viewer_img.visible = true
+	while selected:
+		for p in planets.size():
+			var x = cos(planet_time + planets[p].orbital_offset) * planets[p].orbital_radius + 375
+			var y = sin(planet_time + planets[p].orbital_offset) * planets[p].orbital_radius + 375
+			planets[p].position = Vector2(x,y)
+			planets[p].rotate(planets[p].rotational_velocity)
+		await get_tree().process_frame
 
 func _on_hover(): 
 	hover = true
@@ -100,49 +139,46 @@ func _exit_hover():
 	hover = false
 	queue_redraw()
 	
+func enter_hover_planet(pPlanet: Planet) -> void:
+	pPlanet.on_hover()
+	
+func exit_hover_planet(pPlanet: Planet) -> void:
+	pPlanet.exit_hover()
+	
 func select():
 	selected = true
-	update_probes_label()
+	star_probe_count_changed.emit() #DON'T LOVE THIS BUT IF IT WORKS IT WORKS
+	orbit_planets()
 	for p in planets.size():
 		planets[p].visible = true
-		star_viewer.add_child(planets[p])
+		viewport_star.add_child(planets[p])
 		planets[p].position = Vector2(p * 100 + 50, 500)
 	queue_redraw()
+	star_selected.emit()
 		
 func deselect():
 	selected = false
 	hover = false
+	star_viewer_img.visible = false
 	clear_probes_label()
 	for p in planets.size():
 		planets[p].visible = false
-		star_viewer.remove_child(planets[p])
+		viewport_star.remove_child(planets[p])
 	queue_redraw()
-	
-func update_probes_label():
-	lbl_star_interstellar_probes.text = "INTERSTELLAR PROBES:   " + str(interstellar_probes) + " / " + str(max_interstellar_probes)
+	star_deselected.emit()
 
 func clear_probes_label():
-	lbl_star_interstellar_probes.text = ""
-		
-func add_adjacent(pStar) -> void:
-	if not(adj.has(pStar)):
-		var line = Line2D.new()
-		line.default_color = Color.DIM_GRAY
-		line.width = 0.5
-		line.add_point(Vector2(0,0))
-		line.add_point(Vector2(pStar.position - position))
-		line.z_index = -1
-		add_child(line)
-		adj.append(pStar)
-		
-func add_interstellar_probes(pNumProbes) -> void:
-	interstellar_probes += pNumProbes
-	if interstellar_probes > max_interstellar_probes:
-		interstellar_probes = max_interstellar_probes
-	total_probes_bar.set_value(interstellar_probes)
-	if not total_probes_bar.visible:
-		total_probes_bar.visible = true
-		next_probe_bar.visible = true
+	lbl_star_probes.text = ""
+
+func add_star_probes(pNumProbes) -> void:
+	star_probes += pNumProbes
+	if star_probes > max_star_probes:
+		star_probes = max_star_probes
+	bar_total_star_probes.set_value(star_probes)
+	if not bar_total_star_probes.visible:
+		bar_total_star_probes.visible = true
+		bar_next_star_probe.visible = true
+	star_probe_count_changed.emit()
 		
 func set_replication_rate(pRate) -> void:
-	next_probe_max = 1.0 / pRate
+	time_per_star_probe_replication = 1.0 / pRate
