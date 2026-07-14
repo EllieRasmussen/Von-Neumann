@@ -1,5 +1,6 @@
 extends Sprite2D
 
+const Star = preload("res://Scripts/star.gd")
 const Planet = preload("res://Scripts/planet.gd")
 const ProgBar = preload("res://Scripts/prog_bar.gd")
 
@@ -107,6 +108,18 @@ func _process(delta: float) -> void:
 				enter_hover_planet(planets[p])
 			elif planets[p].hover:
 				exit_hover_planet(planets[p])
+	
+
+func _draw():
+	print(position)
+	for a in adj.size():
+		draw_line(Vector2.ZERO,adj[a].position - position,Color.DIM_GRAY,2,false)
+
+func add_adjacent(pStar: Star) -> void:
+	if not adj.has(pStar):
+		adj.append(pStar)
+	if not pStar.adj.has(self):
+		pStar.adj.append(self)
 	
 func handle_interstellar_probe_replication(delta: float) -> void:
 	if star_probes > 0 and star_probes < max_star_probes:
