@@ -111,7 +111,6 @@ func _process(delta: float) -> void:
 	
 
 func _draw():
-	print(position)
 	for a in adj.size():
 		draw_line(Vector2.ZERO,adj[a].position - position,Color.DIM_GRAY,2,false)
 

@@ -110,11 +110,22 @@ func attempt_star_probe_replication(pStar: Star):
 			num_probes_added += 1
 		rnd.seed = randNum
 	if num_probes_added > 0:
+		if pStar.star_probes + num_probes_added > pStar.max_star_probes:
+			var stars_to_add = pStar.max_star_probes - pStar.star_probes
+			pStar.add_star_probes(stars_to_add)
+			send_probes_to_star(num_probes_added - stars_to_add)
 		pStar.add_star_probes(num_probes_added)
 		pStar.add_log(str("Replicated ",num_probes_added, " interstellar probes."))
 	else:
 		pStar.add_log(str("No interstellar probes replicated."))
 		
+		
+		
+func send_probes_to_star(pStar: Star) -> void:
+	pass
+	
+	
+	
 func load_activity_log(pStar: Star):
 	if pStar == selected_star:
 		for l in pStar.activity_log.size():

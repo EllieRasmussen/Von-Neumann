@@ -22,7 +22,7 @@ offset_bottom = 1080.0
 
 [node name="TabContainer" type="TabContainer" parent="FoldableContainer"]
 layout_mode = 2
-current_tab = 1
+current_tab = 2
 
 [node name="STAR VIEWER" type="MarginContainer" parent="FoldableContainer/TabContainer"]
 visible = false
@@ -105,6 +105,7 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 
 [node name="INTERSTELLAR PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 30
@@ -147,7 +148,6 @@ text = "50%"
 label_settings = ExtResource("2_x5gcp")
 
 [node name="PLANETARY PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 30
