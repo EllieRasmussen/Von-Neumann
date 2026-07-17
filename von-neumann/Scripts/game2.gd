@@ -18,8 +18,8 @@ var selected_star: Star
 var star_activity_log = []
 
 var star_probe_travel_dist = 50 # LIGHTYEARS
-var star_probe_replication_attempt_rate = 0.20 # ATTEMPTS PER SECOND
-var star_probe_replication_success_rate = 0.01 # % CHANCE
+var star_probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
+var star_probe_replication_success_rate = 0.1 # % CHANCE
 
 func _ready() -> void:	
 	#GENERATE STARS + ADJACENCY
@@ -70,13 +70,6 @@ func _process(delta: float) -> void:
 	prgBar_add_interstellar_probe.value = add_star_probe_val
 	
 	queue_redraw()
-			
-func _draw(): 
-	for s in stars.size():
-		if stars[s].hover or stars[s].selected:
-			draw_circle(stars[s].position, 15,Color.GREEN,false)
-		if stars[s].star_probes > 0:
-			draw_circle(stars[s].position, star_probe_travel_dist, Color.DIM_GRAY, false)
 
 func enter_hover_star(pStar: Star) -> void:
 	pStar._on_hover()
@@ -102,7 +95,6 @@ func update_star_probe_count_label(pStar: Star):
 func attempt_star_probe_replication(pStar: Star):
 	var rnd = RandomNumberGenerator.new()
 	var num_probes_added = 0
-	var num_star_probes = pStar.star_probes
 	pStar.add_log(str("Attempting to replicate ",pStar.star_probes," interstellar probes at ", star_probe_replication_success_rate, " success rate."))
 	for i in pStar.star_probes:
 		var randNum = rnd.randf()
@@ -113,23 +105,18 @@ func attempt_star_probe_replication(pStar: Star):
 		if pStar.star_probes + num_probes_added > pStar.max_star_probes:
 			var stars_to_add = pStar.max_star_probes - pStar.star_probes
 			pStar.add_star_probes(stars_to_add)
-			send_probes_to_star(num_probes_added - stars_to_add)
 		pStar.add_star_probes(num_probes_added)
 		pStar.add_log(str("Replicated ",num_probes_added, " interstellar probes."))
 	else:
 		pStar.add_log(str("No interstellar probes replicated."))
-		
-		
-		
-func send_probes_to_star(pStar: Star) -> void:
-	pass
 	
 	
 	
 func load_activity_log(pStar: Star):
 	if pStar == selected_star:
 		for l in pStar.activity_log.size():
-			star_activity_log[l].text = pStar.activity_log[l]
+			if l < 99:
+				star_activity_log[l].text = pStar.activity_log[l]
 		
 func clear_activity_log():
 	for l in star_activity_log.size():

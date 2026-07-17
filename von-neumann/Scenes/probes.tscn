@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dnaog057evwu1"]
 
-[ext_resource type="Script" uid="uid://dg524ow8dus8g" path="res://Scripts/probes.gd" id="1_qad3q"]
+[ext_resource type="Script" uid="uid://dg524ow8dus8g" path="res://Scripts/game2.gd" id="1_qad3q"]
 [ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="2_x5gcp"]
 
 [node name="root" type="Node2D" node_paths=PackedStringArray("UI_contianer_root", "star_viewer_root", "viewport_star", "lbl_num_star_probes", "lbl_star_probe_travel_dist", "lbl_star_probe_replication_attempt_rate", "lbl_star_probe_replication_success_rate", "prgBar_add_interstellar_probe", "star_activity_log_container")]
@@ -22,10 +22,9 @@ offset_bottom = 1080.0
 
 [node name="TabContainer" type="TabContainer" parent="FoldableContainer"]
 layout_mode = 2
-current_tab = 2
+current_tab = 0
 
 [node name="STAR VIEWER" type="MarginContainer" parent="FoldableContainer/TabContainer"]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 0
 
@@ -65,7 +64,7 @@ size_flags_vertical = 0
 [node name="star viewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/SubViewport"]
 handle_input_locally = false
 size = Vector2i(750, 750)
-render_target_update_mode = 0
+render_target_update_mode = 4
 
 [node name="VBoxContainer" type="VBoxContainer" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2"]
 layout_mode = 2
@@ -77,7 +76,7 @@ size_flags_vertical = 0
 [node name="planet viewport" type="SubViewport" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer/SubViewport2"]
 handle_input_locally = false
 size = Vector2i(250, 250)
-render_target_update_mode = 0
+render_target_update_mode = 4
 
 [node name="lbl planet" type="Label" parent="FoldableContainer/TabContainer/STAR VIEWER/VFlowContainer/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -148,6 +147,7 @@ text = "50%"
 label_settings = ExtResource("2_x5gcp")
 
 [node name="PLANETARY PROBES" type="MarginContainer" parent="FoldableContainer/TabContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 30
