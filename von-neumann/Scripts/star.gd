@@ -5,8 +5,6 @@ const Planet = preload("res://Scripts/planet.gd")
 const ProgBar = preload("res://Scripts/prog_bar.gd")
 const Probe = preload("res://Scripts/probe.gd")
 
-var time: float
-
 var star_viewer_img: Sprite2D
 var planets: Array[Planet]
 
@@ -15,7 +13,7 @@ var max_star_probes = 100
 var travelling_star_probes = []
 
 #var viewport_star: SubViewport
-var lbl_star_probes: Label
+#var lbl_star_probes: Label
 
 var bar_total_star_probes: ProgBar
 var bar_next_star_probe: ProgBar
@@ -37,15 +35,7 @@ var spr_hover
 
 var adj = []
 
-
-func set_star_viewer_viewport(pViewport) -> void:
-	viewport_star = pViewport
-	
-func set_star_interstellar_probes_label(pLabel) -> void:
-	lbl_star_probes = pLabel
-
 func _ready() -> void:
-	time = 0
 	time_since_last_star_probe = 0
 	
 	#SET TEXTURE
@@ -69,13 +59,6 @@ func _ready() -> void:
 	spr_hover.z_index = -2
 	spr_hover.visible = false
 	add_child(spr_hover)
-	
-	star_viewer_img = Sprite2D.new()
-	star_viewer_img.scale = Vector2(0.3,0.3)
-	star_viewer_img.texture = load("res://Images/star.png")
-	viewport_star.add_child(star_viewer_img)
-	star_viewer_img.position = Vector2(375,375)
-	star_viewer_img.visible = false
 	
 	var num_planets = randi_range(1,5)
 	for i in num_planets:
@@ -111,8 +94,6 @@ func _ready() -> void:
 		bar_next_star_probe.visible = false
 
 func _process(delta: float) -> void:
-	time += delta
-	planet_time += delta
 	if Input.is_action_just_pressed("Click") and get_global_mouse_position().x < 840:
 		if hover and not selected:
 			select()
@@ -135,12 +116,7 @@ func _process(delta: float) -> void:
 	if selected:
 		if not spr_selected.visible:
 			spr_selected.visible = true
-		for p in planets.size():
-			var dist_to_mouse = viewport_star.get_mouse_position().distance_squared_to(planets[p].position)
-			if dist_to_mouse < 300 and not planets[p].hover:
-				enter_hover_planet(planets[p])
-			elif planets[p].hover:
-				exit_hover_planet(planets[p])
+		
 	elif not selected and spr_selected.visible:
 		spr_selected.visible = false
 
@@ -166,16 +142,7 @@ func add_log(pLog: String):
 	activity_log.push_front(pLog)
 	log_added.emit()
 	
-var planet_time: float
-func orbit_planets():
-	star_viewer_img.visible = true
-	while selected:
-		for p in planets.size():
-			var x = cos(planet_time + planets[p].orbital_offset) * planets[p].orbital_radius + 375
-			var y = sin(planet_time + planets[p].orbital_offset) * planets[p].orbital_radius + 375
-			planets[p].position = Vector2(x,y)
-			planets[p].rotate(planets[p].rotational_velocity)
-		await get_tree().process_frame
+
 
 func _on_hover(): 
 	hover = true
@@ -194,11 +161,6 @@ func exit_hover_planet(pPlanet: Planet) -> void:
 func select():
 	selected = true
 	star_probe_count_changed.emit() #DON'T LOVE THIS BUT IF IT WORKS IT WORKS
-	orbit_planets()
-	for p in planets.size():
-		planets[p].visible = true
-		viewport_star.add_child(planets[p])
-		planets[p].position = Vector2(p * 100 + 50, 500)
 	queue_redraw()
 	star_selected.emit()
 		
@@ -206,15 +168,9 @@ func deselect():
 	selected = false
 	hover = false
 	star_viewer_img.visible = false
-	clear_probes_label()
-	for p in planets.size():
-		planets[p].visible = false
-		viewport_star.remove_child(planets[p])
 	queue_redraw()
 	star_deselected.emit()
 
-func clear_probes_label():
-	lbl_star_probes.text = ""
 
 func add_star_probes(pNumProbes) -> void:
 	star_probes += pNumProbes
