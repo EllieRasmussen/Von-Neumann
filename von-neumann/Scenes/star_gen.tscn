@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmbx04csi10wu"]
+
+[ext_resource type="Script" uid="uid://cmwwlm2a8xp1w" path="res://Scripts/game.gd" id="1_ebmjs"]
+
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam")]
+script = ExtResource("1_ebmjs")
+cam = NodePath("Camera2D")
+cam_speed = 10000.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(960, 540)

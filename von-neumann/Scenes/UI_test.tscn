@@ -1,16 +1,19 @@
-[gd_scene load_steps=9 format=3 uid="uid://c1pjn107pd7qj"]
+[gd_scene load_steps=9 format=3 uid="uid://ccx34aesq67ci"]
 
-[ext_resource type="Texture2D" uid="uid://bdd0eusscm3p2" path="res://Images/button_star.png" id="1_1l0tm"]
-[ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
-[ext_resource type="Texture2D" uid="uid://c0yymyyksohqh" path="res://Images/button_upgrade.png" id="2_v158k"]
-[ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="3_h4fw4"]
-[ext_resource type="Texture2D" uid="uid://m12mssxymvsu" path="res://Images/star.png" id="4_ldgsr"]
-[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="5_o5yvi"]
-[ext_resource type="Texture2D" uid="uid://drp7qp4es3lhk" path="res://Images/circle_selected.png" id="6_rku1e"]
-[ext_resource type="Texture2D" uid="uid://cvbq257fqj47c" path="res://Images/button_plus.png" id="7_rfjv2"]
+[ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="1_frsin"]
+[ext_resource type="Script" uid="uid://ch5u0jybk4t7m" path="res://Scripts/ui_test.gd" id="1_mu5ar"]
+[ext_resource type="Texture2D" uid="uid://m12mssxymvsu" path="res://Images/star.png" id="2_dmcyh"]
+[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="3_mu5ar"]
+[ext_resource type="Texture2D" uid="uid://c0yymyyksohqh" path="res://Images/button_upgrade.png" id="3_rfcpq"]
+[ext_resource type="Texture2D" uid="uid://drp7qp4es3lhk" path="res://Images/circle_selected.png" id="4_hps6b"]
+[ext_resource type="Texture2D" uid="uid://bdd0eusscm3p2" path="res://Images/button_star.png" id="5_dmcyh"]
+[ext_resource type="Texture2D" uid="uid://cvbq257fqj47c" path="res://Images/button_plus.png" id="7_hps6b"]
 
-[node name="Game" type="Node2D"]
-script = ExtResource("1_v158k")
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("window_star_viewer", "button_slider_star", "btn_star_viewer")]
+script = ExtResource("1_mu5ar")
+window_star_viewer = NodePath("Window - Star Viewer")
+button_slider_star = NodePath("")
+btn_star_viewer = NodePath("")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(1920, 0)
@@ -20,11 +23,11 @@ alignment = 1
 
 [node name="btn_star_viewer" type="Button" parent="HBoxContainer"]
 layout_mode = 2
-icon = ExtResource("1_1l0tm")
+icon = ExtResource("5_dmcyh")
 
 [node name="btn_upgrades" type="Button" parent="HBoxContainer"]
 layout_mode = 2
-icon = ExtResource("2_v158k")
+icon = ExtResource("3_rfcpq")
 
 [node name="Window - Star Viewer" type="Window" parent="."]
 oversampling_override = 1.0
@@ -47,7 +50,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 text = "STAR NAME"
-label_settings = ExtResource("3_h4fw4")
+label_settings = ExtResource("1_frsin")
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="Window - Star Viewer/VBoxContainer"]
 layout_mode = 2
@@ -65,21 +68,21 @@ render_target_update_mode = 0
 [node name="temp_star" type="Sprite2D" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport"]
 position = Vector2(256, 256)
 scale = Vector2(0.25, 0.25)
-texture = ExtResource("4_ldgsr")
+texture = ExtResource("2_dmcyh")
 
 [node name="temp_planet" type="Sprite2D" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport"]
 position = Vector2(163.99998, 196)
 scale = Vector2(0.05, 0.05)
-texture = ExtResource("5_o5yvi")
+texture = ExtResource("3_mu5ar")
 
 [node name="Sprite2D" type="Sprite2D" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport/temp_planet"]
 scale = Vector2(6.77, 6.77)
-texture = ExtResource("6_rku1e")
+texture = ExtResource("4_hps6b")
 
 [node name="temp_planet2" type="Sprite2D" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport"]
 position = Vector2(367, 407)
 scale = Vector2(0.05, 0.05)
-texture = ExtResource("5_o5yvi")
+texture = ExtResource("3_mu5ar")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -96,13 +99,13 @@ render_target_update_mode = 0
 [node name="temp_planet3" type="Sprite2D" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/VBoxContainer/SubViewport2/planet viewport"]
 position = Vector2(64, 64)
 scale = Vector2(0.225, 0.225)
-texture = ExtResource("5_o5yvi")
+texture = ExtResource("3_mu5ar")
 
 [node name="lbl Planet Name" type="Label" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "PLANET:"
-label_settings = ExtResource("3_h4fw4")
+label_settings = ExtResource("1_frsin")
 
 [node name="lbl Planet Info" type="Label" parent="Window - Star Viewer/VBoxContainer/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -110,7 +113,7 @@ size_flags_horizontal = 0
 text = "Iron: 123k
 Copper: 456k
 Silicon: 13k"
-label_settings = ExtResource("3_h4fw4")
+label_settings = ExtResource("1_frsin")
 
 [node name="VFlowContainer" type="VFlowContainer" parent="Window - Star Viewer/VBoxContainer"]
 layout_mode = 2
@@ -120,7 +123,7 @@ theme_override_constants/v_separation = 4
 layout_mode = 2
 size_flags_horizontal = 0
 text = "STAR ACTIVITY LOG:"
-label_settings = ExtResource("3_h4fw4")
+label_settings = ExtResource("1_frsin")
 
 [node name="CenterContainer" type="CenterContainer" parent="Window - Star Viewer"]
 visible = false
@@ -131,7 +134,7 @@ offset_bottom = 40.0
 [node name="Label" type="Label" parent="Window - Star Viewer/CenterContainer"]
 layout_mode = 2
 text = "no star selected"
-label_settings = ExtResource("3_h4fw4")
+label_settings = ExtResource("1_frsin")
 
 [node name="Window - Upgrades" type="Window" parent="."]
 oversampling_override = 1.0
@@ -170,7 +173,7 @@ text = "0.1 AU/Sec"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Upgrade Effect" type="Label" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -197,7 +200,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -212,7 +215,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -227,7 +230,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
@@ -242,7 +245,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
@@ -265,7 +268,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -280,7 +283,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -295,7 +298,7 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
@@ -310,8 +313,10 @@ text = "Property: 0.123"
 
 [node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
-icon = ExtResource("7_rfjv2")
+icon = ExtResource("7_hps6b")
 
 [node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
 text = "10 Research"
+
+[connection signal="close_requested" from="Window - Star Viewer" to="." method="_on_window__star_viewer_close_requested"]

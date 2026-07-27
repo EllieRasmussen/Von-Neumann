@@ -14,7 +14,7 @@ var star_probes = 0
 var max_star_probes = 100
 var travelling_star_probes = []
 
-var viewport_star: SubViewport
+#var viewport_star: SubViewport
 var lbl_star_probes: Label
 
 var bar_total_star_probes: ProgBar
