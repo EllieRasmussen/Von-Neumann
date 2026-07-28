@@ -17,7 +17,7 @@ var stars: Array[Star] = []
 var selected_star: Star
 var selected_star_planets: Array[Planet]
 
-var star_viewer_sprite_star: Sprite2D
+var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
 var probe_travel_dist = 50 # LIGHTYEARS
 var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
@@ -26,7 +26,7 @@ var probe_replication_success_rate = 0.1 # % CHANCE
 func _ready() -> void:	
 	#GENERATE STARS + ADJACENCY
 	for i in 25:
-		create_star(Vector2((randf() * 1920) + 30, (randf() * 1020) + 30))
+		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	
 	#POPULATE FIRST STAR WITH 1 INTERSTELLAR PROBE
 	stars[0].add_star_probes(1)
@@ -38,6 +38,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time += delta
 	
+	var mouse_pos = get_global_mouse_position()
+	for s in stars.size():
+		if mouse_pos.distance_squared_to(stars[s].position) < 350:
+			stars[s]._on_hover()
+		elif stars[s].hover:
+			stars[s]._exit_hover()
+	
 	if selected_star != null:
 		for p in selected_star_planets.size():
 			var dist_to_mouse = star_viewer_viewport.get_mouse_position().distance_squared_to(selected_star_planets[p].position)
@@ -45,19 +52,19 @@ func _process(delta: float) -> void:
 				selected_star_planets[p].on_hover()
 			elif selected_star_planets[p].hover:
 				selected_star_planets[p].exit_hover()
+	
+	if Input.is_action_just_pressed("Click"):
+		for s in stars.size():
+			if stars[s].hover:
+				stars[s].select()
 
 
-
-
-
-
-
+#region STARS
 
 func create_star(pPos: Vector2):
 	var s = Star.new()
 	s.position = pPos
 	s.star_selected.connect(set_selected_star.bind(s))
-	s.star_deselected.connect(clear_selected_star.bind(s))
 	
 	stars.append(s)
 	add_child(s)
@@ -65,36 +72,38 @@ func create_star(pPos: Vector2):
 
 ##EDITED FROM VERSION IN game2.gd, MAY NEED REWORKING ONCE TESTED
 func set_selected_star(pStar: Star) -> void:
+	if selected_star != null:
+		clear_selected_star()
 	selected_star = pStar
 	selected_star_planets = pStar.planets
-	
-	var star_viewer_img = Sprite2D.new()
-	star_viewer_img.scale = Vector2(0.3,0.3)
-	star_viewer_img.texture = load("res://Images/star.png")
-	star_viewer_viewport.add_child(star_viewer_img)
-	star_viewer_img.position = Vector2(375,375)
-	
-	for p in selected_star_planets.size():
-		star_viewer_viewport.add_child(selected_star_planets[p])
-	
+	open_star_viewer()
 	orbit_planets()
+	
 
 ##EDITED FROM VERSION IN game2.gd, MAY NEED REWORKING ONCE TESTED
-func clear_selected_star(pStar: Star) -> void:
+func clear_selected_star() -> void:
+	close_star_viewer()
+	selected_star.deselect()
 	selected_star = null
-	for p in range(selected_star_planets.size(),-1,-1):
-		remove_child(selected_star_planets[p])
+	selected_star_planets = []
+	
+
+#endregion
 
 
+
+
+#region PLANETS
 func orbit_planets():
 	while selected_star != null:
 		for p in selected_star_planets.size():
-			var x = cos(time + selected_star_planets[p].orbital_offset) * selected_star_planets[p].orbital_radius + 375
-			var y = sin(time + selected_star_planets[p].orbital_offset) * selected_star_planets[p].orbital_radius + 375
+			var x = cos(time + selected_star_planets[p].orbital_offset) * selected_star_planets[p].orbital_radius + 256
+			var y = sin(time + selected_star_planets[p].orbital_offset) * selected_star_planets[p].orbital_radius + 256
 			selected_star_planets[p].position = Vector2(x,y)
 			selected_star_planets[p].rotate(selected_star_planets[p].rotational_velocity)
 		await get_tree().process_frame
 
+#endregion
 
 ## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
 func Prim() -> void:
@@ -143,18 +152,46 @@ func Prim() -> void:
 
 #region WINDOW TOGGLING LOGIC
 
+func open_star_viewer() -> void:
+	window_star_viewer.visible = true
+	btn_star_viewer_window.disabled = true
+	if selected_star == null:
+		#HANDLE OPENING WITHOUT A SELECTED STAR
+		pass
+	else:
+		#LOAD STAR INTO STAR VIEWER
+		star_viewer_sprite_star = Sprite2D.new()
+		star_viewer_sprite_star.scale = Vector2(0.3,0.3)
+		star_viewer_sprite_star.texture = load("res://Images/star.png")
+		star_viewer_viewport.add_child(star_viewer_sprite_star)
+		star_viewer_sprite_star.position = Vector2(256,256)
+		
+		for p in selected_star_planets.size():
+			star_viewer_viewport.add_child(selected_star_planets[p])
+
+
+func close_star_viewer() -> void:
+	window_star_viewer.visible = false
+	btn_star_viewer_window.disabled = false
+	if selected_star == null:
+		#HANDLE CLOSING WITHOUT A SELECTED STAR
+		pass
+	else:
+		#CLEAR STAR FROM STAR VIEWER
+		star_viewer_sprite_star.queue_free()
+		
+		for p in selected_star_planets.size():
+			star_viewer_viewport.remove_child(selected_star_planets[p])
+
 func _on_btn_star_viewer_pressed() -> void:
 	if window_star_viewer.visible:
-		window_star_viewer.visible = false
-		btn_star_viewer_window.disabled = false
+		close_star_viewer()
 	else:
-		window_star_viewer.visible = true
-		btn_star_viewer_window.disabled = true
+		open_star_viewer()
 
 
 func _on_window__star_viewer_close_requested() -> void:
-	window_star_viewer.visible = false
-	btn_star_viewer_window.disabled = false
+	clear_selected_star()
 
 
 func _on_btn_upgrades_pressed() -> void:

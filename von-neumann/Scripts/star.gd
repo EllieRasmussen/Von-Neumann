@@ -64,7 +64,6 @@ func _ready() -> void:
 	for i in num_planets:
 		var p = Planet.new()
 		p.centered = true
-		p.visible = false
 		p.scale = Vector2(0.05,0.05)
 		planets.append(p)
 		
@@ -94,12 +93,7 @@ func _ready() -> void:
 		bar_next_star_probe.visible = false
 
 func _process(delta: float) -> void:
-	if Input.is_action_just_pressed("Click") and get_global_mouse_position().x < 840:
-		if hover and not selected:
-			select()
-		elif not hover and selected:
-			deselect()
-			
+
 	handle_interstellar_probe_replication(delta)
 	
 	for t in travelling_star_probes.size():
@@ -167,7 +161,6 @@ func select():
 func deselect():
 	selected = false
 	hover = false
-	star_viewer_img.visible = false
 	queue_redraw()
 	star_deselected.emit()
 

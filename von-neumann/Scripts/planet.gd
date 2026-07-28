@@ -17,7 +17,7 @@ signal planet_selected
 signal planet_deselected
 
 func _ready() -> void:
-	scale = Vector2(0.05,0.05)
+	scale = Vector2.ONE * randf_range(0.025,0.075)
 	
 	#SET TEXTURE
 	var planet_imgs = []
@@ -41,7 +41,7 @@ func _ready() -> void:
 	spr_hover.visible = false
 	add_child(spr_hover)
 	
-	orbital_radius = randf_range(50,350)
+	orbital_radius = randf_range(50,150)
 	orbital_offset = randf_range(0,6.2832)
 	orbital_velocity = randf_range(0.000001,0.00001)
 	rotational_velocity = randf_range(-0.005,0.05)
