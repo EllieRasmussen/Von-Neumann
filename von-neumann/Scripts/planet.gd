@@ -1,11 +1,13 @@
 extends Sprite2D
 
-var orbital_offset: float
+var orbital_position: float
 var orbital_radius: float
 var orbital_velocity: float
 var orbital_eccentricity: float
 
 var rotational_velocity: float
+
+var resource = randi_range(1000,10000)
 
 
 var selected = false
@@ -17,8 +19,6 @@ signal planet_selected
 signal planet_deselected
 
 func _ready() -> void:
-	scale = Vector2.ONE * randf_range(0.025,0.075)
-	
 	#SET TEXTURE
 	var planet_imgs = []
 	planet_imgs.append(load("res://Images/planet0.png"))
@@ -41,13 +41,11 @@ func _ready() -> void:
 	spr_hover.visible = false
 	add_child(spr_hover)
 	
-	orbital_radius = randf_range(50,150)
-	orbital_offset = randf_range(0,6.2832)
-	orbital_velocity = randf_range(0.000001,0.00001)
+	orbital_position = randf_range(0,6.2832)
 	rotational_velocity = randf_range(-0.005,0.05)
 
 func _process(delta: float) -> void:
-	orbital_offset += orbital_velocity * delta
+	orbital_position += orbital_velocity * delta
 	
 	if hover and not spr_hover.visible:
 		spr_hover.visible = true
@@ -66,6 +64,14 @@ func _process(delta: float) -> void:
 		selected = false
 		spr_selected.visible = false
 
+func set_orbital_radius(pRadius) -> void:
+	orbital_radius = pRadius
+	orbital_velocity = randf_range((1.0/pRadius)*0.05,(1.0/pRadius)*0.25)
+	print("Set orbital radius: " + str(orbital_radius) + " --- Set orbital velocity: " + str(orbital_velocity))
+
+func extract_resource(pResource) -> void:
+	resource -= pResource
+	print("Extracted " + str(pResource) + " --- TOTAL: " + str(resource))
 
 func on_hover():
 	hover = true
