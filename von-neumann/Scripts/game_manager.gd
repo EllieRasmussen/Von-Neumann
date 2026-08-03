@@ -36,6 +36,10 @@ func _ready() -> void:
 	#GENERATE STARS + ADJACENCY
 	for i in 25:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
+	stars[0].add_factory()
+	stars[0].add_extractor()
+	stars[0].scale = Vector2.ONE * 1
+	
 	
 	Prim()
 	
@@ -85,6 +89,7 @@ func _process(delta: float) -> void:
 func create_star(pPos: Vector2):
 	var s = Star.new()
 	s.position = pPos
+	s.scale = Vector2.ONE * 0.5
 	
 	s.star_hovered.connect(set_hovered_star.bind(s))
 	s.star_dehovered.connect(clear_hovered_star)
@@ -101,7 +106,6 @@ func set_hovered_star(pStar: Star) -> void:
 func clear_hovered_star() -> void:
 	hover_star_spr.visible = false
 
-##EDITED FROM VERSION IN game2.gd, MAY NEED REWORKING ONCE TESTED
 func set_selected_star(pStar: Star) -> void:
 	if sel_star != null:
 		clear_selected_star()
@@ -115,7 +119,6 @@ func set_selected_star(pStar: Star) -> void:
 	orbit_planets()
 	
 
-##EDITED FROM VERSION IN game2.gd, MAY NEED REWORKING ONCE TESTED
 func clear_selected_star() -> void:
 	close_star_viewer()
 	sel_star.deselect()

@@ -66,8 +66,7 @@ func _process(delta: float) -> void:
 
 func set_orbital_radius(pRadius) -> void:
 	orbital_radius = pRadius
-	orbital_velocity = randf_range((1.0/pRadius)*0.05,(1.0/pRadius)*0.25)
-	print("Set orbital radius: " + str(orbital_radius) + " --- Set orbital velocity: " + str(orbital_velocity))
+	orbital_velocity = randf_range((1.0/pRadius)*0.0005,(1.0/pRadius)*0.0025)
 
 func extract_resource(pResource) -> void:
 	resource -= pResource

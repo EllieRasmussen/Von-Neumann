@@ -37,7 +37,7 @@ func _ready() -> void:
 	star_imgs.append(load("res://Images/Star_3.png"))
 	self.texture = star_imgs[randi()%len(star_imgs)]
 	
-	var num_planets = randi_range(5,5)
+	var num_planets = randi_range(1,5)
 	for i in num_planets:
 		var p = Planet.new()
 		p.centered = true
@@ -64,8 +64,8 @@ func _ready() -> void:
 	bar_next_star_probe.set_value(0)
 	
 	#TEMPORARY: STARS SHOULD NOT ALWAYS START WITH ONE FACTORY
-	add_factory()
-	add_extractor()
+	#add_factory()
+	#add_extractor()
 	
 
 func _draw():
@@ -86,11 +86,26 @@ func add_log(pLog: String):
 
 func add_factory() -> void:
 	var new_factory = Factory.new()
+	new_factory.created_probe.connect(send_probe)
 	factories.append(new_factory)
+	
+func send_probe() -> void:
+	var target = adj[0]
+	var dist_to_target = adj[0].position.distance_squared_to(position)
+	var shortest_dist = dist_to_target
+	for a in adj.size():
+		dist_to_target = adj[a].position.distance_squared_to(position)
+		if dist_to_target < shortest_dist:
+			shortest_dist = dist_to_target
+			target = adj[a]
+	var new_probe = Probe.new()
+	new_probe.travel(position, target)
+	add_child(new_probe)
 	
 func add_extractor() -> void:
 	var new_extractor = Extractor.new()
 	new_extractor.arrived.connect(handle_extractor_arrived.bind(new_extractor))
+	new_extractor.position = Vector2(randf_range(0,512),randf_range(0,512))
 	extractors.append(new_extractor)
 	
 func handle_extractor_arrived(pExtractor: Extractor) -> void:
@@ -147,7 +162,8 @@ func select():
 	queue_redraw()
 	star_selected.emit()
 	
-	extractors[0].go_to(factories[0])
+	if extractors.size() > 0:
+		extractors[0].go_to(factories[0])
 		
 func deselect():
 	selected = false
