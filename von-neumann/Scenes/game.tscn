@@ -1,36 +1,24 @@
-[gd_scene load_steps=7 format=3 uid="uid://c1pjn107pd7qj"]
+[gd_scene load_steps=11 format=3 uid="uid://c1pjn107pd7qj"]
 
 [ext_resource type="Texture2D" uid="uid://bdd0eusscm3p2" path="res://Images/button_star.png" id="1_1l0tm"]
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Texture2D" uid="uid://c0yymyyksohqh" path="res://Images/button_upgrade.png" id="2_v158k"]
 [ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="3_h4fw4"]
+[ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scenes/cam.gd" id="5_1l0tm"]
+[ext_resource type="Theme" uid="uid://dhyp34j0sh67u" path="res://test_theme.tres" id="5_h4fw4"]
 [ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="5_o5yvi"]
+[ext_resource type="Texture2D" uid="uid://db66t06csx0yp" path="res://Images/circle_hover.png" id="7_h4fw4"]
 [ext_resource type="Texture2D" uid="uid://cvbq257fqj47c" path="res://Images/button_plus.png" id="7_rfjv2"]
+[ext_resource type="Texture2D" uid="uid://drp7qp4es3lhk" path="res://Images/circle_selected.png" id="8_ldgsr"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("window_star_viewer", "window_upgrades", "btn_star_viewer_window", "btn_upgrades_window", "star_viewer_viewport")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("viewport_galaxy", "window_upgrades", "btn_star_viewer_window", "btn_upgrades_window", "star_viewer_viewport", "split_container")]
 script = ExtResource("1_v158k")
-window_star_viewer = NodePath("Window - Star Viewer")
+viewport_galaxy = NodePath("HSplitContainer2/SubViewportContainer/SubViewport")
 window_upgrades = NodePath("Window - Upgrades")
-btn_star_viewer_window = NodePath("Camera2D/HBoxContainer/btn_star_viewer")
-btn_upgrades_window = NodePath("Camera2D/HBoxContainer/btn_upgrades")
+btn_star_viewer_window = NodePath("HSplitContainer2/SubViewportContainer/VBoxContainer/btn_star_viewer")
+btn_upgrades_window = NodePath("HSplitContainer2/SubViewportContainer/VBoxContainer/btn_upgrades")
 star_viewer_viewport = NodePath("Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-offset = Vector2(-13.83, -8.54)
-anchor_mode = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Camera2D"]
-custom_minimum_size = Vector2(1920, 0)
-offset_right = 1920.0
-offset_bottom = 108.0
-
-[node name="btn_star_viewer" type="Button" parent="Camera2D/HBoxContainer"]
-layout_mode = 2
-icon = ExtResource("1_1l0tm")
-
-[node name="btn_upgrades" type="Button" parent="Camera2D/HBoxContainer"]
-layout_mode = 2
-icon = ExtResource("2_v158k")
+split_container = NodePath("HSplitContainer2")
 
 [node name="Window - Star Viewer" type="Window" parent="."]
 oversampling_override = 1.0
@@ -303,7 +291,81 @@ icon = ExtResource("7_rfjv2")
 layout_mode = 2
 text = "10 Research"
 
-[connection signal="pressed" from="Camera2D/HBoxContainer/btn_star_viewer" to="." method="_on_btn_star_viewer_pressed"]
-[connection signal="pressed" from="Camera2D/HBoxContainer/btn_upgrades" to="." method="_on_btn_upgrades_pressed"]
+[node name="HSplitContainer2" type="HSplitContainer" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+theme = ExtResource("5_h4fw4")
+split_offset = 960
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="HSplitContainer2"]
+layout_mode = 2
+stretch = true
+mouse_target = true
+
+[node name="SubViewport" type="SubViewport" parent="HSplitContainer2/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(960, 1080)
+render_target_update_mode = 4
+
+[node name="cam_stars" type="Camera2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
+script = ExtResource("5_1l0tm")
+min_zoom = Vector2(0.1, 0.1)
+max_zoom = Vector2(1.5, 1.5)
+zoom_interval = Vector2(0.05, 0.05)
+
+[node name="spr_hover" type="Sprite2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
+position = Vector2(418, 409)
+texture = ExtResource("7_h4fw4")
+
+[node name="spr_selected" type="Sprite2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
+position = Vector2(418, 409)
+texture = ExtResource("8_ldgsr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer2/SubViewportContainer"]
+layout_mode = 2
+
+[node name="btn_star_viewer" type="Button" parent="HSplitContainer2/SubViewportContainer/VBoxContainer"]
+layout_mode = 2
+icon = ExtResource("1_1l0tm")
+
+[node name="btn_upgrades" type="Button" parent="HSplitContainer2/SubViewportContainer/VBoxContainer"]
+layout_mode = 2
+icon = ExtResource("2_v158k")
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="HSplitContainer2"]
+layout_mode = 2
+stretch = true
+mouse_target = true
+
+[node name="SubViewport" type="SubViewport" parent="HSplitContainer2/SubViewportContainer2"]
+handle_input_locally = false
+size = Vector2i(928, 1080)
+render_target_update_mode = 4
+
+[node name="cam_planets" type="Camera2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport"]
+script = ExtResource("5_1l0tm")
+min_zoom = Vector2(0.1, 0.1)
+max_zoom = Vector2(1.5, 1.5)
+zoom_interval = Vector2(0.05, 0.05)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HSplitContainer2/SubViewportContainer2"]
+layout_direction = 3
+layout_mode = 2
+alignment = 2
+
+[node name="btn_star_viewer" type="Button" parent="HSplitContainer2/SubViewportContainer2/VBoxContainer2"]
+layout_mode = 2
+icon = ExtResource("1_1l0tm")
+
+[node name="btn_upgrades" type="Button" parent="HSplitContainer2/SubViewportContainer2/VBoxContainer2"]
+layout_mode = 2
+icon = ExtResource("2_v158k")
+
 [connection signal="close_requested" from="Window - Star Viewer" to="." method="_on_window__star_viewer_close_requested"]
 [connection signal="close_requested" from="Window - Upgrades" to="." method="_on_window__upgrades_close_requested"]
+[connection signal="drag_ended" from="HSplitContainer2" to="." method="_on_h_split_container_2_drag_ended"]
+[connection signal="drag_started" from="HSplitContainer2" to="." method="_on_h_split_container_2_drag_started"]
+[connection signal="pressed" from="HSplitContainer2/SubViewportContainer/VBoxContainer/btn_star_viewer" to="." method="_on_btn_star_viewer_pressed"]
+[connection signal="pressed" from="HSplitContainer2/SubViewportContainer/VBoxContainer/btn_upgrades" to="." method="_on_btn_upgrades_pressed"]
+[connection signal="pressed" from="HSplitContainer2/SubViewportContainer2/VBoxContainer2/btn_star_viewer" to="." method="_on_btn_star_viewer_pressed"]
+[connection signal="pressed" from="HSplitContainer2/SubViewportContainer2/VBoxContainer2/btn_upgrades" to="." method="_on_btn_upgrades_pressed"]

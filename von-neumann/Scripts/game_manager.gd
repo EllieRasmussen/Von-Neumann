@@ -4,10 +4,12 @@ const Star = preload("res://Scripts/star.gd")
 const Planet = preload("res://Scripts/planet.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
+const Line = preload("res://Scripts/line.gd")
 
 var time: float
 
-@export var window_star_viewer: Window
+@export var viewport_star: Window
+@export var viewport_galaxy: SubViewport
 @export var window_upgrades: Window
 
 @export var btn_star_viewer_window: Button
@@ -16,6 +18,7 @@ var time: float
 @export var star_viewer_viewport: SubViewport
 
 var stars: Array[Star] = []
+var line_pool: Array[Line2D] = []
 
 ## 'SEL' = SELECTED
 var sel_star: Star
@@ -38,7 +41,6 @@ func _ready() -> void:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	stars[0].add_factory()
 	stars[0].add_extractor()
-	stars[0].scale = Vector2.ONE * 1
 	
 	
 	Prim()
@@ -62,6 +64,10 @@ func _ready() -> void:
 	
 func _process(delta: float) -> void:
 	time += delta
+	
+	if split_container_dragging:
+		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
+
 	
 	var mouse_pos = get_global_mouse_position()
 	for s in stars.size():
@@ -89,14 +95,13 @@ func _process(delta: float) -> void:
 func create_star(pPos: Vector2):
 	var s = Star.new()
 	s.position = pPos
-	s.scale = Vector2.ONE * 0.5
 	
 	s.star_hovered.connect(set_hovered_star.bind(s))
 	s.star_dehovered.connect(clear_hovered_star)
 	s.star_selected.connect(set_selected_star.bind(s))
 	
 	stars.append(s)
-	add_child(s)
+	viewport_galaxy.add_child(s)
 
 
 func set_hovered_star(pStar: Star) -> void:
@@ -201,7 +206,7 @@ func Prim() -> void:
 #region WINDOW TOGGLING LOGIC
 
 func open_star_viewer() -> void:
-	window_star_viewer.visible = true
+	viewport_star.visible = true
 	btn_star_viewer_window.disabled = true
 	if sel_star == null:
 		#HANDLE OPENING WITHOUT A SELECTED STAR
@@ -225,7 +230,7 @@ func open_star_viewer() -> void:
 
 
 func close_star_viewer() -> void:
-	window_star_viewer.visible = false
+	viewport_star.visible = false
 	btn_star_viewer_window.disabled = false
 	if sel_star == null:
 		#HANDLE CLOSING WITHOUT A SELECTED STAR
@@ -244,7 +249,7 @@ func close_star_viewer() -> void:
 			star_viewer_viewport.remove_child(sel_extractors[e])
 
 func _on_btn_star_viewer_pressed() -> void:
-	if window_star_viewer.visible:
+	if viewport_star.visible:
 		close_star_viewer()
 	else:
 		open_star_viewer()
@@ -268,3 +273,14 @@ func _on_window__upgrades_close_requested() -> void:
 	btn_upgrades_window.disabled = false
 
 #endregion
+
+@export var split_container: HSplitContainer
+var split_container_min = 200
+var split_container_max = 1800
+var split_container_dragging = false
+func _on_h_split_container_2_drag_ended() -> void:
+	split_container_dragging = false
+
+
+func _on_h_split_container_2_drag_started() -> void:
+	split_container_dragging = true
