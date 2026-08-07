@@ -25,6 +25,9 @@ signal log_added
 var selected = false
 var hover = false
 
+var area2D: Area2D
+var collisionShape: CollisionShape2D
+
 var adj = []
 
 func _ready() -> void:
@@ -63,9 +66,16 @@ func _ready() -> void:
 	bar_next_star_probe.set_fg_color(Color.AQUA)
 	bar_next_star_probe.set_value(0)
 	
-	#TEMPORARY: STARS SHOULD NOT ALWAYS START WITH ONE FACTORY
-	#add_factory()
-	#add_extractor()
+	#TODO: MAKE IT SO THAT ALL STARS SHARE A SMALL POOL OF AREAS FOR EFFICIENCY
+	area2D = Area2D.new()
+	collisionShape = CollisionShape2D.new()
+	collisionShape.shape = CircleShape2D.new()
+	collisionShape.shape.radius = 10
+	area2D.mouse_entered.connect(_on_hover)
+	area2D.mouse_exited.connect(_exit_hover)
+	area2D.input_event.connect(handle_area2d_input)
+	area2D.add_child(collisionShape)
+	add_child(area2D)
 	
 
 func _draw():
@@ -150,12 +160,10 @@ func _exit_hover():
 	hover = false
 	queue_redraw()
 	star_dehovered.emit()
-	
-func enter_hover_planet(pPlanet: Planet) -> void:
-	pPlanet.on_hover()
-	
-func exit_hover_planet(pPlanet: Planet) -> void:
-	pPlanet.exit_hover()
+
+func handle_area2d_input(viewport: Node, event: InputEvent, shape_idx: int):
+	if event.is_action_pressed("Click") and not selected:
+		select()
 	
 func select():
 	selected = true
@@ -170,4 +178,12 @@ func deselect():
 	hover = false
 	queue_redraw()
 	star_deselected.emit()
+	
+func enter_hover_planet(pPlanet: Planet) -> void:
+	pPlanet.on_hover()
+	
+func exit_hover_planet(pPlanet: Planet) -> void:
+	pPlanet.exit_hover()
+	
+
 #endregion

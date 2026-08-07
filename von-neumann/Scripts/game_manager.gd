@@ -8,14 +8,15 @@ const Line = preload("res://Scripts/line.gd")
 
 var time: float
 
-@export var viewport_star: Window
-@export var viewport_galaxy: SubViewport
+@export var cam_stars: Camera2D
+@export var cam_planets: Camera2D
+
+@export var viewport_stars: SubViewport
+@export var viewport_planets: SubViewport
 @export var window_upgrades: Window
 
 @export var btn_star_viewer_window: Button
 @export var btn_upgrades_window: Button
-
-@export var star_viewer_viewport: SubViewport
 
 var stars: Array[Star] = []
 var line_pool: Array[Line2D] = []
@@ -23,11 +24,12 @@ var line_pool: Array[Line2D] = []
 ## 'SEL' = SELECTED
 var sel_star: Star
 var sel_planets: Array[Planet]
+var sel_planet_paths: Array[Path2D]
 var sel_factories: Array[Factory]
 var sel_extractors: Array[Extractor]
 
-var hover_star_spr: Sprite2D
-var selected_star_spr: Sprite2D
+var spr_star_hover: Sprite2D
+var spr_star_selected: Sprite2D
 
 var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
@@ -47,19 +49,21 @@ func _ready() -> void:
 	
 	time = 0
 	
-	selected_star_spr = Sprite2D.new()
-	selected_star_spr.texture = load("res://Images/circle_selected.png")
-	selected_star_spr.scale = Vector2.ONE * 0.25
-	selected_star_spr.z_index = -1
-	selected_star_spr.visible = false
-	add_child(selected_star_spr)
+	spr_star_selected = Sprite2D.new()
+	spr_star_selected.name = "spr_star_selected"
+	spr_star_selected.texture = load("res://Images/circle_selected.png")
+	spr_star_selected.scale = Vector2.ONE
+	spr_star_selected.z_index = -1
+	spr_star_selected.visible = false
+	viewport_stars.add_child(spr_star_selected)
 	
-	hover_star_spr = Sprite2D.new()
-	hover_star_spr.texture = load("res://Images/circle_hover.png")
-	hover_star_spr.scale = Vector2.ONE * 0.25
-	hover_star_spr.z_index = -2
-	hover_star_spr.visible = false
-	add_child(hover_star_spr)
+	spr_star_hover = Sprite2D.new()
+	spr_star_hover.name = "spr_star_hover"
+	spr_star_hover.texture = load("res://Images/circle_hover.png")
+	spr_star_hover.scale = Vector2.ONE
+	spr_star_hover.z_index = -2
+	spr_star_hover.visible = false
+	viewport_stars.add_child(spr_star_hover)
 	
 	
 func _process(delta: float) -> void:
@@ -67,27 +71,14 @@ func _process(delta: float) -> void:
 	
 	if split_container_dragging:
 		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
-
-	
-	var mouse_pos = get_global_mouse_position()
-	for s in stars.size():
-		if mouse_pos.distance_squared_to(stars[s].position) < 350:
-			stars[s]._on_hover()
-		elif stars[s].hover:
-			stars[s]._exit_hover()
 	
 	if sel_star != null:
 		for p in sel_planets.size():
-			var dist_to_mouse = star_viewer_viewport.get_mouse_position().distance_squared_to(sel_planets[p].position)
+			var dist_to_mouse = viewport_planets.get_mouse_position().distance_squared_to(sel_planets[p].position)
 			if dist_to_mouse < 300 and not sel_planets[p].hover:
 				sel_planets[p].on_hover()
 			elif sel_planets[p].hover:
 				sel_planets[p].exit_hover()
-	
-	if Input.is_action_just_pressed("Click"):
-		for s in stars.size():
-			if stars[s].hover:
-				stars[s].select()
 
 
 #region STARS
@@ -101,25 +92,38 @@ func create_star(pPos: Vector2):
 	s.star_selected.connect(set_selected_star.bind(s))
 	
 	stars.append(s)
-	viewport_galaxy.add_child(s)
+	viewport_stars.add_child(s)
 
 
 func set_hovered_star(pStar: Star) -> void:
-	hover_star_spr.position = pStar.position
-	hover_star_spr.visible = true
+	spr_star_hover.position = pStar.position
+	spr_star_hover.visible = true
 	
 func clear_hovered_star() -> void:
-	hover_star_spr.visible = false
+	spr_star_hover.visible = false
 
 func set_selected_star(pStar: Star) -> void:
 	if sel_star != null:
 		clear_selected_star()
 	sel_star = pStar
 	sel_planets = pStar.planets
+	for p in sel_planets.size():
+		var new_path = Path2D.new()
+		new_path.curve = Curve2D.new()
+		var angle = 0
+		var num_points = 100
+		for point in num_points:
+			var new_point = Vector2(
+				cos(angle) * sel_planets[p].orbital_radius,
+				sin(angle) * sel_planets[p].orbital_radius
+			)
+			new_path.curve.add_point(new_point)
+		sel_planet_paths.append(new_path)
+		
 	sel_factories = pStar.factories
 	sel_extractors = pStar.extractors
-	selected_star_spr.position = pStar.position
-	selected_star_spr.visible = true
+	spr_star_selected.position = pStar.position
+	spr_star_selected.visible = true
 	open_star_viewer()
 	orbit_planets()
 	
@@ -131,7 +135,7 @@ func clear_selected_star() -> void:
 	sel_planets = []
 	sel_factories = []
 	sel_extractors = []
-	selected_star_spr.visible = false
+	spr_star_selected.visible = false
 	
 
 #endregion
@@ -206,7 +210,6 @@ func Prim() -> void:
 #region WINDOW TOGGLING LOGIC
 
 func open_star_viewer() -> void:
-	viewport_star.visible = true
 	btn_star_viewer_window.disabled = true
 	if sel_star == null:
 		#HANDLE OPENING WITHOUT A SELECTED STAR
@@ -216,21 +219,20 @@ func open_star_viewer() -> void:
 		star_viewer_sprite_star = Sprite2D.new()
 		star_viewer_sprite_star.scale = Vector2.ONE * 0.06
 		star_viewer_sprite_star.texture = load("res://Images/star.png")
-		star_viewer_viewport.add_child(star_viewer_sprite_star)
+		viewport_planets.add_child(star_viewer_sprite_star)
 		star_viewer_sprite_star.position = Vector2(256,256)
 		
 		for p in sel_planets.size():
-			star_viewer_viewport.add_child(sel_planets[p])
+			viewport_planets.add_child(sel_planets[p])
 			
 		for f in sel_factories.size():
-			star_viewer_viewport.add_child(sel_factories[f])
+			viewport_planets.add_child(sel_factories[f])
 			
 		for e in sel_extractors.size():
-			star_viewer_viewport.add_child(sel_extractors[e])
+			viewport_planets.add_child(sel_extractors[e])
 
 
 func close_star_viewer() -> void:
-	viewport_star.visible = false
 	btn_star_viewer_window.disabled = false
 	if sel_star == null:
 		#HANDLE CLOSING WITHOUT A SELECTED STAR
@@ -240,19 +242,13 @@ func close_star_viewer() -> void:
 		star_viewer_sprite_star.queue_free()
 		
 		for p in sel_planets.size():
-			star_viewer_viewport.remove_child(sel_planets[p])
+			viewport_planets.remove_child(sel_planets[p])
 		
 		for f in sel_factories.size():
-			star_viewer_viewport.remove_child(sel_factories[f])
+			viewport_planets.remove_child(sel_factories[f])
 			
 		for e in sel_extractors.size():
-			star_viewer_viewport.remove_child(sel_extractors[e])
-
-func _on_btn_star_viewer_pressed() -> void:
-	if viewport_star.visible:
-		close_star_viewer()
-	else:
-		open_star_viewer()
+			viewport_planets.remove_child(sel_extractors[e])
 
 
 func _on_window__star_viewer_close_requested() -> void:

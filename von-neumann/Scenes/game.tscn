@@ -1,23 +1,23 @@
-[gd_scene load_steps=11 format=3 uid="uid://c1pjn107pd7qj"]
+[gd_scene load_steps=9 format=3 uid="uid://c1pjn107pd7qj"]
 
 [ext_resource type="Texture2D" uid="uid://bdd0eusscm3p2" path="res://Images/button_star.png" id="1_1l0tm"]
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Texture2D" uid="uid://c0yymyyksohqh" path="res://Images/button_upgrade.png" id="2_v158k"]
 [ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="3_h4fw4"]
-[ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scenes/cam.gd" id="5_1l0tm"]
+[ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
 [ext_resource type="Theme" uid="uid://dhyp34j0sh67u" path="res://test_theme.tres" id="5_h4fw4"]
 [ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="5_o5yvi"]
-[ext_resource type="Texture2D" uid="uid://db66t06csx0yp" path="res://Images/circle_hover.png" id="7_h4fw4"]
 [ext_resource type="Texture2D" uid="uid://cvbq257fqj47c" path="res://Images/button_plus.png" id="7_rfjv2"]
-[ext_resource type="Texture2D" uid="uid://drp7qp4es3lhk" path="res://Images/circle_selected.png" id="8_ldgsr"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("viewport_galaxy", "window_upgrades", "btn_star_viewer_window", "btn_upgrades_window", "star_viewer_viewport", "split_container")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "window_upgrades", "btn_star_viewer_window", "btn_upgrades_window", "split_container")]
 script = ExtResource("1_v158k")
-viewport_galaxy = NodePath("HSplitContainer2/SubViewportContainer/SubViewport")
+cam_stars = NodePath("HSplitContainer2/SubViewportContainer/SubViewport Stars/cam_stars")
+cam_planets = NodePath("HSplitContainer2/SubViewportContainer2/SubViewport Planets/cam_planets")
+viewport_stars = NodePath("HSplitContainer2/SubViewportContainer/SubViewport Stars")
+viewport_planets = NodePath("HSplitContainer2/SubViewportContainer2/SubViewport Planets")
 window_upgrades = NodePath("Window - Upgrades")
 btn_star_viewer_window = NodePath("HSplitContainer2/SubViewportContainer/VBoxContainer/btn_star_viewer")
 btn_upgrades_window = NodePath("HSplitContainer2/SubViewportContainer/VBoxContainer/btn_upgrades")
-star_viewer_viewport = NodePath("Window - Star Viewer/VBoxContainer/HBoxContainer2/SubViewport/star viewport")
 split_container = NodePath("HSplitContainer2")
 
 [node name="Window - Star Viewer" type="Window" parent="."]
@@ -302,24 +302,20 @@ layout_mode = 2
 stretch = true
 mouse_target = true
 
-[node name="SubViewport" type="SubViewport" parent="HSplitContainer2/SubViewportContainer"]
+[node name="SubViewport Stars" type="SubViewport" parent="HSplitContainer2/SubViewportContainer"]
+own_world_3d = true
 handle_input_locally = false
+physics_object_picking = true
 size = Vector2i(960, 1080)
 render_target_update_mode = 4
 
-[node name="cam_stars" type="Camera2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
+[node name="cam_stars" type="Camera2D" parent="HSplitContainer2/SubViewportContainer/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
+offset = Vector2(960, 540)
 script = ExtResource("5_1l0tm")
+subviewport = NodePath("..")
 min_zoom = Vector2(0.1, 0.1)
 max_zoom = Vector2(1.5, 1.5)
 zoom_interval = Vector2(0.05, 0.05)
-
-[node name="spr_hover" type="Sprite2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
-position = Vector2(418, 409)
-texture = ExtResource("7_h4fw4")
-
-[node name="spr_selected" type="Sprite2D" parent="HSplitContainer2/SubViewportContainer/SubViewport"]
-position = Vector2(418, 409)
-texture = ExtResource("8_ldgsr")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer2/SubViewportContainer"]
 layout_mode = 2
@@ -337,16 +333,31 @@ layout_mode = 2
 stretch = true
 mouse_target = true
 
-[node name="SubViewport" type="SubViewport" parent="HSplitContainer2/SubViewportContainer2"]
+[node name="SubViewport Planets" type="SubViewport" parent="HSplitContainer2/SubViewportContainer2"]
+own_world_3d = true
 handle_input_locally = false
+physics_object_picking = true
 size = Vector2i(928, 1080)
 render_target_update_mode = 4
 
-[node name="cam_planets" type="Camera2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport"]
+[node name="cam_planets" type="Camera2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
+offset = Vector2(960, 540)
 script = ExtResource("5_1l0tm")
+subviewport = NodePath("..")
 min_zoom = Vector2(0.1, 0.1)
 max_zoom = Vector2(1.5, 1.5)
 zoom_interval = Vector2(0.05, 0.05)
+
+[node name="Path2D" type="Path2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport Planets"]
+
+[node name="PathFollow2D" type="PathFollow2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport Planets/Path2D"]
+position = Vector2(543.20013, 543.20013)
+rotation = 0.7853982
+progress = 768.20056
+
+[node name="Sprite2D" type="Sprite2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport Planets/Path2D/PathFollow2D"]
+scale = Vector2(0.09, 0.09)
+texture = ExtResource("5_o5yvi")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="HSplitContainer2/SubViewportContainer2"]
 layout_direction = 3
