@@ -44,8 +44,7 @@ func _ready() -> void:
 	for i in num_planets:
 		var p = Planet.new()
 		p.centered = true
-		p.scale = Vector2.ONE * randf_range(0.005,0.015)
-		p.set_orbital_radius((i+1)*50)
+		p.set_orbital_radius((i+1)*1000)
 		planets.append(p)
 		
 	bar_total_star_probes = ProgBar.new()
