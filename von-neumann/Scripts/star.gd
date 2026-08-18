@@ -14,13 +14,10 @@ var extractors: Array[Extractor]
 var bar_total_star_probes: ProgBar
 var bar_next_star_probe: ProgBar
 
-var activity_log = []
-
 signal star_hovered
 signal star_dehovered
 signal star_selected
 signal star_deselected
-signal log_added
 
 var selected = false
 var hover = false
@@ -88,9 +85,7 @@ func add_adjacent(pStar: Star) -> void:
 		pStar.adj.append(self)
 	
 
-func add_log(pLog: String):
-	activity_log.push_front(pLog)
-	log_added.emit()
+
 	
 
 func add_factory() -> void:
