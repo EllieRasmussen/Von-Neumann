@@ -22,7 +22,9 @@ var stars: Array[Star] = []
 var line_pool: Array[Line2D] = []
 
 ## 'SEL' = SELECTED
+var max_planets = 10
 var sel_star: Star
+var num_points_per_path = 50
 var sel_paths: Array[Path2D]
 var sel_path_followers: Array[PathFollow2D]
 var sel_path_lines: Array[Line2D]
@@ -65,6 +67,35 @@ func _ready() -> void:
 	viewport_stars.add_child(spr_star_hover)
 	
 	
+	#INSTANTIATE PATHS, PATH FOLLOWERS, PLANETS
+	for p in max_planets:
+		#CREATE NEW PATH
+		var new_line = Line2D.new()
+		new_line.z_index = -1
+		new_line.closed = true
+		new_line.default_color = Color.DIM_GRAY
+		new_line.width = 10
+		
+		var new_path = Path2D.new()
+		new_path.curve = Curve2D.new()
+		
+		var angle = 0
+		for point in num_points_per_path:
+			new_path.curve.add_point(Vector2.ZERO)
+			new_line.add_point(Vector2.ZERO)
+		
+		#CREATE NEW PATH FOLLOWER
+		var new_follower = PathFollow2D.new()
+		new_follower.loop = true
+		
+		sel_paths.append(new_path)
+		sel_path_followers.append(new_follower)
+		sel_path_lines.append(new_line)
+		sel_paths[p].add_child(sel_path_followers[p])
+		sel_paths[p].add_child(sel_path_lines[p])
+		viewport_planets.add_child(sel_paths[p])
+	
+	
 func _process(delta: float) -> void:
 	time += delta
 	
@@ -99,40 +130,19 @@ func set_selected_star(pStar: Star) -> void:
 	cam_planets.position = Vector2.ZERO
 	sel_star = pStar
 	for p in sel_star.planets.size():
-		
-		var new_path = Path2D.new()
-		new_path.curve = Curve2D.new()
-		var new_line = Line2D.new()
-		
-		new_line.z_index = -1
-		new_line.closed = true
-		new_line.default_color = Color.DIM_GRAY
-		new_line.width = 10
-		
 		var angle = 0
-		var num_points = 50
-		
-		for point in num_points:
+		for point in num_points_per_path:
 			var new_point = Vector2(
 				cos(angle) * sel_star.planets[p].orbital_radius,
 				sin(angle) * sel_star.planets[p].orbital_radius
 			)
-			angle += 6.2832 / (num_points - 1)
-			new_path.curve.add_point(new_point)
-			new_line.add_point(new_point)
+			sel_paths[p].curve.add_point(new_point)
+			sel_path_lines[p].points[point] = new_point
+			angle += 6.2832 / (num_points_per_path - 1)
 			
-		var new_follower = PathFollow2D.new()
-		new_follower.loop = true
-		new_follower.add_child(sel_star.planets[p])
-		new_path.add_child(new_follower)
-		sel_path_followers.append(new_follower)
-			
-		sel_paths.append(new_path)
-		sel_path_lines.append(new_line)
+		sel_path_lines[p].visible = true
+		sel_path_followers[p].add_child(sel_star.planets[p])
 		
-		
-		viewport_planets.add_child(new_path)
-		viewport_planets.add_child(new_line)
 	spr_star_selected.position = pStar.position
 	spr_star_selected.visible = true
 	open_star_viewer()
@@ -144,6 +154,9 @@ func clear_selected_star() -> void:
 	sel_star.deselect()
 	sel_star = null
 	spr_star_selected.visible = false
+	
+	for p in max_planets:
+		sel_path_lines[p].visible = false
 	
 
 #endregion
@@ -230,8 +243,10 @@ func open_star_viewer() -> void:
 
 func clear_star_viewer() -> void:
 	btn_star_viewer_window.disabled = false
-	star_viewer_sprite_star = null
+	star_viewer_sprite_star.queue_free()
+	
 	for p in sel_star.planets.size():
+		sel_paths[p].curve.clear_points()
 		sel_path_followers[p].remove_child(sel_star.planets[p])
 
 

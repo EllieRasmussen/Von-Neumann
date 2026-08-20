@@ -37,7 +37,7 @@ func _ready() -> void:
 	star_imgs.append(load("res://Images/Star_3.png"))
 	self.texture = star_imgs[randi()%len(star_imgs)]
 	
-	var num_planets = randi_range(1,5)
+	var num_planets = randi_range(1,10)
 	for i in num_planets:
 		var p = Planet.new()
 		p.centered = true
