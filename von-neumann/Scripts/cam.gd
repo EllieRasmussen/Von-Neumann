@@ -9,7 +9,7 @@ func _ready() -> void:
 	mouse_pos_last_frame = subviewport.get_mouse_position()
 
 ##In a perfect world, funcs like _process would not exist. But this is not a perfect world. 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if dragging:
 		mouse_pos_last_frame = subviewport.get_mouse_position()
 

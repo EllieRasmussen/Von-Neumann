@@ -11,9 +11,6 @@ var planets: Array[Planet]
 var factories: Array[Factory]
 var extractors: Array[Extractor]
 
-var bar_total_star_probes: ProgBar
-var bar_next_star_probe: ProgBar
-
 signal star_hovered
 signal star_dehovered
 signal star_selected
@@ -41,26 +38,9 @@ func _ready() -> void:
 	for i in num_planets:
 		var p = Planet.new()
 		p.centered = true
-		p.set_orbital_radius((i+1)*1000)
+		p.set_orbital_radius(randf_range((i+1)*500,(i+1)*1500))
 		planets.append(p)
 		
-	bar_total_star_probes = ProgBar.new()
-	add_child(bar_total_star_probes)
-	bar_total_star_probes.position = Vector2(-25,15)
-	bar_total_star_probes.set_bar_width(5)
-	bar_total_star_probes.set_bar_length(50)
-	bar_total_star_probes.set_bg_color(Color.SLATE_GRAY)
-	bar_total_star_probes.set_fg_color(Color.BLUE)
-	
-	
-	bar_next_star_probe = ProgBar.new()
-	add_child(bar_next_star_probe)
-	bar_next_star_probe.position = Vector2(-25,20)
-	bar_next_star_probe.set_bar_width(2)
-	bar_next_star_probe.set_bar_length(50)
-	bar_next_star_probe.set_bg_color(Color.DARK_SLATE_GRAY)
-	bar_next_star_probe.set_fg_color(Color.AQUA)
-	bar_next_star_probe.set_value(0)
 	
 	#TODO: MAKE IT SO THAT ALL STARS SHARE A SMALL POOL OF AREAS FOR EFFICIENCY
 	area2D = Area2D.new()
@@ -155,7 +135,7 @@ func _exit_hover():
 	queue_redraw()
 	star_dehovered.emit()
 
-func handle_area2d_input(viewport: Node, event: InputEvent, shape_idx: int):
+func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click") and not selected:
 		select()
 	
