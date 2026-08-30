@@ -32,6 +32,7 @@ var spr_planet_selected: Sprite2D
 
 var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
+@export var info_window: Window
 @export var info_name: Label
 @export var info_texture: TextureRect
 @export var info_lbl: Label
@@ -246,6 +247,7 @@ func _exit_hover_planet(pPlanet: Planet):
 func set_selected_planet(pPlanet: Planet):
 	if sel_planet != null:
 		clear_selected_planet()
+	info_window.visible = true
 	info_name.text = "PLANET"
 	info_texture.texture = pPlanet.texture
 	info_lbl.text = "RESOURCE: " + str(pPlanet.resource)
@@ -324,3 +326,7 @@ func _on_h_split_container_2_drag_ended() -> void:
 
 func _on_h_split_container_2_drag_started() -> void:
 	split_container_dragging = true
+
+
+func _on_window_info_close_requested() -> void:
+	info_window.visible = false
