@@ -13,9 +13,13 @@ var time: float
 @export var viewport_stars: SubViewport
 @export var viewport_planets: SubViewport
 
+@export var UpgradeButton: Button
+@export var UpgradeWindow: Window
+
 var stars: Array[Star] = []
 
 ## 'SEL' = SELECTED
+var max_stars = 25
 var max_planets_per_star = 10
 var sel_star: Star
 var sel_planet: Planet
@@ -41,9 +45,11 @@ var probe_travel_dist = 50 # LIGHTYEARS
 var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
 var probe_replication_success_rate = 0.1 # % CHANCE
 
+
+
 func _ready() -> void:	
 	#GENERATE STARS + ADJACENCY
-	for i in 25:
+	for i in max_stars:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	stars[0].add_factory()
 	stars[0].add_extractor()
@@ -123,6 +129,7 @@ func _ready() -> void:
 		viewport_planets.add_child(sel_paths[p])
 		
 	
+	UpgradeButton.pressed.connect(toggle_upgrade_window)
 	
 func _process(delta: float) -> void:
 	time += delta
@@ -261,12 +268,14 @@ func clear_selected_planet():
 	info_texture.texture = null
 	info_lbl.text = ""
 	spr_planet_selected.visible = false
+	
 
 func _try_select_planet(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click"):
 		for p in sel_star.planets.size():
 			if sel_star.planets[p].hover:
 				set_selected_planet(sel_star.planets[p])
+
 
 
 #endregion
@@ -315,7 +324,7 @@ func Prim() -> void:
 		star0.add_adjacent(star1)
 
 
-
+#region UI
 @export var split_container: HSplitContainer
 var split_container_min = 200
 var split_container_max = 1800
@@ -330,3 +339,8 @@ func _on_h_split_container_2_drag_started() -> void:
 
 func _on_window_info_close_requested() -> void:
 	info_window.visible = false
+func toggle_upgrade_window():
+	UpgradeWindow.visible = !UpgradeWindow.visible;
+
+
+#endregion
