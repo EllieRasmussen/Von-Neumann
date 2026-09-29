@@ -17,10 +17,12 @@ var time: float
 @export var UpgradeWindow: Window
 
 var stars: Array[Star] = []
-
-## 'SEL' = SELECTED
 var max_stars = 25
 var max_planets_per_star = 10
+var max_factories_per_star = 10
+var max_extractors_per_star = 1
+
+## 'SEL' = SELECTED
 var sel_star: Star
 var sel_planet: Planet
 var num_points_per_path = 50
@@ -28,6 +30,8 @@ var sel_paths: Array[Path2D]
 var sel_path_followers: Array[PathFollow2D]
 var sel_path_lines: Array[Line2D]
 var sel_planet_areas: Array[Area2D]
+var sel_factories: Array[Factory]
+var sel_extractors: Array[Extractor]
 
 var spr_star_hover: Sprite2D
 var spr_star_selected: Sprite2D
@@ -46,19 +50,36 @@ var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
 var probe_replication_success_rate = 0.1 # % CHANCE
 
 
-
-func _ready() -> void:	
+func _ready() -> void:
 	#GENERATE STARS + ADJACENCY
 	for i in max_stars:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	stars[0].add_factory()
-	stars[0].add_extractor()
 	
+	stars[0].scale = Vector2.ONE * 3
 	
 	Prim()
-	
 	time = 0
+	set_hover_sprites()
+	instantiate_planet_paths()
 	
+	for f in max_factories_per_star:
+		var new_factory = Factory.new()
+		new_factory.position = Vector2(-2000 + f*100,-2000)
+		new_factory.visible = false
+		sel_factories.append(new_factory)
+		viewport_planets.add_child(new_factory)
+	for e in max_extractors_per_star:
+		var new_extractor = Extractor.new()
+		new_extractor.position = Vector2(-2000 + e*100,-1500)
+		new_extractor.visible = true
+		sel_extractors.append(new_extractor)
+		viewport_planets.add_child(new_extractor)
+	
+	UpgradeButton.pressed.connect(toggle_upgrade_window)
+	
+	
+func set_hover_sprites():
 	spr_star_selected = Sprite2D.new()
 	spr_star_selected.name = "spr_star_selected"
 	spr_star_selected.texture = load("res://Images/circle_selected.png")
@@ -90,16 +111,16 @@ func _ready() -> void:
 	spr_planet_hover.z_index = 2
 	spr_planet_hover.visible = false
 	viewport_planets.add_child(spr_planet_hover)
-	
-	
-	#INSTANTIATE PATHS, PATH FOLLOWERS, PLANETS
+
+#TODO: it would be real convenient if factores and planets could just handle their own path creation but that has potential to explode memroy requirements
+func instantiate_planet_paths():
 	for p in max_planets_per_star:
 		#CREATE NEW PATH
 		var new_line = Line2D.new()
 		new_line.z_index = -1
 		new_line.closed = true
 		new_line.default_color = Color.DIM_GRAY
-		new_line.width = 10
+		new_line.width = 5
 		
 		var new_path = Path2D.new()
 		new_path.curve = Curve2D.new()
@@ -127,10 +148,7 @@ func _ready() -> void:
 		sel_paths[p].add_child(sel_path_followers[p])
 		sel_paths[p].add_child(sel_path_lines[p])
 		viewport_planets.add_child(sel_paths[p])
-		
-	
-	UpgradeButton.pressed.connect(toggle_upgrade_window)
-	
+
 func _process(delta: float) -> void:
 	time += delta
 	
@@ -163,6 +181,7 @@ func set_selected_star(pStar: Star) -> void:
 	clear_selected_star()
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
+	sel_star.add_extractor()
 	for p in sel_star.planets.size():
 		sel_paths[p].curve = Curve2D.new()
 		var angle = 0.0
@@ -182,7 +201,18 @@ func set_selected_star(pStar: Star) -> void:
 		sel_planet_areas[p].mouse_entered.connect(_hover_planet.bind(sel_star.planets[p]))
 		sel_planet_areas[p].mouse_exited.connect(_exit_hover_planet.bind(sel_star.planets[p]))
 		sel_path_followers[p].progress_ratio = sel_star.planets[p].orbital_position
-		
+	
+	for f in max_factories_per_star:
+		if f < sel_star.factories.size():
+			sel_factories[f].visible = true
+		else:
+			sel_factories[f].visible = false
+	for e in max_extractors_per_star:
+		if e < sel_star.extractors.size():
+			sel_extractors[e].visible = true
+		else:
+			sel_extractors[e].visible = false;
+			
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
 	

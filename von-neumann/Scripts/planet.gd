@@ -1,15 +1,17 @@
 extends Sprite2D
 
+var resource = randi_range(1000,10000)
+
 var orbital_position: float
 var orbital_radius: float
 var orbital_velocity: float
 var orbital_offset: Vector2
 
-var resource = randi_range(1000,10000)
-
-
 var selected = false
 var hover = false
+
+var num_extractors = 0
+var max_extractors = 10
 
 func _ready() -> void:	
 	#SET TEXTURE
@@ -23,7 +25,8 @@ func _ready() -> void:
 	scale = Vector2.ONE * 10
 	
 	orbital_position = randf_range(0,1)
-
+	
+	
 func set_orbital_radius(pRadius) -> void:
 	orbital_radius = pRadius
 	orbital_velocity = randf_range((1.0/pRadius)*0.05,(1.0/pRadius)*0.25)

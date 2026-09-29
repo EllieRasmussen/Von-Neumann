@@ -1,32 +1,49 @@
 extends Sprite2D
 
-var speed = 0.1
-var resource = 0
+const Planet = preload("res://Scripts/planet.gd")
 
-signal arrived
+enum EXTRACTOR_STATE {IDLE, TRAVELLING, EXTRACTING}
+var state: EXTRACTOR_STATE
+
+var state_: int
+
+var speed = 0.1
+var target_planet: Planet
 
 func _ready() -> void:
 	self.texture = preload("res://Images/extractor.png")
-	scale = Vector2.ONE * 0.25
-	position = Vector2(256,256)
+	scale = Vector2.ONE
 	
 	
-func go_to(pTarget: Node2D) -> void:
-	var progress = 0
-	var origin = Vector2(position.x,position.y)
-	var dist_to_target = position.distance_squared_to(pTarget.position)
-	while(dist_to_target > 50):
-		progress += get_process_delta_time() * speed
-		position = origin.lerp(pTarget.position, progress)
-		dist_to_target = position.distance_squared_to(pTarget.position)
-		await Engine.get_main_loop().process_frame
-			
-	arrived.emit()
+var extraction_timer = 0.0
+var time_per_extraction = 1.0
 
-func stick_to(pTarget: Node2D, pDuration: float) -> void:
-	var timer = 0
-	while timer <= pDuration:
-		timer += get_process_delta_time()
-		position = pTarget.position
-		await Engine.get_main_loop().process_frame
+
+func _process(delta: float) -> void:
+	print(state_)
+	if state_ == 1:
+		var dir = (target_planet.position - position).normalized()
+		position += dir * speed
+		if position.distance_squared_to(target_planet.position) < 2500:
+			target_planet.num_extractors += 1
+			var planet_offset = Vector2(cos((float)(target_planet.num_extractors / target_planet.max_extractors)) * target_planet.scale.x, sin((float)(target_planet.num_extractors / target_planet.max_extractors)) * target_planet.scale.y)
+			position = target_planet.position + planet_offset
+			state_ = 2
 	
+	
+	if state_ == 2:
+		extraction_timer += delta
+		if extraction_timer >= time_per_extraction:
+			extraction_timer = 0
+			extract()
+
+
+
+
+func go_to_planet(pTarget: Planet) -> void:
+	state_ = 1
+	target_planet = pTarget
+	print(state_)
+
+func extract():
+	print("EXTRACTED!")

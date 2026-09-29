@@ -88,40 +88,9 @@ func send_probe() -> void:
 	
 func add_extractor() -> void:
 	var new_extractor = Extractor.new()
-	new_extractor.arrived.connect(handle_extractor_arrived.bind(new_extractor))
-	new_extractor.position = Vector2(randf_range(0,512),randf_range(0,512))
+	new_extractor.go_to_planet(planets[0])
 	extractors.append(new_extractor)
 	
-func handle_extractor_arrived(pExtractor: Extractor) -> void:
-	#IF EXTRACTOR HAS RESOURCE
-	if pExtractor.resource > 0:
-		#DEPOSIT RESOURCE INTO FACTORY, SEND TO NEAREST PLANET
-		factories[0].add_resource(pExtractor.resource)
-		pExtractor.resource = 0
-		
-		var closest_index = 0
-		var closest_dist = pExtractor.position.distance_squared_to(planets[0].position)
-		for p in range(1,planets.size()):
-			if pExtractor.position.distance_squared_to(planets[p].position) < closest_dist:
-				closest_dist = pExtractor.position.distance_squared_to(planets[p].position)
-				closest_index = p
-		
-		pExtractor.go_to(planets[closest_index])
-	#ELSE
-	else:
-		#EXTRACT RESOURCE FROM PLANET, SEND TO NEAREST FACTORY
-		var closest_index = 0
-		var closest_dist = pExtractor.position.distance_squared_to(planets[0].position)
-		for p in range(1,planets.size()):
-			if pExtractor.position.distance_squared_to(planets[p].position) < closest_dist:
-				closest_dist = pExtractor.position.distance_squared_to(planets[p].position)
-				closest_index = p
-		
-		planets[closest_index].extract_resource(1)
-		pExtractor.resource += 1
-		
-		
-		pExtractor.go_to(factories[0])
 
 
 #region HOVER AND SELECTION
@@ -143,9 +112,6 @@ func select():
 	selected = true
 	queue_redraw()
 	star_selected.emit()
-	
-	if extractors.size() > 0:
-		extractors[0].go_to(factories[0])
 		
 func deselect():
 	selected = false

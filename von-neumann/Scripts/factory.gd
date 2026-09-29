@@ -13,10 +13,10 @@ signal created_probe
 
 func _ready() -> void:
 	self.texture = load("res://Images/factory.png")
-	scale = Vector2.ONE * 0.05
+	scale = Vector2.ONE * 5
 	
-	orbital_position = randf_range(0,6.2832)
-	orbital_radius = 230
+	orbital_position = randf_range(0,1)
+	orbital_radius = 2000
 	orbital_velocity = randf_range(0.00000000001,0.0000000001)
 	
 	resource_bar = ProgBar.new()
