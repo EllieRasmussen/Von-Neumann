@@ -3,15 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0yymyyksohqh"
-path="res://.godot/imported/button_upgrade.png-732a39d9688b8ded1392c53372c63204.ctex"
-metadata={
-"vram_texture": false
-}
+valid=false
 
 [deps]
 
 source_file="res://Images/button_upgrade.png"
-dest_files=["res://.godot/imported/button_upgrade.png-732a39d9688b8ded1392c53372c63204.ctex"]
 
 [params]
 

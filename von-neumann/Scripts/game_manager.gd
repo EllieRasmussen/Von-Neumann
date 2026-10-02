@@ -1,5 +1,6 @@
 extends Node2D
 
+const Cam = preload("res://Scripts/cam.gd")
 const Star = preload("res://Scripts/star.gd")
 const Planet = preload("res://Scripts/planet.gd")
 const Factory = preload("res://Scripts/factory.gd")
@@ -7,7 +8,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 
 var time: float
 
-@export var cam_stars: Camera2D
+@export var cam_stars: Cam
 @export var cam_planets: Camera2D
 
 @export var viewport_stars: SubViewport
@@ -25,13 +26,6 @@ var max_extractors_per_star = 1
 ## 'SEL' = SELECTED
 var sel_star: Star
 var sel_planet: Planet
-var num_points_per_path = 50
-var sel_paths: Array[Path2D]
-var sel_path_followers: Array[PathFollow2D]
-var sel_path_lines: Array[Line2D]
-var sel_planet_areas: Array[Area2D]
-var sel_factories: Array[Factory]
-var sel_extractors: Array[Extractor]
 
 var spr_star_hover: Sprite2D
 var spr_star_selected: Sprite2D
@@ -54,27 +48,14 @@ func _ready() -> void:
 	#GENERATE STARS + ADJACENCY
 	for i in max_stars:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
-	stars[0].add_factory()
 	
-	stars[0].scale = Vector2.ONE * 3
+	stars[0].add_factory()
+	stars[0].add_extractor()
+	cam_stars.center(stars[0].position)
 	
 	Prim()
 	time = 0
 	set_hover_sprites()
-	instantiate_planet_paths()
-	
-	for f in max_factories_per_star:
-		var new_factory = Factory.new()
-		new_factory.position = Vector2(-2000 + f*100,-2000)
-		new_factory.visible = false
-		sel_factories.append(new_factory)
-		viewport_planets.add_child(new_factory)
-	for e in max_extractors_per_star:
-		var new_extractor = Extractor.new()
-		new_extractor.position = Vector2(-2000 + e*100,-1500)
-		new_extractor.visible = true
-		sel_extractors.append(new_extractor)
-		viewport_planets.add_child(new_extractor)
 	
 	UpgradeButton.pressed.connect(toggle_upgrade_window)
 	
@@ -82,7 +63,7 @@ func _ready() -> void:
 func set_hover_sprites():
 	spr_star_selected = Sprite2D.new()
 	spr_star_selected.name = "spr_star_selected"
-	spr_star_selected.texture = load("res://Images/circle_selected.png")
+	spr_star_selected.texture = load("res://Images/circle_selected0.png")
 	spr_star_selected.scale = Vector2.ONE
 	spr_star_selected.z_index = 1
 	spr_star_selected.visible = false
@@ -98,7 +79,7 @@ func set_hover_sprites():
 	
 	spr_planet_selected = Sprite2D.new()
 	spr_planet_selected.name = "spr_planet_selected"
-	spr_planet_selected.texture = load("res://Images/circle_selected.png")
+	spr_planet_selected.texture = load("res://Images/circle_selected0.png")
 	spr_planet_selected.scale = Vector2.ONE
 	spr_planet_selected.z_index = 1
 	spr_planet_selected.visible = false
@@ -112,42 +93,6 @@ func set_hover_sprites():
 	spr_planet_hover.visible = false
 	viewport_planets.add_child(spr_planet_hover)
 
-#TODO: it would be real convenient if factores and planets could just handle their own path creation but that has potential to explode memroy requirements
-func instantiate_planet_paths():
-	for p in max_planets_per_star:
-		#CREATE NEW PATH
-		var new_line = Line2D.new()
-		new_line.z_index = -1
-		new_line.closed = true
-		new_line.default_color = Color.DIM_GRAY
-		new_line.width = 5
-		
-		var new_path = Path2D.new()
-		new_path.curve = Curve2D.new()
-		
-		for point in num_points_per_path:
-			new_path.curve.add_point(Vector2.ZERO)
-			new_line.add_point(Vector2.ZERO)
-		
-		#CREATE NEW PATH FOLLOWER
-		var new_follower = PathFollow2D.new()
-		new_follower.loop = true
-		
-		#CREATE CLICKABLE AREAS
-		var new_area = Area2D.new()
-		var collision_shape = CollisionShape2D.new()
-		collision_shape.shape = CircleShape2D.new()
-		collision_shape.shape.radius = 10
-		new_area.input_event.connect(_try_select_planet)
-		new_area.add_child(collision_shape)
-		sel_planet_areas.append(new_area)
-		
-		sel_paths.append(new_path)
-		sel_path_followers.append(new_follower)
-		sel_path_lines.append(new_line)
-		sel_paths[p].add_child(sel_path_followers[p])
-		sel_paths[p].add_child(sel_path_lines[p])
-		viewport_planets.add_child(sel_paths[p])
 
 func _process(delta: float) -> void:
 	time += delta
@@ -181,38 +126,14 @@ func set_selected_star(pStar: Star) -> void:
 	clear_selected_star()
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
-	sel_star.add_extractor()
-	for p in sel_star.planets.size():
-		sel_paths[p].curve = Curve2D.new()
-		var angle = 0.0
-		for point in num_points_per_path:
-			var new_point = Vector2(
-				cos(angle) * sel_star.planets[p].orbital_radius,
-				sin(angle) * sel_star.planets[p].orbital_radius
-			)
-			sel_paths[p].curve.add_point(new_point)
-			sel_path_lines[p].points[point] = new_point
-			angle += 6.2832 / (num_points_per_path - 1)
-			
-		sel_paths[p].position = sel_star.planets[p].orbital_offset
-		sel_path_lines[p].visible = true
-		sel_path_followers[p].add_child(sel_star.planets[p])
-		sel_star.planets[p].add_child(sel_planet_areas[p])
-		sel_planet_areas[p].mouse_entered.connect(_hover_planet.bind(sel_star.planets[p]))
-		sel_planet_areas[p].mouse_exited.connect(_exit_hover_planet.bind(sel_star.planets[p]))
-		sel_path_followers[p].progress_ratio = sel_star.planets[p].orbital_position
 	
-	for f in max_factories_per_star:
-		if f < sel_star.factories.size():
-			sel_factories[f].visible = true
-		else:
-			sel_factories[f].visible = false
-	for e in max_extractors_per_star:
-		if e < sel_star.extractors.size():
-			sel_extractors[e].visible = true
-		else:
-			sel_extractors[e].visible = false;
-			
+	for p in sel_star.paths.size():
+		viewport_planets.add_child(sel_star.paths[p])
+	if sel_star.factory_path != null:
+		viewport_planets.add_child(sel_star.factory_path)
+	for e in sel_star.extractors.size():
+		viewport_planets.add_child(sel_star.extractors[e])
+	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
 	
@@ -221,34 +142,26 @@ func set_selected_star(pStar: Star) -> void:
 	star_viewer_sprite_star.scale = Vector2.ONE * 10
 	star_viewer_sprite_star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	viewport_planets.add_child(star_viewer_sprite_star)
-	
-	orbit_planets()
+	sel_star.update_followers()
 	
 
 func clear_selected_star() -> void:
 	if sel_star == null:
 		return
 		
-	for p in sel_star.planets.size():
-		sel_paths[p].curve.clear_points()
-		sel_paths[p].curve = null
-		sel_path_lines[p].visible = false
-		sel_path_followers[p].remove_child(sel_star.planets[p])
-		sel_star.planets[p].remove_child(sel_planet_areas[p])
-		var callables = sel_planet_areas[p].mouse_entered.get_connections()
-		for c in callables.size():
-			sel_planet_areas[p].mouse_entered.disconnect(callables[c].callable)
-		callables = sel_planet_areas[p].mouse_exited.get_connections()
-		for c in callables.size():
-			sel_planet_areas[p].mouse_exited.disconnect(callables[c].callable)
-		
-		
+	for p in sel_star.paths.size():
+		viewport_planets.remove_child(sel_star.paths[p])
+	if sel_star.factory_path != null:
+		viewport_planets.remove_child(sel_star.factory_path)
+	for e in sel_star.extractors.size():
+		viewport_planets.remove_child(sel_star.extractors[e])
+	
+	
 	star_viewer_sprite_star.queue_free()
 	
 	sel_star.deselect()
 	sel_star = null
 	spr_star_selected.visible = false
-	
 	
 	
 
@@ -258,20 +171,6 @@ func clear_selected_star() -> void:
 
 
 #region PLANETS
-func orbit_planets():
-	while sel_star != null:
-		for p in sel_star.planets.size():
-			sel_path_followers[p].progress_ratio += sel_star.planets[p].orbital_velocity #TODO sel_path_followers[p] WILL SOMEDAY CAUSE A PROBLEM
-			
-		for f in sel_star.factories.size():
-			var x = cos(time + sel_star.factories[f].orbital_position) * sel_star.factories[f].orbital_radius + 256
-			var y = sin(time + sel_star.factories[f].orbital_position) * sel_star.factories[f].orbital_radius + 256
-			sel_star.factories[f].position = Vector2(x,y)
-			
-			
-		await get_tree().process_frame
-		
-		
 func _hover_planet(pPlanet: Planet):
 	pPlanet._on_hover()
 	spr_planet_hover.visible = true

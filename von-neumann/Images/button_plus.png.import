@@ -3,15 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvbq257fqj47c"
-path="res://.godot/imported/button_plus.png-c270866139b0994067f0f64c6805ab4c.ctex"
-metadata={
-"vram_texture": false
-}
+valid=false
 
 [deps]
 
 source_file="res://Images/button_plus.png"
-dest_files=["res://.godot/imported/button_plus.png-c270866139b0994067f0f64c6805ab4c.ctex"]
 
 [params]
 

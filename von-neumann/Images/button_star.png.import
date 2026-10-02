@@ -3,15 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdd0eusscm3p2"
-path="res://.godot/imported/button_star.png-0e3f6b4b2f71097007bbf8700d800f27.ctex"
-metadata={
-"vram_texture": false
-}
+valid=false
 
 [deps]
 
 source_file="res://Images/button_star.png"
-dest_files=["res://.godot/imported/button_star.png-0e3f6b4b2f71097007bbf8700d800f27.ctex"]
 
 [params]
 

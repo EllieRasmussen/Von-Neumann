@@ -10,8 +10,10 @@ var orbital_offset: Vector2
 var selected = false
 var hover = false
 
-var num_extractors = 0
-var max_extractors = 10
+var extractors: int = 0
+var max_extractors: int = 10
+
+var time_per_extraction: float
 
 func _ready() -> void:	
 	#SET TEXTURE
@@ -29,9 +31,10 @@ func _ready() -> void:
 	
 func set_orbital_radius(pRadius) -> void:
 	orbital_radius = pRadius
-	orbital_velocity = randf_range((1.0/pRadius)*0.05,(1.0/pRadius)*0.25)
-	var r = orbital_radius * 0.5
-	orbital_offset = Vector2(randf_range(-r,r),randf_range(-r,r))
+	orbital_velocity = randf_range((1.0/pRadius)*10,(1.0/pRadius)*100)
+
+func  add_extractors(pExtractors) -> void:
+	extractors += pExtractors
 
 func extract_resource(pResource) -> void:
 	resource -= pResource

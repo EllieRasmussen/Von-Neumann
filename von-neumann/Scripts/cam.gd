@@ -35,3 +35,6 @@ func _input(event: InputEvent) -> void:
 		if zoom.x - zoom_interval.x >= min_zoom:
 			zoom -= zoom_interval
 		
+
+func center(center_point: Vector2) -> void:
+	position = center_point - offset

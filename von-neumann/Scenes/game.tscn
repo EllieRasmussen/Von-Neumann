@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://dmbx04csi10wu"]
+[gd_scene load_steps=8 format=3 uid="uid://dmbx04csi10wu"]
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
 [ext_resource type="LabelSettings" uid="uid://y43l2tfayatv" path="res://info_text.tres" id="3_h4fw4"]
 [ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
 [ext_resource type="Theme" uid="uid://dhyp34j0sh67u" path="res://test_theme.tres" id="5_h4fw4"]
+[ext_resource type="Texture2D" uid="uid://dv7714tnu335h" path="res://Images/planet1.png" id="5_i6g32"]
 
 [sub_resource type="Curve2D" id="Curve2D_i6g32"]
 
@@ -259,6 +260,8 @@ text = "NAME"
 
 [node name="info texture" type="TextureRect" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
+texture = ExtResource("5_i6g32")
+stretch_mode = 3
 
 [node name="info lbl" type="Label" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer"]
 layout_mode = 2

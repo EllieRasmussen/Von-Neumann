@@ -3,7 +3,6 @@ extends Sprite2D
 const ProgBar = preload("res://Scripts/prog_bar.gd")
 
 var orbital_position: float
-var orbital_radius: float
 var orbital_velocity: float
 
 var resource = 0
@@ -16,7 +15,6 @@ func _ready() -> void:
 	scale = Vector2.ONE * 5
 	
 	orbital_position = randf_range(0,1)
-	orbital_radius = 2000
 	orbital_velocity = randf_range(0.00000000001,0.0000000001)
 	
 	resource_bar = ProgBar.new()
