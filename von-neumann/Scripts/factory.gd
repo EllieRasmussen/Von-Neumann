@@ -2,6 +2,7 @@ extends Sprite2D
 
 const ProgBar = preload("res://Scripts/prog_bar.gd")
 
+var orbital_radius: float
 var orbital_position: float
 var orbital_velocity: float
 

@@ -5,7 +5,7 @@ const Star = preload("res://Scripts/star.gd")
 var speed = 10
 
 func _ready():
-	texture = load("res://Images/probe.png")
+	texture = load("res://Images/probe0.png")
 	scale = Vector2.ONE * 0.25
 	
 func travel(pFrom: Vector2, pTo: Star) -> void:
@@ -14,7 +14,6 @@ func travel(pFrom: Vector2, pTo: Star) -> void:
 	while(dist_to_target > 25):
 		position += direction * speed * get_process_delta_time()
 		dist_to_target = global_position.distance_squared_to(pTo.position)
-		print(dist_to_target)
 		await Engine.get_main_loop().process_frame
 		
 	

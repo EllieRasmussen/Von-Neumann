@@ -51,6 +51,8 @@ func _ready() -> void:
 	
 	stars[0].add_factory()
 	stars[0].add_extractor()
+	for i in 9:
+		stars[0].add_extractor()
 	cam_stars.center(stars[0].position)
 	
 	Prim()
@@ -111,6 +113,8 @@ func create_star(pPos: Vector2):
 	s.star_dehovered.connect(clear_hovered_star)
 	s.star_selected.connect(set_selected_star.bind(s))
 	
+	s.viewport_planets = viewport_planets
+	
 	stars.append(s)
 	viewport_stars.add_child(s)
 
@@ -133,6 +137,8 @@ func set_selected_star(pStar: Star) -> void:
 		viewport_planets.add_child(sel_star.factory_path)
 	for e in sel_star.extractors.size():
 		viewport_planets.add_child(sel_star.extractors[e])
+	for c in sel_star.cargo.size():
+		viewport_planets.add_child(sel_star.cargo[c])
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
@@ -155,6 +161,8 @@ func clear_selected_star() -> void:
 		viewport_planets.remove_child(sel_star.factory_path)
 	for e in sel_star.extractors.size():
 		viewport_planets.remove_child(sel_star.extractors[e])
+	for c in sel_star.cargo.size():
+		viewport_planets.remove_child(sel_star.cargo[c])
 	
 	
 	star_viewer_sprite_star.queue_free()

@@ -6,10 +6,14 @@ const ProgBar = preload("res://Scripts/prog_bar.gd")
 const Probe = preload("res://Scripts/probe.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
+const Cargo = preload("res://Scripts/cargo.gd")
+
+var viewport_planets: SubViewport
 
 var planets: Array[Planet]
 var factories: Array[Factory]
 var extractors: Array[Extractor]
+var cargo: Array[Cargo]
 
 var num_points_per_path = 50
 var paths: Array[Path2D]
@@ -75,16 +79,34 @@ func _process(delta: float) -> void:
 			followers[f].progress_ratio += planets[f].orbital_velocity * delta
 		for f in factory_followers.size():
 			factory_followers[f].progress_ratio += factory_orbit_speed * delta
+		for e in range(extractors.size()-1,-1,-1):
+			if extractors[e].travel(delta):
+				extractors[e].arrive()
+				extractors[e].queue_free()
+				extractors.remove_at(e)
+		for c in range(cargo.size()-1,-1,-1):
+			if cargo[c].travel(delta, factory_progress_bank[0]):
+				cargo[c].arrive()
+				cargo[c].queue_free()
+				cargo.remove_at(c)
 	else:
+		for p in planets.size():
+			planets[p].unselected_process(delta)
 		for f in progress_bank.size():
 			progress_bank[f] += planets[f].orbital_velocity * delta
 		for f in factory_progress_bank.size():
 			factory_progress_bank[f] += factory_orbit_speed * delta
-			
-			
-	if not selected:
-		for e in extractors.size():
-			extractors[e].unselected_process(delta)
+		for e in range(extractors.size()-1,-1,-1):
+			if extractors[e].travel(delta):
+				extractors[e].arrive()
+				extractors[e].queue_free()
+				extractors.remove_at(e)
+		for c in range(cargo.size()-1,-1,-1):
+			if cargo[c].travel(delta, factory_progress_bank[0]):
+				cargo[c].arrive()
+				cargo[c].queue_free()
+				cargo.remove_at(c)
+
 
 func _draw():
 	for a in adj.size():
@@ -130,6 +152,8 @@ func create_planets(num_planets: int) -> void:
 		new_follower.loop = true
 		progress_bank.append(randf())
 		
+		new_planet.extracted.connect(add_cargo.bind(new_planet, new_follower))
+		
 		new_follower.add_child(new_planet)
 		new_path.add_child(new_follower)
 		new_path.add_child(new_line)
@@ -171,6 +195,7 @@ func add_factory() -> void:
 	
 	var new_factory = Factory.new()
 	new_factory.created_probe.connect(send_probe)
+	new_factory.orbital_radius = factory_orbit
 	
 	
 	var new_follower = PathFollow2D.new()
@@ -188,10 +213,28 @@ func add_factory() -> void:
 		
 func add_extractor() -> void:
 	var new_extractor = Extractor.new()
-	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].progress_ratio + factory_progress_bank[0])
-	new_extractor.go_to_planet(planets[0],followers[0])
+	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].progress_ratio + factory_progress_bank[0]) + (Vector2(randf(),randf())*10000)
+	new_extractor.set_target_planet(planets[0],followers[0])
 	extractors.append(new_extractor)
+	if selected:
+		viewport_planets.add_child(new_extractor)
 	
+	
+func add_cargo(pPlanet: Planet, pFollower: PathFollow2D) -> void:
+	var new_cargo = Cargo.new()
+	var angle = 6.283 * pFollower.progress_ratio
+	new_cargo.position = Vector2(
+		cos(angle) * pPlanet.orbital_radius,
+		sin(angle) * pPlanet.orbital_radius
+	)
+	new_cargo.position += pPlanet.orbital_offset
+	new_cargo.set_target_factory(factories[0], factory_followers[0])
+	cargo.append(new_cargo)
+	if selected:
+		viewport_planets.add_child(new_cargo)
+	
+
+
 func send_probe() -> void:
 	var target = adj[0]
 	var dist_to_target = adj[0].position.distance_squared_to(position)

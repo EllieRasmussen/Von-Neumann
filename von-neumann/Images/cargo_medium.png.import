@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c8lv3e5em5rk3"
-valid=false
+uid="uid://dkgk6pxn6t371"
+path="res://.godot/imported/cargo_medium.png-fcd774f7777f9c6ae94e6794970c6090.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
-source_file="res://Images/probe.png"
+source_file="res://Images/cargo_medium.png"
+dest_files=["res://.godot/imported/cargo_medium.png-fcd774f7777f9c6ae94e6794970c6090.ctex"]
 
 [params]
 
