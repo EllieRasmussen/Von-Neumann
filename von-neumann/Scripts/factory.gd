@@ -32,8 +32,6 @@ func _process(delta: float) -> void:
 
 func add_resource(pResource) -> void:
 	resource += pResource
-	print("Added " + str(pResource) + " TOTAL: " + str(resource))
 	if resource >=1:
 		created_probe.emit()
 		resource -= 1
-		print("Created probe. " + "TOTAL: " + str(resource))

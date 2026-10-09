@@ -16,4 +16,9 @@ func travel(pFrom: Vector2, pTo: Star) -> void:
 		dist_to_target = global_position.distance_squared_to(pTo.position)
 		await Engine.get_main_loop().process_frame
 		
-	
+	arrive(pTo)
+	self.queue_free()
+
+func arrive(pStar: Star) -> void:
+	if randf() < 0.1:
+		pStar.add_factory()

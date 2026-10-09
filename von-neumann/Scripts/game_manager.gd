@@ -17,6 +17,13 @@ var time: float
 @export var UpgradeButton: Button
 @export var UpgradeWindow: Window
 
+@export var window_planet_info: Window
+@export var texture_planet_sprite: TextureRect
+@export var lbl_planet_name: Label
+@export var lbl_planet_resource_multiplier: Label
+@export var lbl_planet_extractors: Label
+@export var progbar_planet_next_ext: ProgressBar
+
 var stars: Array[Star] = []
 var max_stars = 25
 var max_planets_per_star = 10
@@ -29,15 +36,8 @@ var sel_planet: Planet
 
 var spr_star_hover: Sprite2D
 var spr_star_selected: Sprite2D
-var spr_planet_hover: Sprite2D
-var spr_planet_selected: Sprite2D
 
 var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
-
-@export var info_window: Window
-@export var info_name: Label
-@export var info_texture: TextureRect
-@export var info_lbl: Label
 
 var probe_travel_dist = 50 # LIGHTYEARS
 var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
@@ -78,22 +78,6 @@ func set_hover_sprites():
 	spr_star_hover.z_index = 2
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
-	
-	spr_planet_selected = Sprite2D.new()
-	spr_planet_selected.name = "spr_planet_selected"
-	spr_planet_selected.texture = load("res://Images/circle_selected0.png")
-	spr_planet_selected.scale = Vector2.ONE
-	spr_planet_selected.z_index = 1
-	spr_planet_selected.visible = false
-	viewport_planets.add_child(spr_planet_selected)
-	
-	spr_planet_hover = Sprite2D.new()
-	spr_planet_hover.name = "spr_planet_hover"
-	spr_planet_hover.texture = load("res://Images/circle_hover.png")
-	spr_planet_hover.scale = Vector2.ONE
-	spr_planet_hover.z_index = 2
-	spr_planet_hover.visible = false
-	viewport_planets.add_child(spr_planet_hover)
 
 
 func _process(delta: float) -> void:
@@ -101,6 +85,9 @@ func _process(delta: float) -> void:
 	
 	if split_container_dragging:
 		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
+		
+	if sel_planet != null:
+		progbar_planet_next_ext.value = sel_planet.get_extraction_progress() * 100.0
 
 
 #region STARS
@@ -112,6 +99,8 @@ func create_star(pPos: Vector2):
 	s.star_hovered.connect(set_hovered_star.bind(s))
 	s.star_dehovered.connect(clear_hovered_star)
 	s.star_selected.connect(set_selected_star.bind(s))
+	
+	s.set_sel_planet.connect(set_selected_planet)
 	
 	s.viewport_planets = viewport_planets
 	
@@ -149,15 +138,18 @@ func set_selected_star(pStar: Star) -> void:
 	star_viewer_sprite_star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	viewport_planets.add_child(star_viewer_sprite_star)
 	sel_star.update_followers()
-	
 
 func clear_selected_star() -> void:
 	if sel_star == null:
 		return
-		
+	
+	for p in sel_star.followers.size():
+		sel_star.followers[p].bank_progress()
 	for p in sel_star.paths.size():
 		viewport_planets.remove_child(sel_star.paths[p])
 	if sel_star.factory_path != null:
+		for f in sel_star.factory_followers.size():
+			sel_star.factory_followers[f].bank_progress()
 		viewport_planets.remove_child(sel_star.factory_path)
 	for e in sel_star.extractors.size():
 		viewport_planets.remove_child(sel_star.extractors[e])
@@ -179,32 +171,25 @@ func clear_selected_star() -> void:
 
 
 #region PLANETS
-func _hover_planet(pPlanet: Planet):
-	pPlanet._on_hover()
-	spr_planet_hover.visible = true
-	spr_planet_hover.reparent(pPlanet, false)
-
-func _exit_hover_planet(pPlanet: Planet):
-	pPlanet._exit_hover()
-	spr_planet_hover.visible = false
-	
 func set_selected_planet(pPlanet: Planet):
 	if sel_planet != null:
 		clear_selected_planet()
-	info_window.visible = true
-	info_name.text = "PLANET"
-	info_texture.texture = pPlanet.texture
-	info_lbl.text = "RESOURCE: " + str(pPlanet.resource)
-	spr_planet_hover.visible = false
-	spr_planet_selected.visible = true
-	spr_planet_selected.reparent(pPlanet, false)
-	pPlanet.select()
+	sel_planet = pPlanet
+	window_planet_info.visible = true
+	texture_planet_sprite.texture = pPlanet.texture
+	lbl_planet_name.text = pPlanet.name
+	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % pPlanet.resource)
+	lbl_planet_extractors.text = "EXTRACTORS: " + str(pPlanet.extractors)
 	
 func clear_selected_planet():
-	info_name.text = ""
-	info_texture.texture = null
-	info_lbl.text = ""
-	spr_planet_selected.visible = false
+	if sel_planet != null:
+		sel_planet.deselect()
+		sel_planet = null
+	
+	texture_planet_sprite.texture = null
+	lbl_planet_name.text = ""
+	lbl_planet_resource_multiplier.text = ""
+	lbl_planet_extractors.text = ""
 	
 
 func _try_select_planet(_viewport: Node, event: InputEvent, _shape_idx: int):
@@ -273,11 +258,30 @@ func _on_h_split_container_2_drag_ended() -> void:
 func _on_h_split_container_2_drag_started() -> void:
 	split_container_dragging = true
 
-
-func _on_window_info_close_requested() -> void:
-	info_window.visible = false
 func toggle_upgrade_window():
 	UpgradeWindow.visible = !UpgradeWindow.visible;
 
 
+func _on_window__planet_info_close_requested() -> void:
+	window_planet_info.visible = false
+	clear_selected_planet()
+
+#endregion
+
+#region WINDOW - PLANET INFO
+var mouse_over_window: bool = false
+func _on_window__planet_info_mouse_entered() -> void:
+	mouse_over_window = true
+
+func _on_window__planet_info_mouse_exited() -> void:
+	mouse_over_window = false
+
+
+@export var subviewport_container_planets: SubViewportContainer
+func _on_window__planet_info_window_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and window_planet_info.has_focus() and not mouse_over_window:
+			print("refocus")
+			split_container.call_deferred("grab_focus")
+			
 #endregion

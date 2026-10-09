@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
-[ext_resource type="Script" uid="uid://bh11gyhdfguyv" path="res://Scripts/custom_h_split_container.gd" id="4_wowpa"]
 [ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
+[ext_resource type="Theme" uid="uid://dhyp34j0sh67u" path="res://test_theme.tres" id="5_h4fw4"]
 [ext_resource type="Texture2D" uid="uid://dv7714tnu335h" path="res://Images/planet1.png" id="5_i6g32"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_wowpa"]
@@ -13,22 +13,18 @@ vertical = true
 
 [sub_resource type="Curve2D" id="Curve2D_i6g32"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "window_planet_info", "texture_planet_sprite", "lbl_planet_name", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_ext", "split_container", "subviewport_container_planets")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "info_name", "info_texture", "info_lbl", "split_container")]
 script = ExtResource("1_v158k")
-cam_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
-cam_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
-viewport_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars")
-viewport_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets")
-UpgradeButton = NodePath("star planet h split container/SubViewportContainer Stars/UpgradeButton")
+cam_stars = NodePath("HSplitContainer2/SubViewportContainer/SubViewport Stars/cam_stars")
+cam_planets = NodePath("HSplitContainer2/SubViewportContainer2/SubViewport Planets/cam_planets")
+viewport_stars = NodePath("HSplitContainer2/SubViewportContainer/SubViewport Stars")
+viewport_planets = NodePath("HSplitContainer2/SubViewportContainer2/SubViewport Planets")
+UpgradeButton = NodePath("HSplitContainer2/SubViewportContainer/UpgradeButton")
 UpgradeWindow = NodePath("Window - Upgrades")
-window_planet_info = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info")
-texture_planet_sprite = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/texture planet")
-lbl_planet_name = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/lbl planet name")
-lbl_planet_resource_multiplier = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/lbl planet resource multiplier")
-lbl_planet_extractors = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/lbl planet extractors")
-progbar_planet_next_ext = NodePath("star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/VBoxContainer Extraction Progress/ProgressBar")
-split_container = NodePath("star planet h split container")
-subviewport_container_planets = NodePath("star planet h split container/SubViewportContainer Planets")
+info_name = NodePath("HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/VBoxContainer/info name")
+info_texture = NodePath("HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/VBoxContainer/info texture")
+info_lbl = NodePath("HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/info lbl")
+split_container = NodePath("HSplitContainer2")
 
 [node name="Window - Upgrades" type="Window" parent="."]
 oversampling_override = 1.0
@@ -203,121 +199,84 @@ layout_mode = 2
 layout_mode = 2
 text = "10 Research"
 
-[node name="star planet h split container" type="HSplitContainer" parent="."]
+[node name="HSplitContainer2" type="HSplitContainer" parent="."]
 offset_right = 1920.0
 offset_bottom = 1080.0
-focus_mode = 2
 theme = ExtResource("2_1l0tm")
 theme_override_styles/split_bar_background = SubResource("StyleBoxLine_wowpa")
 split_offset = 960
-script = ExtResource("4_wowpa")
 
-[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="star planet h split container"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="HSplitContainer2"]
 layout_mode = 2
 stretch = true
-mouse_target = true
 
-[node name="UpgradeButton" type="Button" parent="star planet h split container/SubViewportContainer Stars"]
+[node name="UpgradeButton" type="Button" parent="HSplitContainer2/SubViewportContainer"]
 layout_mode = 2
 text = "Upgrades"
 
-[node name="SubViewport Stars" type="SubViewport" parent="star planet h split container/SubViewportContainer Stars"]
+[node name="SubViewport Stars" type="SubViewport" parent="HSplitContainer2/SubViewportContainer"]
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(960, 1080)
 render_target_update_mode = 4
 
-[node name="cam_stars" type="Camera2D" parent="star planet h split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
+[node name="cam_stars" type="Camera2D" parent="HSplitContainer2/SubViewportContainer/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
 offset = Vector2(960, 540)
 script = ExtResource("5_1l0tm")
 subviewport = NodePath("..")
 zoom_interval = Vector2(0.05, 0.05)
 
-[node name="SubViewportContainer Planets" type="SubViewportContainer" parent="star planet h split container"]
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="HSplitContainer2"]
 layout_mode = 2
-focus_mode = 2
 stretch = true
-mouse_target = true
 
-[node name="SubViewport Planets" type="SubViewport" parent="star planet h split container/SubViewportContainer Planets"]
+[node name="SubViewport Planets" type="SubViewport" parent="HSplitContainer2/SubViewportContainer2"]
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(948, 1080)
 render_target_update_mode = 4
 
-[node name="cam_planets" type="Camera2D" parent="star planet h split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
+[node name="cam_planets" type="Camera2D" parent="HSplitContainer2/SubViewportContainer2/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
 script = ExtResource("5_1l0tm")
 subviewport = NodePath("..")
 zoom_interval = Vector2(0.05, 0.05)
 
-[node name="Window - Planet Info" type="Window" parent="star planet h split container/SubViewportContainer Planets"]
-oversampling_override = 1.0
-title = "INFORMATION"
-position = Vector2i(300, 300)
-size = Vector2i(700, 355)
-unresizable = true
-always_on_top = true
-minimize_disabled = true
-maximize_disabled = true
-theme = ExtResource("2_1l0tm")
+[node name="FoldableContainer" type="FoldableContainer" parent="HSplitContainer2/SubViewportContainer2"]
+layout_mode = 2
+theme = ExtResource("5_h4fw4")
+title = "INFO"
+title_position = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info"]
-custom_minimum_size = Vector2(500, 100)
-offset_right = 40.0
-offset_bottom = 40.0
-theme = ExtResource("2_1l0tm")
+[node name="ColorRect" type="ColorRect" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer"]
+layout_mode = 2
+color = Color(0.113725, 0.113725, 0.113725, 1)
 
-[node name="texture planet" type="TextureRect" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer"]
-texture_filter = 1
-custom_minimum_size = Vector2(350, 350)
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="info name" type="Label" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "NAME"
+
+[node name="info texture" type="TextureRect" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 texture = ExtResource("5_i6g32")
-stretch_mode = 5
+stretch_mode = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer"]
+[node name="info lbl" type="Label" parent="HSplitContainer2/SubViewportContainer2/FoldableContainer/HBoxContainer"]
 layout_mode = 2
-
-[node name="lbl planet name" type="Label" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "Planet Name"
-
-[node name="lbl planet resource multiplier" type="Label" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "Resource: x1"
-
-[node name="lbl planet extractors" type="Label" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "Extractors: "
-
-[node name="VBoxContainer Extraction Progress" type="VBoxContainer" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="lbl planet next extraction" type="Label" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/VBoxContainer Extraction Progress"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "Next Extraction:"
-
-[node name="ProgressBar" type="ProgressBar" parent="star planet h split container/SubViewportContainer Planets/Window - Planet Info/HBoxContainer/VBoxContainer/VBoxContainer Extraction Progress"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
 
 [node name="Path2D" type="Path2D" parent="."]
 curve = SubResource("Curve2D_i6g32")
 
+[node name="Window" type="Window" parent="."]
+oversampling_override = 1.0
+position = Vector2i(110, 85)
+theme = ExtResource("2_1l0tm")
+
 [connection signal="close_requested" from="Window - Upgrades" to="." method="_on_window__upgrades_close_requested"]
-[connection signal="gui_input" from="star planet h split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
-[connection signal="close_requested" from="star planet h split container/SubViewportContainer Planets/Window - Planet Info" to="." method="_on_window__planet_info_close_requested"]
-[connection signal="mouse_entered" from="star planet h split container/SubViewportContainer Planets/Window - Planet Info" to="." method="_on_window__planet_info_mouse_entered"]
-[connection signal="mouse_exited" from="star planet h split container/SubViewportContainer Planets/Window - Planet Info" to="." method="_on_window__planet_info_mouse_exited"]
-[connection signal="window_input" from="star planet h split container/SubViewportContainer Planets/Window - Planet Info" to="." method="_on_window__planet_info_window_input"]

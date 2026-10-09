@@ -1,14 +1,21 @@
 extends Sprite2D
 
-var resource = randi_range(1000,10000)
+var resource: float = randf_range(0.25,1.75)
 
 var orbital_position: float
 var orbital_radius: float
 var orbital_velocity: float
 var orbital_offset: Vector2
 
+var area2D: Area2D
+
 var selected = false
 var hover = false
+
+signal planet_hovered
+signal planet_dehovered
+signal planet_selected
+signal planet_deselected
 
 var extractors: int = 0
 var max_extractors: int = 10
@@ -30,6 +37,15 @@ func _ready() -> void:
 	
 	orbital_position = randf_range(0,1)
 	
+	area2D = Area2D.new()
+	var collisionShape = CollisionShape2D.new()
+	collisionShape.shape = CircleShape2D.new()
+	collisionShape.shape.radius = 10
+	area2D.mouse_entered.connect(_on_hover)
+	area2D.mouse_exited.connect(_exit_hover)
+	area2D.input_event.connect(handle_area2d_input)
+	area2D.add_child(collisionShape)
+	add_child(area2D)
 	
 func _process(delta: float) -> void:
 	if extractors > 0:
@@ -55,15 +71,26 @@ func  add_extractors(pExtractors) -> void:
 
 func extract_resource(pResource) -> void:
 	extracted.emit()
+	
+func get_extraction_progress() -> float:
+	return extraction_timer / time_per_extraction
 
 func _on_hover():
 	hover = true
+	planet_hovered.emit()
 	
 func _exit_hover():
 	hover = false
+	planet_dehovered.emit()
 	
 func select():
 	selected = true
+	planet_selected.emit()
 	
 func deselect():
 	selected = false
+	planet_deselected.emit()
+
+func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
+	if event.is_action_pressed("Click") and not selected:
+		select()

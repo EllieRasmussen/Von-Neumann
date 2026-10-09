@@ -7,6 +7,7 @@ const Probe = preload("res://Scripts/probe.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 const Cargo = preload("res://Scripts/cargo.gd")
+const OffscreenFollower = preload("res://Scripts/offscreen_follower.gd")
 
 var viewport_planets: SubViewport
 
@@ -17,14 +18,12 @@ var cargo: Array[Cargo]
 
 var num_points_per_path = 50
 var paths: Array[Path2D]
-var followers: Array[PathFollow2D]
-var progress_bank: Array[float] #you can't advance progress without being in the scene tree >:[
+var followers: Array[OffscreenFollower]
 
-var factory_orbit = 15000
-var factory_orbit_speed = 0.001
+var factory_orbit = 15000 #15000 originally 
+var factory_orbit_speed = 0.001 #0.001 originally
 var factory_path: Path2D
-var factory_followers: Array[PathFollow2D]
-var factory_progress_bank: Array[float] # YOU CAN"T ADVANCE PROGRESS WITHOUT BEING IN THE SCENE TREE >:[
+var factory_followers: Array[OffscreenFollower]
 
 signal star_hovered
 signal star_dehovered
@@ -38,7 +37,9 @@ var active = false
 var spr_active: Sprite2D
 
 var area2D: Area2D
-var collisionShape: CollisionShape2D
+
+var spr_planet_hover: Sprite2D
+var spr_planet_selected: Sprite2D
 
 var adj = []
 
@@ -56,7 +57,7 @@ func _ready() -> void:
 	create_factory_path()
 	
 	area2D = Area2D.new()
-	collisionShape = CollisionShape2D.new()
+	var collisionShape = CollisionShape2D.new()
 	collisionShape.shape = CircleShape2D.new()
 	collisionShape.shape.radius = 10
 	area2D.mouse_entered.connect(_on_hover)
@@ -70,43 +71,46 @@ func _ready() -> void:
 	set_active(false)
 	add_child(spr_active)
 	
+	spr_planet_hover = Sprite2D.new()
+	spr_planet_hover.texture = load("res://Images/circle_hover.png")
+	spr_planet_hover.visible = false
+	spr_planet_hover.scale = Vector2.ONE * 10
+	add_child(spr_planet_hover)
+	
+	spr_planet_selected = Sprite2D.new()
+	spr_planet_selected.texture = load("res://Images/circle_selected0.png")
+	spr_planet_selected.visible = false
+	spr_planet_selected.scale  = Vector2.ONE * 10
+	add_child(spr_planet_selected)
 
 
 
 func _process(delta: float) -> void:
 	if selected:
 		for f in followers.size():
-			followers[f].progress_ratio += planets[f].orbital_velocity * delta
+			followers[f].process_on_screen(planets[f].orbital_velocity * delta)
 		for f in factory_followers.size():
-			factory_followers[f].progress_ratio += factory_orbit_speed * delta
-		for e in range(extractors.size()-1,-1,-1):
-			if extractors[e].travel(delta):
-				extractors[e].arrive()
-				extractors[e].queue_free()
-				extractors.remove_at(e)
-		for c in range(cargo.size()-1,-1,-1):
-			if cargo[c].travel(delta, factory_progress_bank[0]):
-				cargo[c].arrive()
-				cargo[c].queue_free()
-				cargo.remove_at(c)
+			factory_followers[f].process_on_screen(factory_orbit_speed * delta)
+		
 	else:
 		for p in planets.size():
 			planets[p].unselected_process(delta)
-		for f in progress_bank.size():
-			progress_bank[f] += planets[f].orbital_velocity * delta
-		for f in factory_progress_bank.size():
-			factory_progress_bank[f] += factory_orbit_speed * delta
-		for e in range(extractors.size()-1,-1,-1):
+		for f in followers.size():
+			followers[f].process_off_screen(planets[f].orbital_velocity * delta)
+		for f in factory_followers.size():
+			factory_followers[f].process_off_screen(factory_orbit_speed * delta)
+	
+	
+	for e in range(extractors.size()-1,-1,-1):
 			if extractors[e].travel(delta):
 				extractors[e].arrive()
 				extractors[e].queue_free()
 				extractors.remove_at(e)
-		for c in range(cargo.size()-1,-1,-1):
-			if cargo[c].travel(delta, factory_progress_bank[0]):
-				cargo[c].arrive()
-				cargo[c].queue_free()
-				cargo.remove_at(c)
-
+	for c in range(cargo.size()-1,-1,-1):
+		if cargo[c].travel(delta):
+			cargo[c].arrive()
+			cargo[c].queue_free()
+			cargo.remove_at(c)
 
 func _draw():
 	for a in adj.size():
@@ -120,6 +124,10 @@ func create_planets(num_planets: int) -> void:
 		var new_planet = Planet.new()
 		new_planet.centered = true
 		new_planet.set_orbital_radius(randf_range((p+1)*500,(p+1)*1500))
+		new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
+		new_planet.planet_dehovered.connect(dehover_planet)
+		new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
+		new_planet.planet_deselected.connect(deselect_planet)
 		
 		#PATH
 		var new_path = Path2D.new()
@@ -148,9 +156,9 @@ func create_planets(num_planets: int) -> void:
 			new_line.add_point(new_point)
 			angle += 6.2832 / (num_points_per_path - 1)
 			
-		var new_follower = PathFollow2D.new()
+		var new_follower = OffscreenFollower.new()
 		new_follower.loop = true
-		progress_bank.append(randf())
+		new_follower.banked_progress = randf()
 		
 		new_planet.extracted.connect(add_cargo.bind(new_planet, new_follower))
 		
@@ -198,36 +206,37 @@ func add_factory() -> void:
 	new_factory.orbital_radius = factory_orbit
 	
 	
-	var new_follower = PathFollow2D.new()
+	var new_follower = OffscreenFollower.new()
 	new_follower.loop = true
-	factory_progress_bank.append(randf())
+	new_follower.banked_progress = randf()
+	
 	
 	new_follower.add_child(new_factory)
 	factory_path.add_child(new_follower)
 	factories.append(new_factory)
 	factory_followers.append(new_follower)
 	
-	
 	if not active:
 		set_active(true)
 		
 func add_extractor() -> void:
 	var new_extractor = Extractor.new()
-	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].progress_ratio + factory_progress_bank[0]) + (Vector2(randf(),randf())*10000)
+	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].get_real_progress()) + (Vector2(randf(),randf())*10000)
 	new_extractor.set_target_planet(planets[0],followers[0])
 	extractors.append(new_extractor)
 	if selected:
 		viewport_planets.add_child(new_extractor)
 	
 	
-func add_cargo(pPlanet: Planet, pFollower: PathFollow2D) -> void:
+func add_cargo(pPlanet: Planet, pFollower: OffscreenFollower) -> void:
 	var new_cargo = Cargo.new()
-	var angle = 6.283 * pFollower.progress_ratio
+	var angle = 6.283 * pFollower.get_real_progress()
 	new_cargo.position = Vector2(
 		cos(angle) * pPlanet.orbital_radius,
 		sin(angle) * pPlanet.orbital_radius
 	)
 	new_cargo.position += pPlanet.orbital_offset
+	factory_followers[0].print_progress = true
 	new_cargo.set_target_factory(factories[0], factory_followers[0])
 	cargo.append(new_cargo)
 	if selected:
@@ -269,12 +278,10 @@ func get_factory_position_from_progress_ratio(pRatio: float) -> Vector2:
 
 func update_followers():
 	for f in followers.size():
-		followers[f].progress_ratio += progress_bank[f]
-		progress_bank[f] = 0.0
+		followers[f].update()
 	
 	for f in factory_followers.size():
-		factory_followers[f].progress_ratio += factory_progress_bank[f]
-		factory_progress_bank[f] = 0.0
+		factory_followers[f].update()
 
 #region HOVER, SELECTION, ACTIVE
 func _on_hover(): 
@@ -311,5 +318,23 @@ func exit_hover_planet(pPlanet: Planet) -> void:
 func set_active(pActive: bool) -> void:
 	active = pActive
 	spr_active.visible = active
+
+func set_hovered_planet(pPlanet: Planet) -> void:
+	spr_planet_hover.reparent(pPlanet)
+	spr_planet_hover.position = Vector2.ZERO
+	spr_planet_hover.visible = true
+
+func dehover_planet() -> void:
+	spr_planet_hover.visible = false
+
+signal set_sel_planet
+func set_selected_planet(pPlanet: Planet) -> void:
+	spr_planet_selected.reparent(pPlanet)
+	spr_planet_selected.position = Vector2.ZERO
+	spr_planet_selected.visible = true
+	set_sel_planet.emit(pPlanet)
+
+func deselect_planet() -> void:
+	spr_planet_selected.visible = false
 
 #endregion

@@ -2,7 +2,7 @@ extends Sprite2D
 
 const Planet = preload("res://Scripts/planet.gd")
 
-var speed = 1000 #1000 feels actually good
+var speed = 5000 #1000 feels actually good
 var target_planet: Planet
 var target_planet_follower: PathFollow2D
 
