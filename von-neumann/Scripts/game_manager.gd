@@ -6,8 +6,6 @@ const Planet = preload("res://Scripts/planet.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 
-var time: float
-
 @export var cam_stars: Cam
 @export var cam_planets: Camera2D
 
@@ -31,6 +29,9 @@ var time: float
 @export_group("Factory Info Window")
 @export var window_factory_info: Window
 @export var lbl_factory_name: Label
+@export var lbl_factory_total_resource: Label
+@export var btn_factory_make_extractors: Button
+@export var btn_factory_make_probes: Button
 
 var stars: Array[Star] = []
 var max_stars = 25
@@ -59,19 +60,10 @@ func _ready() -> void:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	
 	stars[0].create_factory()
-	stars[0].create_extractor()
-	for i in 9:
-		stars[0].create_extractor()
 	cam_stars.center(stars[0].position)
 	
 	Prim()
-	time = 0
-	set_hover_sprites()
 	
-	UpgradeButton.pressed.connect(toggle_upgrade_window)
-	
-	
-func set_hover_sprites():
 	spr_star_selected = Sprite2D.new()
 	spr_star_selected.name = "spr_star_selected"
 	spr_star_selected.texture = load("res://Images/circle_selected0.png")
@@ -87,10 +79,12 @@ func set_hover_sprites():
 	spr_star_hover.z_index = 2
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
+	
+	UpgradeButton.pressed.connect(toggle_upgrade_window)
+	
 
 
 func _process(delta: float) -> void:
-	time += delta
 	
 	if split_container_dragging:
 		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
@@ -144,6 +138,8 @@ func set_selected_star(pStar: Star) -> void:
 		viewport_planets.add_child(sel_star.extractors[e])
 	for c in sel_star.cargo.size():
 		viewport_planets.add_child(sel_star.cargo[c])
+	for l in sel_star.adj_lines.size():
+		viewport_stars.add_child(sel_star.adj_lines[l])
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
@@ -171,6 +167,8 @@ func clear_selected_star() -> void:
 		viewport_planets.remove_child(sel_star.extractors[e])
 	for c in sel_star.cargo.size():
 		viewport_planets.remove_child(sel_star.cargo[c])
+	for l in sel_star.adj_lines.size():
+		viewport_stars.remove_child(sel_star.adj_lines[l])
 	
 	
 	star_viewer_sprite_star.queue_free()
@@ -178,59 +176,6 @@ func clear_selected_star() -> void:
 	sel_star.deselect()
 	sel_star = null
 	spr_star_selected.visible = false
-
-#endregion
-
-
-
-
-#region PLANETS
-func set_selected_planet(pPlanet: Planet) -> void:
-	if sel_planet != null:
-		clear_selected_planet()
-	sel_planet = pPlanet
-	window_planet_info.visible = true
-	texture_planet_sprite.texture = pPlanet.texture
-	lbl_planet_name.text = pPlanet.name
-	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % pPlanet.resource)
-	lbl_planet_extractors.text = "EXTRACTORS: " + str(pPlanet.extractors)
-	
-func clear_selected_planet() -> void:
-	if sel_planet != null:
-		sel_planet.set_selected(false)
-		sel_planet = null
-	
-	texture_planet_sprite.texture = null
-	lbl_planet_name.text = ""
-	lbl_planet_resource_multiplier.text = ""
-	lbl_planet_extractors.text = ""
-	
-	window_planet_info.visible = false
-	
-
-func set_selected_factory(pFactory: Factory) -> void:
-	if sel_factory != null:
-		clear_selected_factory()
-	sel_factory = pFactory
-	window_factory_info.visible = true
-	lbl_factory_name.text = "FACTORY: " + sel_star.name
-
-func clear_selected_factory() -> void:
-	if sel_factory != null:
-		sel_factory.set_selected(false)
-		sel_factory = null
-	lbl_factory_name.text = ""
-
-
-func _try_select_planet(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if event.is_action_pressed("Click"):
-		for p in sel_star.planets.size():
-			if sel_star.planets[p].hover:
-				set_selected_planet(sel_star.planets[p])
-
-
-
-#endregion
 
 ## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
 func Prim() -> void:
@@ -273,8 +218,70 @@ func Prim() -> void:
 			used_stars.append(star1)
 		
 		#SET STAR ADJACENCIES
-		star0.add_adjacent(star1)
+		star0.add_adjacent(star1,null)
 
+#endregion
+
+#region PLANETS
+func set_selected_planet(pPlanet: Planet) -> void:
+	if sel_planet != null:
+		clear_selected_planet()
+	sel_planet = pPlanet
+	window_planet_info.visible = true
+	texture_planet_sprite.texture = pPlanet.texture
+	lbl_planet_name.text = pPlanet.name
+	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % pPlanet.resource)
+	lbl_planet_extractors.text = "EXTRACTORS: " + str(pPlanet.extractors)
+	
+func clear_selected_planet() -> void:
+	if sel_planet != null:
+		sel_planet.set_selected(false)
+		sel_planet = null
+	
+	manual_extract_tracker = 0.0
+	texture_planet_sprite.texture = null
+	lbl_planet_name.text = ""
+	lbl_planet_resource_multiplier.text = ""
+	lbl_planet_extractors.text = ""
+	
+	window_planet_info.visible = false
+	
+#endregion
+
+#region FACTORIES
+func set_selected_factory(pFactory: Factory) -> void:
+	if sel_factory != null:
+		clear_selected_factory()
+	sel_factory = pFactory
+	window_factory_info.visible = true
+	update_factory_window()
+	
+	sel_factory.added_resource.connect(update_factory_window)
+
+func update_factory_window() -> void:
+	btn_factory_make_extractors.button_pressed = sel_factory.making_extractors
+	if sel_factory.making_extractors:
+		btn_factory_make_extractors.text = "MAKING EXTRACTORS"
+	else:
+		btn_factory_make_extractors.text = "MAKE EXTRACTORS"
+		
+	btn_factory_make_probes.button_pressed = sel_factory.making_probes
+	if sel_factory.making_probes:
+		btn_factory_make_probes.text = "MAKING PROBES"
+	else:
+		btn_factory_make_probes.text = "MAKE PROBES"
+	
+	lbl_factory_name.text = "FACTORY AT " + sel_star.name
+	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource)
+
+func clear_selected_factory() -> void:
+	if sel_factory != null:
+		sel_factory.set_selected(false)
+		sel_factory = null
+	lbl_factory_name.text = ""
+	lbl_factory_total_resource.text = ""
+	
+#endregion
 
 #region UI
 
@@ -297,8 +304,11 @@ func _on_planet_info_close_requested() -> void:
 	window_planet_info.visible = false
 	if sel_planet != null:
 		sel_planet.deselect()
-
-#endregion
+		
+func _on_factory_info_close_requested() -> void:
+	window_factory_info.visible = false
+	if sel_factory != null:
+		sel_factory.deselect()
 
 
 var manual_extract_tracker: float = 0.0
@@ -309,7 +319,17 @@ func _on_btn_planet_manual_extracation_button_down() -> void:
 		sel_planet.extract_resource(1)
 
 
-func _on_factory_info_close_requested() -> void:
-	window_factory_info.visible = false
+
+#endregion
+
+
+func _on_btn_make_extractors_toggled(toggled_on: bool) -> void:
 	if sel_factory != null:
-		sel_factory.deselect()
+		sel_factory.making_extractors = toggled_on
+		update_factory_window()
+
+
+func _on_btn_make_probes_toggled(toggled_on: bool) -> void:
+	if sel_factory != null:
+		sel_factory.making_probes = toggled_on
+		update_factory_window()

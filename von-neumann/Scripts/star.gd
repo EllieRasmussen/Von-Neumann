@@ -128,8 +128,9 @@ func _process(delta: float) -> void:
 			cargo.remove_at(c)
 
 func _draw():
-	for a in adj.size():
-		draw_line(Vector2.ZERO,adj[a].position - position,Color.DIM_GRAY,2,false)
+	pass
+	#for a in adj.size():
+		#draw_line(Vector2.ZERO,adj[a].position - position,Color.DIM_GRAY,2,false)
 
 
 
@@ -205,12 +206,26 @@ func create_factory_path():
 
 
 
-
-func add_adjacent(pStar: Star) -> void:
+var adj_lines: Array[Line2D] = []
+func add_adjacent(pStar: Star, p_line: Line2D) -> void:
 	if not adj.has(pStar):
 		adj.append(pStar)
-	if not pStar.adj.has(self):
-		pStar.adj.append(self)
+		
+		
+	if p_line == null:
+		p_line = Line2D.new()
+		p_line.position = position
+		p_line.z_index = -10
+		p_line.add_point(Vector2.ZERO)
+		p_line.add_point(pStar.position - position)
+		p_line.default_color = Color.DIM_GRAY
+		p_line.width = 2
+		
+		adj_lines.append(p_line)
+		
+		pStar.add_adjacent(self, p_line)
+	elif not adj_lines.has(p_line):
+		adj_lines.append(p_line)
 	
 
 func create_factory() -> void:

@@ -75,6 +75,14 @@ func extract_resource(pResource) -> void:
 func get_extraction_progress() -> float:
 	return extraction_timer / time_per_extraction
 
+func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
+	if event.is_action_pressed("Click"):
+		if selected:
+			deselect()
+		else:
+			select()
+			
+#region HOVER, SELECT
 func _on_hover():
 	hover = true
 	planet_hovered.emit()
@@ -93,10 +101,4 @@ func deselect():
 	
 func set_selected(pVal: bool) -> void:
 	selected = pVal
-
-func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if event.is_action_pressed("Click"):
-		if selected:
-			deselect()
-		else:
-			select()
+#endregion
