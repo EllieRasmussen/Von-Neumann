@@ -17,12 +17,20 @@ var time: float
 @export var UpgradeButton: Button
 @export var UpgradeWindow: Window
 
+@export var split_container: HSplitContainer
+
+@export_group("Planet Info Window")
 @export var window_planet_info: Window
 @export var texture_planet_sprite: TextureRect
 @export var lbl_planet_name: Label
 @export var lbl_planet_resource_multiplier: Label
 @export var lbl_planet_extractors: Label
-@export var progbar_planet_next_ext: ProgressBar
+@export var progbar_planet_next_extraction: ProgressBar
+@export var progbar_planet_manual_extraction: ProgressBar
+
+@export_group("Factory Info Window")
+@export var window_factory_info: Window
+@export var lbl_factory_name: Label
 
 var stars: Array[Star] = []
 var max_stars = 25
@@ -33,6 +41,7 @@ var max_extractors_per_star = 1
 ## 'SEL' = SELECTED
 var sel_star: Star
 var sel_planet: Planet
+var sel_factory: Factory
 
 var spr_star_hover: Sprite2D
 var spr_star_selected: Sprite2D
@@ -49,10 +58,10 @@ func _ready() -> void:
 	for i in max_stars:
 		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
 	
-	stars[0].add_factory()
-	stars[0].add_extractor()
+	stars[0].create_factory()
+	stars[0].create_extractor()
 	for i in 9:
-		stars[0].add_extractor()
+		stars[0].create_extractor()
 	cam_stars.center(stars[0].position)
 	
 	Prim()
@@ -87,7 +96,10 @@ func _process(delta: float) -> void:
 		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
 		
 	if sel_planet != null:
-		progbar_planet_next_ext.value = sel_planet.get_extraction_progress() * 100.0
+		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
+		if manual_extract_tracker > 0.0:
+			manual_extract_tracker -= delta * 5
+		progbar_planet_manual_extraction.value = manual_extract_tracker
 
 
 #region STARS
@@ -101,6 +113,10 @@ func create_star(pPos: Vector2):
 	s.star_selected.connect(set_selected_star.bind(s))
 	
 	s.set_sel_planet.connect(set_selected_planet)
+	s.desel_planet.connect(clear_selected_planet)
+	
+	s.set_sel_factory.connect(set_selected_factory)
+	s.desel_factory.connect(clear_selected_factory)
 	
 	s.viewport_planets = viewport_planets
 	
@@ -162,8 +178,6 @@ func clear_selected_star() -> void:
 	sel_star.deselect()
 	sel_star = null
 	spr_star_selected.visible = false
-	
-	
 
 #endregion
 
@@ -171,7 +185,7 @@ func clear_selected_star() -> void:
 
 
 #region PLANETS
-func set_selected_planet(pPlanet: Planet):
+func set_selected_planet(pPlanet: Planet) -> void:
 	if sel_planet != null:
 		clear_selected_planet()
 	sel_planet = pPlanet
@@ -181,9 +195,9 @@ func set_selected_planet(pPlanet: Planet):
 	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % pPlanet.resource)
 	lbl_planet_extractors.text = "EXTRACTORS: " + str(pPlanet.extractors)
 	
-func clear_selected_planet():
+func clear_selected_planet() -> void:
 	if sel_planet != null:
-		sel_planet.deselect()
+		sel_planet.set_selected(false)
 		sel_planet = null
 	
 	texture_planet_sprite.texture = null
@@ -191,6 +205,22 @@ func clear_selected_planet():
 	lbl_planet_resource_multiplier.text = ""
 	lbl_planet_extractors.text = ""
 	
+	window_planet_info.visible = false
+	
+
+func set_selected_factory(pFactory: Factory) -> void:
+	if sel_factory != null:
+		clear_selected_factory()
+	sel_factory = pFactory
+	window_factory_info.visible = true
+	lbl_factory_name.text = "FACTORY: " + sel_star.name
+
+func clear_selected_factory() -> void:
+	if sel_factory != null:
+		sel_factory.set_selected(false)
+		sel_factory = null
+	lbl_factory_name.text = ""
+
 
 func _try_select_planet(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click"):
@@ -247,7 +277,7 @@ func Prim() -> void:
 
 
 #region UI
-@export var split_container: HSplitContainer
+
 var split_container_min = 200
 var split_container_max = 1800
 var split_container_dragging = false
@@ -262,26 +292,24 @@ func toggle_upgrade_window():
 	UpgradeWindow.visible = !UpgradeWindow.visible;
 
 
-func _on_window__planet_info_close_requested() -> void:
+
+func _on_planet_info_close_requested() -> void:
 	window_planet_info.visible = false
-	clear_selected_planet()
+	if sel_planet != null:
+		sel_planet.deselect()
 
 #endregion
 
-#region WINDOW - PLANET INFO
-var mouse_over_window: bool = false
-func _on_window__planet_info_mouse_entered() -> void:
-	mouse_over_window = true
 
-func _on_window__planet_info_mouse_exited() -> void:
-	mouse_over_window = false
+var manual_extract_tracker: float = 0.0
+func _on_btn_planet_manual_extracation_button_down() -> void:
+	manual_extract_tracker += 5
+	if manual_extract_tracker >= 100.0 and sel_planet != null:
+		manual_extract_tracker -= 100
+		sel_planet.extract_resource(1)
 
 
-@export var subviewport_container_planets: SubViewportContainer
-func _on_window__planet_info_window_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and window_planet_info.has_focus() and not mouse_over_window:
-			print("refocus")
-			split_container.call_deferred("grab_focus")
-			
-#endregion
+func _on_factory_info_close_requested() -> void:
+	window_factory_info.visible = false
+	if sel_factory != null:
+		sel_factory.deselect()

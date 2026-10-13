@@ -41,6 +41,9 @@ var area2D: Area2D
 var spr_planet_hover: Sprite2D
 var spr_planet_selected: Sprite2D
 
+var spr_factory_hover: Sprite2D
+var spr_factory_selected: Sprite2D
+
 var adj = []
 
 func _ready() -> void:
@@ -82,6 +85,18 @@ func _ready() -> void:
 	spr_planet_selected.visible = false
 	spr_planet_selected.scale  = Vector2.ONE * 10
 	add_child(spr_planet_selected)
+	
+	spr_factory_hover = Sprite2D.new()
+	spr_factory_hover.texture = load("res://Images/circle_hover.png")
+	spr_factory_hover.visible = false
+	spr_factory_hover.scale = Vector2.ONE * 10
+	add_child(spr_factory_hover)
+	
+	spr_factory_selected = Sprite2D.new()
+	spr_factory_selected.texture = load("res://Images/circle_selected0.png")
+	spr_factory_selected.visible = false
+	spr_factory_selected.scale  = Vector2.ONE * 10
+	add_child(spr_factory_selected)
 
 
 
@@ -160,7 +175,7 @@ func create_planets(num_planets: int) -> void:
 		new_follower.loop = true
 		new_follower.banked_progress = randf()
 		
-		new_planet.extracted.connect(add_cargo.bind(new_planet, new_follower))
+		new_planet.extracted.connect(create_cargo.bind(new_planet, new_follower))
 		
 		new_follower.add_child(new_planet)
 		new_path.add_child(new_follower)
@@ -198,10 +213,14 @@ func add_adjacent(pStar: Star) -> void:
 		pStar.adj.append(self)
 	
 
-func add_factory() -> void:
+func create_factory() -> void:
 	factory_path.visible = true
 	
 	var new_factory = Factory.new()
+	new_factory.factory_hovered.connect(set_hovered_factory.bind(new_factory))
+	new_factory.factory_dehovered.connect(dehover_factory)
+	new_factory.factory_selected.connect(set_selected_factory.bind(new_factory))
+	new_factory.factory_deselected.connect(deselect_factory)
 	new_factory.created_probe.connect(send_probe)
 	new_factory.orbital_radius = factory_orbit
 	
@@ -219,7 +238,7 @@ func add_factory() -> void:
 	if not active:
 		set_active(true)
 		
-func add_extractor() -> void:
+func create_extractor() -> void:
 	var new_extractor = Extractor.new()
 	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].get_real_progress()) + (Vector2(randf(),randf())*10000)
 	new_extractor.set_target_planet(planets[0],followers[0])
@@ -228,7 +247,7 @@ func add_extractor() -> void:
 		viewport_planets.add_child(new_extractor)
 	
 	
-func add_cargo(pPlanet: Planet, pFollower: OffscreenFollower) -> void:
+func create_cargo(pPlanet: Planet, pFollower: OffscreenFollower) -> void:
 	var new_cargo = Cargo.new()
 	var angle = 6.283 * pFollower.get_real_progress()
 	new_cargo.position = Vector2(
@@ -309,12 +328,6 @@ func deselect():
 	queue_redraw()
 	star_deselected.emit()
 	
-func enter_hover_planet(pPlanet: Planet) -> void:
-	pPlanet.on_hover()
-	
-func exit_hover_planet(pPlanet: Planet) -> void:
-	pPlanet.exit_hover()
-	
 func set_active(pActive: bool) -> void:
 	active = pActive
 	spr_active.visible = active
@@ -328,6 +341,7 @@ func dehover_planet() -> void:
 	spr_planet_hover.visible = false
 
 signal set_sel_planet
+signal desel_planet #HATE THIS ABBREVIATION BUT WE ALL SIN IN THE DARK
 func set_selected_planet(pPlanet: Planet) -> void:
 	spr_planet_selected.reparent(pPlanet)
 	spr_planet_selected.position = Vector2.ZERO
@@ -336,5 +350,26 @@ func set_selected_planet(pPlanet: Planet) -> void:
 
 func deselect_planet() -> void:
 	spr_planet_selected.visible = false
+	desel_planet.emit()
 
+
+func set_hovered_factory(pFactory: Factory) -> void:
+	spr_factory_hover.reparent(pFactory)
+	spr_factory_hover.position = Vector2.ZERO
+	spr_factory_hover.visible = true
+	
+func dehover_factory() -> void:
+	spr_factory_hover.visible = false
+	
+signal set_sel_factory
+signal desel_factory
+func set_selected_factory(pFactory: Factory) -> void:
+	spr_factory_selected.reparent(pFactory)
+	spr_factory_selected.position = Vector2.ZERO
+	spr_factory_selected.visible = true
+	set_sel_factory.emit(pFactory)
+	
+func deselect_factory() -> void:
+	spr_factory_selected.visible = false
+	desel_factory.emit()
 #endregion

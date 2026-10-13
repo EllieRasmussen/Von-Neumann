@@ -1,13 +1,19 @@
 extends Sprite2D
 
-const ProgBar = preload("res://Scripts/prog_bar.gd")
-
 var orbital_radius: float
 var orbital_position: float
 var orbital_velocity: float
 
 var resource = 0
-var resource_bar: ProgBar
+
+var area2d: Area2D
+
+var selected: bool = false
+var hover: bool = false
+signal factory_hovered
+signal factory_dehovered
+signal factory_selected
+signal factory_deselected
 
 signal created_probe
 
@@ -18,13 +24,16 @@ func _ready() -> void:
 	orbital_position = randf_range(0,1)
 	orbital_velocity = randf_range(0.00000000001,0.0000000001)
 	
-	resource_bar = ProgBar.new()
-	add_child(resource_bar)
-	resource_bar.position = Vector2(-25,15)
-	resource_bar.set_bar_width(5)
-	resource_bar.set_bar_length(50)
-	resource_bar.set_bg_color(Color.SLATE_GRAY)
-	resource_bar.set_fg_color(Color.BLUE)
+	area2d = Area2D.new()
+	var collisionShape = CollisionShape2D.new()
+	collisionShape.shape = CircleShape2D.new()
+	collisionShape.shape.radius = 50
+	area2d.mouse_entered.connect(_on_hover)
+	area2d.mouse_exited.connect(_on_exit)
+	area2d.input_event.connect(handle_area2d_input)
+	area2d.add_child(collisionShape)
+	add_child(area2d)
+	area2d.position = Vector2.ZERO
 
 func _process(delta: float) -> void:
 	orbital_position += orbital_velocity * delta
@@ -35,3 +44,29 @@ func add_resource(pResource) -> void:
 	if resource >=1:
 		created_probe.emit()
 		resource -= 1
+
+func _on_hover() -> void:
+	hover = true
+	factory_hovered.emit()
+	
+func _on_exit() -> void:
+	hover = false
+	factory_dehovered.emit()
+	
+func select() -> void:
+	selected = true
+	factory_selected.emit()
+	
+func deselect() -> void:
+	selected = false
+	factory_deselected.emit()
+	
+func set_selected(pVal: bool) -> void:
+	selected = pVal
+
+func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
+	if event.is_action_pressed("Click"):
+		if selected:
+			deselect()
+		else:
+			select()

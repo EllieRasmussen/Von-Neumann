@@ -90,7 +90,13 @@ func select():
 func deselect():
 	selected = false
 	planet_deselected.emit()
+	
+func set_selected(pVal: bool) -> void:
+	selected = pVal
 
 func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if event.is_action_pressed("Click") and not selected:
-		select()
+	if event.is_action_pressed("Click"):
+		if selected:
+			deselect()
+		else:
+			select()

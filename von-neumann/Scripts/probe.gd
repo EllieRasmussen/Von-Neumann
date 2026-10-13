@@ -21,4 +21,4 @@ func travel(pFrom: Vector2, pTo: Star) -> void:
 
 func arrive(pStar: Star) -> void:
 	if randf() < 0.1:
-		pStar.add_factory()
+		pStar.create_factory()
