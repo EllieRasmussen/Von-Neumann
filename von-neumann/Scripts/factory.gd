@@ -16,11 +16,16 @@ signal factory_selected
 signal factory_deselected
 
 signal added_resource
+signal added_resource_to_new_extractor
+signal update_new_extractor_progbar
+signal update_new_probe_progbar
 
+signal created_extractor
 signal created_probe
 
 
 var making_extractors: bool = false
+var processing_new_extractor: bool = false
 var next_extractor_timer: float
 
 var making_probes: bool = false
@@ -46,17 +51,34 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	orbital_position += orbital_velocity * delta
 	
+	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
+		make_extractor()
 
 func add_resource(pResource) -> void:
 	resource += pResource
 	added_resource.emit()
-	if resource >= 10:
+	if resource >= 1000:
 		created_probe.emit()
 		resource -= 1
 		
 
-func start_making_extractor() -> void:
-	var timer = 0.0
+func make_extractor() -> void:
+	processing_new_extractor = true
+	var resources_added: int = 0
+	var time_per_resource: float = Globals.time_factory_make_extractor / Globals.resource_to_make_extractor
+	while resources_added < Globals.resource_to_make_extractor:
+		var timer = 0.0
+		while timer < time_per_resource:
+			timer += Globals.deltaTime
+			update_new_extractor_progbar.emit(resources_added,(timer/time_per_resource))
+			await get_tree().process_frame
+		
+		resources_added += 1
+		resource -= 1
+		added_resource_to_new_extractor.emit(resources_added,0)
+	created_extractor.emit()
+	added_resource_to_new_extractor.emit(0,0)
+	processing_new_extractor = false
 
 func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click"):

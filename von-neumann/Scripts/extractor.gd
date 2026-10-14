@@ -3,13 +3,14 @@ extends Sprite2D
 const Planet = preload("res://Scripts/planet.gd")
 const OffscreenFollower = preload("res://Scripts/offscreen_follower.gd")
 
-var speed = 5000 #1000 feels actually good
+var speed = 1000 #1000 feels actually good
 var target_planet: Planet
 var target_planet_follower: OffscreenFollower
 
 func _ready() -> void:
 	self.texture = preload("res://Images/extractor.png")
-	scale = Vector2.ONE
+	scale = Vector2.ONE * 10
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
 
 func set_target_planet(pTarget: Planet, pFollower: OffscreenFollower) -> void:

@@ -32,6 +32,13 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var lbl_factory_total_resource: Label
 @export var btn_factory_make_extractors: Button
 @export var btn_factory_make_probes: Button
+@export var progbar_factory_make_extractor_next_resource: ProgressBar
+@export var progbar_factory_make_extractor: ProgressBar
+@export var lbl_progbar_factory_make_extractor: Label
+@export var progbar_factory_make_probe_next_resource: ProgressBar
+@export var progbar_factory_make_probe: ProgressBar
+@export var lbl_progbar_factory_make_probe: Label
+
 
 var stars: Array[Star] = []
 var max_stars = 25
@@ -92,8 +99,9 @@ func _process(delta: float) -> void:
 	if sel_planet != null:
 		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
 		if manual_extract_tracker > 0.0:
-			manual_extract_tracker -= delta * 5
+			manual_extract_tracker -= delta * 7.5
 		progbar_planet_manual_extraction.value = manual_extract_tracker
+		
 
 
 #region STARS
@@ -257,6 +265,10 @@ func set_selected_factory(pFactory: Factory) -> void:
 	update_factory_window()
 	
 	sel_factory.added_resource.connect(update_factory_window)
+	sel_factory.added_resource_to_new_extractor.connect(update_factory_make_extractor_progbar)
+	sel_factory.update_new_extractor_progbar.connect(update_factory_make_extractor_progbar)
+
+
 
 func update_factory_window() -> void:
 	btn_factory_make_extractors.button_pressed = sel_factory.making_extractors
@@ -274,8 +286,35 @@ func update_factory_window() -> void:
 	lbl_factory_name.text = "FACTORY AT " + sel_star.name
 	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource)
 
+
+
+func update_factory_make_extractor_progbar(pResource: int, pNextProgress: float) -> void: 
+	progbar_factory_make_extractor.max_value = Globals.resource_to_make_extractor
+	
+	progbar_factory_make_extractor_next_resource.value = pNextProgress
+	
+	progbar_factory_make_extractor.value = pResource
+	lbl_progbar_factory_make_extractor.text = str(pResource) + "/" + str(Globals.resource_to_make_extractor)
+	update_factory_window()
+
+
+
+func update_factory_make_probe_progbar(pResource: int, pNextProgress: float) -> void:
+	progbar_factory_make_probe.max_value = Globals.resource_to_make_probe
+	
+	progbar_factory_make_probe_next_resource.value = pNextProgress
+	
+	progbar_factory_make_probe.value = pResource
+	lbl_progbar_factory_make_probe.text = str(pResource) + "/" + str(Globals.resource_to_make_probe)
+	update_factory_window()
+
+
+
 func clear_selected_factory() -> void:
 	if sel_factory != null:
+		sel_factory.added_resource.disconnect(update_factory_window)
+		sel_factory.added_resource_to_new_extractor.disconnect(update_factory_make_extractor_progbar)
+		sel_factory.update_new_extractor_progbar.disconnect(update_factory_make_extractor_progbar)
 		sel_factory.set_selected(false)
 		sel_factory = null
 	lbl_factory_name.text = ""
@@ -313,7 +352,7 @@ func _on_factory_info_close_requested() -> void:
 
 var manual_extract_tracker: float = 0.0
 func _on_btn_planet_manual_extracation_button_down() -> void:
-	manual_extract_tracker += 5
+	manual_extract_tracker += 10
 	if manual_extract_tracker >= 100.0 and sel_planet != null:
 		manual_extract_tracker -= 100
 		sel_planet.extract_resource(1)

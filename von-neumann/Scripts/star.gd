@@ -236,6 +236,7 @@ func create_factory() -> void:
 	new_factory.factory_dehovered.connect(dehover_factory)
 	new_factory.factory_selected.connect(set_selected_factory.bind(new_factory))
 	new_factory.factory_deselected.connect(deselect_factory)
+	new_factory.created_extractor.connect(create_extractor)
 	new_factory.created_probe.connect(send_probe)
 	new_factory.orbital_radius = factory_orbit
 	
@@ -255,7 +256,7 @@ func create_factory() -> void:
 		
 func create_extractor() -> void:
 	var new_extractor = Extractor.new()
-	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].get_real_progress()) + (Vector2(randf(),randf())*10000)
+	new_extractor.position = get_factory_position_from_progress_ratio(factory_followers[0].get_real_progress())
 	new_extractor.set_target_planet(planets[0],followers[0])
 	extractors.append(new_extractor)
 	if selected:

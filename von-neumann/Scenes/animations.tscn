@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://clfvvf8o58qbv"]
+
+[ext_resource type="Script" uid="uid://btyimhm7ks8x4" path="res://Images/anim_test/animations.gd" id="1_mr8kd"]
+[ext_resource type="SpriteFrames" uid="uid://bcyegf3dsrfb3" path="res://Images/anim_test/test_sprite_frames.tres" id="1_v4e57"]
+
+[node name="Animations" type="Node2D"]
+script = ExtResource("1_mr8kd")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+visible = false
+texture_filter = 1
+position = Vector2(742, 451)
+scale = Vector2(100, 100)
+sprite_frames = ExtResource("1_v4e57")

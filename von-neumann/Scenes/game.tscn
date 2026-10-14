@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dmbx04csi10wu"]
+[gd_scene load_steps=9 format=3 uid="uid://dmbx04csi10wu"]
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
 [ext_resource type="Script" uid="uid://bh11gyhdfguyv" path="res://Scripts/custom_h_split_container.gd" id="4_wowpa"]
 [ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
+[ext_resource type="Texture2D" uid="uid://cn7up1lb184he" path="res://Images/probe0.png" id="6_1l0tm"]
 [ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="6_i6g32"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_wowpa"]
@@ -13,7 +14,7 @@ vertical = true
 
 [sub_resource type="Curve2D" id="Curve2D_i6g32"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_name", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "window_factory_info", "lbl_factory_name", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_name", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "window_factory_info", "lbl_factory_name", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
 script = ExtResource("1_v158k")
 cam_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
 cam_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
@@ -34,6 +35,11 @@ lbl_factory_name = NodePath("factory_info/VBoxContainer/lbl_factory_name")
 lbl_factory_total_resource = NodePath("factory_info/VBoxContainer/lbl_factory_total_resource")
 btn_factory_make_extractors = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/btn_make_extractors")
 btn_factory_make_probes = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/btn_make_probes")
+progbar_factory_make_extractor_next_resource = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor_next_resource")
+progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor")
+lbl_progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor/lbl_progbar_make_extractor")
+progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes")
+lbl_progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes/lbl_progbar_make_probes")
 
 [node name="Window - Upgrades" type="Window" parent="."]
 oversampling_override = 1.0
@@ -328,8 +334,9 @@ layout_mode = 2
 
 [node name="factory_info" type="Window" parent="."]
 oversampling_override = 1.0
-position = Vector2i(1004, 100)
+position = Vector2i(400, 470)
 size = Vector2i(650, 350)
+visible = false
 theme = ExtResource("2_1l0tm")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="factory_info"]
@@ -370,6 +377,11 @@ theme_override_font_sizes/font_size = 24
 toggle_mode = true
 action_mode = 0
 text = "MAKE EXTRACTORS"
+
+[node name="prog_make_extractor_next_resource" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+max_value = 1.0
+show_percentage = false
 
 [node name="prog_make_extractor" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 30)
@@ -432,6 +444,12 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
 theme_override_font_sizes/font_size = 24
 text = "Probes: 0/Min"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(-405.99997, 356.99997)
+scale = Vector2(10, 10)
+texture = ExtResource("6_1l0tm")
 
 [connection signal="close_requested" from="Window - Upgrades" to="." method="_on_window__upgrades_close_requested"]
 [connection signal="gui_input" from="star planet h split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
