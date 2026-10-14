@@ -265,8 +265,7 @@ func set_selected_factory(pFactory: Factory) -> void:
 	update_factory_window()
 	
 	sel_factory.added_resource.connect(update_factory_window)
-	sel_factory.added_resource_to_new_extractor.connect(update_factory_make_extractor_progbar)
-	sel_factory.update_new_extractor_progbar.connect(update_factory_make_extractor_progbar)
+	sel_factory.update_new_extractor_progress.connect(update_factory_make_extractor_progbar)
 
 
 
@@ -313,8 +312,7 @@ func update_factory_make_probe_progbar(pResource: int, pNextProgress: float) -> 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
 		sel_factory.added_resource.disconnect(update_factory_window)
-		sel_factory.added_resource_to_new_extractor.disconnect(update_factory_make_extractor_progbar)
-		sel_factory.update_new_extractor_progbar.disconnect(update_factory_make_extractor_progbar)
+		sel_factory.update_new_extractor_progress.disconnect(update_factory_make_extractor_progbar)
 		sel_factory.set_selected(false)
 		sel_factory = null
 	lbl_factory_name.text = ""

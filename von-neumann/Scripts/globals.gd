@@ -1,5 +1,7 @@
 extends Node
 
+var max_resource_stored_in_factory: int = 100
+
 
 var time_factory_make_extractor: float = 10.0 #PROBABLY GONNA WANT TO CHANGE THE NAMING SCHEME HERE, JUST EXTRECTING TO HAVE A TON OF VARIABLES
 var resource_to_make_extractor: int = 10

@@ -1,4 +1,4 @@
-extends Sprite2D
+extends AnimatedSprite2D
 
 var orbital_radius: float
 var orbital_position: float
@@ -16,8 +16,7 @@ signal factory_selected
 signal factory_deselected
 
 signal added_resource
-signal added_resource_to_new_extractor
-signal update_new_extractor_progbar
+signal update_new_extractor_progress
 signal update_new_probe_progbar
 
 signal created_extractor
@@ -31,8 +30,9 @@ var next_extractor_timer: float
 var making_probes: bool = false
 
 func _ready() -> void:
-	self.texture = load("res://Images/factory.png")
-	scale = Vector2.ONE * 5
+	sprite_frames = load("res://Images/factory/factory.tres")
+	scale = Vector2.ONE * 10
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
 	orbital_position = randf_range(0,1)
 	orbital_velocity = randf_range(0.00000000001,0.0000000001)
@@ -55,8 +55,12 @@ func _process(delta: float) -> void:
 		make_extractor()
 
 func add_resource(pResource) -> void:
+	
 	resource += pResource
 	added_resource.emit()
+	
+	frame = int((resource / float(Globals.max_resource_stored_in_factory)) * sprite_frames.get_frame_count("default"))
+	
 	if resource >= 1000:
 		created_probe.emit()
 		resource -= 1
@@ -70,14 +74,14 @@ func make_extractor() -> void:
 		var timer = 0.0
 		while timer < time_per_resource:
 			timer += Globals.deltaTime
-			update_new_extractor_progbar.emit(resources_added,(timer/time_per_resource))
+			update_new_extractor_progress.emit(resources_added,(timer/time_per_resource))
 			await get_tree().process_frame
 		
 		resources_added += 1
 		resource -= 1
-		added_resource_to_new_extractor.emit(resources_added,0)
+		update_new_extractor_progress.emit(resources_added,0)
 	created_extractor.emit()
-	added_resource_to_new_extractor.emit(0,0)
+	update_new_extractor_progress.emit(0,0)
 	processing_new_extractor = false
 
 func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
