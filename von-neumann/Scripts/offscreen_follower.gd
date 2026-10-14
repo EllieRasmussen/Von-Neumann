@@ -17,6 +17,3 @@ func update() -> void:
 
 func get_real_progress() -> float:
 	return progress_ratio + banked_progress
-
-
-var print_progress: bool = false

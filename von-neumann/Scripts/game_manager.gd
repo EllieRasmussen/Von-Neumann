@@ -138,10 +138,12 @@ func set_selected_star(pStar: Star) -> void:
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
 	
-	for p in sel_star.paths.size():
-		viewport_planets.add_child(sel_star.paths[p])
-	if sel_star.factory_path != null:
-		viewport_planets.add_child(sel_star.factory_path)
+	for l in sel_star.orbit_lines.size():
+		viewport_planets.add_child(sel_star.orbit_lines[l])
+	for p in sel_star.planets.size():
+		viewport_planets.add_child(sel_star.planets[p])
+	for f in sel_star.factories.size():
+		viewport_planets.add_child(sel_star.factories[f])
 	for e in sel_star.extractors.size():
 		viewport_planets.add_child(sel_star.extractors[e])
 	for c in sel_star.cargo.size():
@@ -157,20 +159,17 @@ func set_selected_star(pStar: Star) -> void:
 	star_viewer_sprite_star.scale = Vector2.ONE * 10
 	star_viewer_sprite_star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	viewport_planets.add_child(star_viewer_sprite_star)
-	sel_star.update_followers()
 
 func clear_selected_star() -> void:
 	if sel_star == null:
 		return
 	
-	for p in sel_star.followers.size():
-		sel_star.followers[p].bank_progress()
-	for p in sel_star.paths.size():
-		viewport_planets.remove_child(sel_star.paths[p])
-	if sel_star.factory_path != null:
-		for f in sel_star.factory_followers.size():
-			sel_star.factory_followers[f].bank_progress()
-		viewport_planets.remove_child(sel_star.factory_path)
+	for l in sel_star.orbit_lines.size():
+		viewport_planets.remove_child(sel_star.orbit_lines[l])
+	for p in sel_star.planets.size():
+		viewport_planets.remove_child(sel_star.planets[p])
+	for f in sel_star.factories.size():
+		viewport_planets.remove_child(sel_star.factories[f])
 	for e in sel_star.extractors.size():
 		viewport_planets.remove_child(sel_star.extractors[e])
 	for c in sel_star.cargo.size():

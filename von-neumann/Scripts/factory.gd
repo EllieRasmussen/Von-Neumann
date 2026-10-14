@@ -1,8 +1,9 @@
 extends AnimatedSprite2D
 
-var orbital_radius: float
 var orbital_position: float
+var orbital_radius: float
 var orbital_velocity: float
+var orbital_offset: Vector2
 
 var resource = 0
 
@@ -34,8 +35,9 @@ func _ready() -> void:
 	scale = Vector2.ONE * 10
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
-	orbital_position = randf_range(0,1)
-	orbital_velocity = randf_range(0.00000000001,0.0000000001)
+	orbital_offset = Vector2.ZERO
+	orbital_position = randf_range(0.0,6.2832)
+	orbital_velocity = 0.01
 	
 	area2d = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
@@ -50,6 +52,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	orbital_position += orbital_velocity * delta
+	if orbital_position > 6.2832:
+		orbital_position -= 6.2832
+	position = Vector2(
+		cos(orbital_position),
+		sin(orbital_position)
+	) * orbital_radius + orbital_offset
 	
 	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
 		make_extractor()

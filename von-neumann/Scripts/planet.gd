@@ -35,7 +35,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	scale = Vector2.ONE * 10
 	
-	orbital_position = randf_range(0,1)
+	orbital_position = randf_range(0.0,6.2831)
 	
 	area2D = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
@@ -48,6 +48,14 @@ func _ready() -> void:
 	add_child(area2D)
 	
 func _process(delta: float) -> void:
+	orbital_position += orbital_velocity * delta
+	if orbital_position > 6.2832:
+		orbital_position -= 6.2832
+	position = Vector2(
+		cos(orbital_position),
+		sin(orbital_position)
+	) * orbital_radius + orbital_offset
+	
 	if extractors > 0:
 		extraction_timer += delta
 		if extraction_timer >= time_per_extraction:
@@ -55,6 +63,7 @@ func _process(delta: float) -> void:
 			extract_resource(1)
 			
 func unselected_process(delta: float) -> void:
+	
 	if extractors > 0:
 		extraction_timer += delta
 		if extraction_timer >= time_per_extraction:
@@ -63,6 +72,10 @@ func unselected_process(delta: float) -> void:
 	
 func set_orbital_radius(pRadius) -> void:
 	orbital_radius = pRadius
+	orbital_offset = Vector2(
+			randf_range(-orbital_radius * 0.25, orbital_radius * 0.25),
+			randf_range(-orbital_radius * 0.25, orbital_radius * 0.25)
+	)
 	orbital_velocity = randf_range((1.0/pRadius)*10,(1.0/pRadius)*100)
 
 func  add_extractors(pExtractors) -> void:
