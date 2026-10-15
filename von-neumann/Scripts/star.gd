@@ -128,6 +128,7 @@ func create_planets(num_planets: int) -> void:
 		new_planet.planet_dehovered.connect(dehover_planet)
 		new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
 		new_planet.planet_deselected.connect(deselect_planet)
+		new_planet.extracted.connect(create_cargo)
 		
 		
 		#LINE
@@ -160,7 +161,7 @@ func create_planets(num_planets: int) -> void:
 			
 		
 		
-		new_planet.extracted.connect(create_cargo.bind(new_planet))
+		
 		
 		planets.append(new_planet)
 		orbit_lines.append(new_line)
@@ -187,6 +188,28 @@ func add_adjacent(pStar: Star, p_line: Line2D) -> void:
 		adj_lines.append(p_line)
 	
 
+func create_probe() -> void:
+	var target: Star = adj[0]
+	var target_index = 0
+	var has_valid_target: bool = true
+	while target.factories.size() > 0 and has_valid_target:
+		target_index += 1
+		if target_index == adj.size():
+			has_valid_target = false
+		else:
+			target = adj[target_index]
+	
+	var dist_to_target = adj[0].position.distance_squared_to(position)
+	var shortest_dist = dist_to_target
+	for a in adj.size():
+		dist_to_target = adj[a].position.distance_squared_to(position)
+		if dist_to_target < shortest_dist:
+			shortest_dist = dist_to_target
+			target = adj[a]
+	var new_probe = Probe.new()
+	new_probe.travel(position, target)
+	add_child(new_probe)
+
 func create_factory() -> void:
 	if factories.size() == 0:
 		create_factory_orbit_line()
@@ -197,10 +220,13 @@ func create_factory() -> void:
 	new_factory.factory_selected.connect(set_selected_factory.bind(new_factory))
 	new_factory.factory_deselected.connect(deselect_factory)
 	new_factory.created_extractor.connect(create_extractor)
-	new_factory.created_probe.connect(send_probe)
+	new_factory.created_probe.connect(create_probe)
 	new_factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
 	new_factory.add_resource(10)
 	factories.append(new_factory)
+	
+	if selected:
+		viewport_planets.add_child(new_factory)
 	
 	if not active:
 		set_active(true)
@@ -246,7 +272,7 @@ func remove_extractor(pExtractor: Extractor) -> void:
 	extractors.erase(pExtractor)
 	pExtractor.queue_free()
 	
-func create_cargo(pPlanet: Planet) -> void:
+func create_cargo(pPlanet: Planet,pResource:int=1) -> void:
 	var new_cargo = Cargo.new()
 	new_cargo.position = pPlanet.position
 	new_cargo.set_target(factories[0])
@@ -260,18 +286,7 @@ func remove_cargo(pCargo: Cargo) -> void:
 	cargo.erase(pCargo)
 	pCargo.queue_free()
 
-func send_probe() -> void:
-	var target = adj[0]
-	var dist_to_target = adj[0].position.distance_squared_to(position)
-	var shortest_dist = dist_to_target
-	for a in adj.size():
-		dist_to_target = adj[a].position.distance_squared_to(position)
-		if dist_to_target < shortest_dist:
-			shortest_dist = dist_to_target
-			target = adj[a]
-	var new_probe = Probe.new()
-	new_probe.travel(position, target)
-	add_child(new_probe)
+
 	
 	
 	
@@ -295,6 +310,17 @@ func select():
 	selected = true
 	queue_redraw()
 	star_selected.emit()
+	
+	for l in orbit_lines.size():
+		viewport_planets.add_child(orbit_lines[l])
+	for p in planets.size():
+		viewport_planets.add_child(planets[p])
+	for f in factories.size():
+		viewport_planets.add_child(factories[f])
+	for e in extractors.size():
+		viewport_planets.add_child(extractors[e])
+	for c in cargo.size():
+		viewport_planets.add_child(cargo[c])
 		
 func deselect():
 	selected = false
@@ -302,9 +328,22 @@ func deselect():
 	queue_redraw()
 	star_deselected.emit()
 	
+	for l in orbit_lines.size():
+		viewport_planets.remove_child(orbit_lines[l])
+	for p in planets.size():
+		viewport_planets.remove_child(planets[p])
+	for f in factories.size():
+		viewport_planets.remove_child(factories[f])
+	for e in extractors.size():
+		viewport_planets.remove_child(extractors[e])
+	for c in cargo.size():
+		viewport_planets.remove_child(cargo[c])
+	
+signal activated
 func set_active(pActive: bool) -> void:
 	active = pActive
 	spr_active.visible = active
+	activated.emit()
 
 func set_hovered_planet(pPlanet: Planet) -> void:
 	spr_planet_hover.reparent(pPlanet)

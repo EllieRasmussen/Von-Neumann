@@ -2,8 +2,6 @@ extends Node2D
 
 class_name Traveller
 
-const Orbiter = preload("res://Scripts/orbiter.gd")
-
 var sprite: Sprite2D
 
 var onscreen: bool = true

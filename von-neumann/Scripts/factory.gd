@@ -25,7 +25,7 @@ var making_extractors: bool = true
 var processing_new_extractor: bool = false
 var next_extractor_timer: float
 
-var making_probes: bool = false
+var making_probes: bool = true
 var processing_new_probe: bool = false
 var next_probe_timer: float
 
@@ -51,6 +51,8 @@ func _ready() -> void:
 	area2d.add_child(collisionShape)
 	add_child(area2d)
 	area2d.position = Vector2.ZERO
+	
+	
 
 func update_factory() -> void:
 	anim_sprite.look_at(Vector2.ZERO)

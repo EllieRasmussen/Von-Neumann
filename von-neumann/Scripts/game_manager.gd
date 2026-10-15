@@ -121,6 +121,8 @@ func create_star(pPos: Vector2):
 	s.set_sel_factory.connect(set_selected_factory)
 	s.desel_factory.connect(clear_selected_factory)
 	
+	s.activated.connect(add_star_adj_lines_to_viewport.bind(s))
+	
 	s.viewport_planets = viewport_planets
 	
 	stars.append(s)
@@ -139,18 +141,10 @@ func set_selected_star(pStar: Star) -> void:
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
 	
-	for l in sel_star.orbit_lines.size():
-		viewport_planets.add_child(sel_star.orbit_lines[l])
-	for p in sel_star.planets.size():
-		viewport_planets.add_child(sel_star.planets[p])
-	for f in sel_star.factories.size():
-		viewport_planets.add_child(sel_star.factories[f])
-	for e in sel_star.extractors.size():
-		viewport_planets.add_child(sel_star.extractors[e])
-	for c in sel_star.cargo.size():
-		viewport_planets.add_child(sel_star.cargo[c])
-	for l in sel_star.adj_lines.size():
-		viewport_stars.add_child(sel_star.adj_lines[l])
+	if not sel_star.active:
+		for l in sel_star.adj_lines.size():
+			viewport_stars.add_child(sel_star.adj_lines[l])
+	
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
@@ -167,18 +161,9 @@ func clear_selected_star() -> void:
 	clear_selected_factory()
 	clear_selected_planet()
 	
-	for l in sel_star.orbit_lines.size():
-		viewport_planets.remove_child(sel_star.orbit_lines[l])
-	for p in sel_star.planets.size():
-		viewport_planets.remove_child(sel_star.planets[p])
-	for f in sel_star.factories.size():
-		viewport_planets.remove_child(sel_star.factories[f])
-	for e in sel_star.extractors.size():
-		viewport_planets.remove_child(sel_star.extractors[e])
-	for c in sel_star.cargo.size():
-		viewport_planets.remove_child(sel_star.cargo[c])
-	for l in sel_star.adj_lines.size():
-		viewport_stars.remove_child(sel_star.adj_lines[l])
+	if not sel_star.active:
+		for l in sel_star.adj_lines.size():
+			viewport_stars.remove_child(sel_star.adj_lines[l])
 	
 	
 	star_viewer_sprite_star.queue_free()
@@ -186,6 +171,10 @@ func clear_selected_star() -> void:
 	sel_star.deselect()
 	sel_star = null
 	spr_star_selected.visible = false
+	
+func add_star_adj_lines_to_viewport(pStar: Star) -> void:
+	for l in pStar.adj_lines.size():
+		viewport_stars.add_child(pStar.adj_lines[l])
 
 ## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
 func Prim() -> void:
@@ -260,7 +249,7 @@ func update_planet_window() -> void:
 	if sel_planet == null:
 		return
 	
-	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % sel_planet.resource)
+	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % sel_planet.resource_multiplier)
 	lbl_planet_extractors.text = "EXTRACTORS: " + str(sel_planet.extractors)
 #endregion
 

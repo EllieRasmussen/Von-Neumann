@@ -2,7 +2,7 @@ extends Orbiter
 
 var sprite: Sprite2D
 
-var resource: float = randf_range(0.25,1.75)
+var resource_multiplier: float = randf_range(0.25,1.75)
 
 var area2D: Area2D
 
@@ -45,14 +45,14 @@ func update_extraction() -> void:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(1)
+			extract_resource(resource_multiplier)
 			
 func update_extraction_deselected() -> void:
 	if extractors > 0:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(1)
+			extract_resource(resource_multiplier)
 	
 
 
@@ -62,7 +62,7 @@ func add_extractors(pExtractors: int = 1) -> void:
 	added_extractor.emit()
 
 func extract_resource(pResource) -> void:
-	extracted.emit()
+	extracted.emit(self, pResource)
 	
 func get_extraction_progress() -> float:
 	return extraction_timer / time_per_extraction
