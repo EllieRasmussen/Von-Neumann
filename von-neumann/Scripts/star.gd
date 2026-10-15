@@ -8,6 +8,8 @@ const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 const Cargo = preload("res://Scripts/cargo.gd")
 
+var hostility: float
+
 var viewport_planets: SubViewport
 
 var planets: Array[Planet]
@@ -19,12 +21,6 @@ var orbit_lines: Array[Line2D]
 var factory_orbital_radius: float
 
 var num_points_per_path = 50
-#var paths: Array[Path2D]
-#var followers: Array[OffscreenFollower]
-
-#var factory_orbit_speed = 0.001 #0.001 originally
-#var factory_path: Path2D
-#var factory_followers: Array[OffscreenFollower]
 
 signal star_hovered
 signal star_dehovered
@@ -48,6 +44,7 @@ var spr_factory_selected: Sprite2D
 var adj = []
 
 func _ready() -> void:
+	hostility = randf_range(0.1,0.5)
 	
 	#SET TEXTURE
 	var star_imgs = []
@@ -56,8 +53,9 @@ func _ready() -> void:
 	star_imgs.append(load("res://Images/Star_2.png"))
 	star_imgs.append(load("res://Images/Star_3.png"))
 	self.texture = star_imgs[randi()%len(star_imgs)]
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
-	create_planets(randi_range(1,10))
+	create_planets(randi_range(1,Globals.max_planets_per_star))
 	
 	area2D = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
@@ -117,25 +115,15 @@ func _process(delta: float) -> void:
 			#factory_followers[f].process_off_screen(factory_orbit_speed * delta)
 	for p in planets.size():
 		planets[p].update_position(delta)
+		planets[p].update_extraction()
 	for f in factories.size():
 		factories[f].update_position(delta)
-	#for e in range(extractors.size()-1,-1,-1):
-		#extractors[e].update_position(delta)
-	#for c in range(cargo.size()-1,-1,-1):
-		#cargo[c].update_position(delta)
-
-func _draw():
-	pass
-	#for a in adj.size():
-		#draw_line(Vector2.ZERO,adj[a].position - position,Color.DIM_GRAY,2,false)
-
-
+		factories[f].update_factory()
 
 func create_planets(num_planets: int) -> void:
 	for p in num_planets:
 		#PLANET
 		var new_planet = Planet.new()
-		new_planet.set_orbital_radius(randf_range((p+1)*1000,(p+1)*1500))
 		new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
 		new_planet.planet_dehovered.connect(dehover_planet)
 		new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
@@ -144,22 +132,31 @@ func create_planets(num_planets: int) -> void:
 		
 		#LINE
 		var new_line = Line2D.new()
-		new_line.position = new_planet.orbital_offset
-		new_line.z_index = -1
+		new_line.position = Vector2.ZERO
+		new_line.z_index = 1
 		new_line.closed = true
 		new_line.default_color = Color.DIM_GRAY
 		new_line.width = 5
 		
-		var angle = 0.0
-		var eccentricity_x: float = randf_range(0.25,1.25)
-		var eccentricity_y: float = randf_range(0.25,1.25)
+		
+		var r0 = (p+1) * 2000
+		var r1 = randf_range(0.65,1.0) * (p+1) * 2000
+		var orbit_angle = randf() * 6.2832
+		var focus_distance = sqrt(abs((r0*r0)-(r1*r1)))
+		var focus = Vector2(
+			cos(orbit_angle) * focus_distance,
+			sin(orbit_angle) * focus_distance
+		)
+		new_planet.set_orbit(r0,r1,focus_distance,orbit_angle)
+		
+		var t = 0.0
 		for point in num_points_per_path:
 			var new_point = Vector2(
-				cos(angle) * new_planet.orbital_radius * eccentricity_x,
-				sin(angle) * new_planet.orbital_radius * eccentricity_y
+				r0 * cos(orbit_angle) * cos(t) - r1 * sin(orbit_angle) * sin(t) + focus.x,
+				r0 * sin(orbit_angle) * cos(t) + r1 * cos(orbit_angle) * sin(t) + focus.y
 			)
 			new_line.add_point(new_point)
-			angle += 6.2832 / (num_points_per_path - 1)
+			t += 6.2832 / (num_points_per_path - 1)
 			
 		
 		
@@ -167,26 +164,6 @@ func create_planets(num_planets: int) -> void:
 		
 		planets.append(new_planet)
 		orbit_lines.append(new_line)
-
-#func create_factory_path():
-	#factory_path = Path2D.new()
-	#factory_path.curve = Curve2D.new()
-	#var new_line = Line2D.new()
-		#
-	#var angle = 0.0
-	#for point in num_points_per_path:
-		#var new_point = Vector2(
-			#cos(angle) * factory_orbit,
-			#sin(angle) * factory_orbit
-		#)
-		#factory_path.curve.add_point(new_point)
-		#new_line.add_point(new_point)
-		#angle += 6.2832 / (num_points_per_path - 1)
-		#
-	#factory_path.add_child(new_line)
-	#factory_path.visible = false
-
-
 
 var adj_lines: Array[Line2D] = []
 func add_adjacent(pStar: Star, p_line: Line2D) -> void:
@@ -221,8 +198,8 @@ func create_factory() -> void:
 	new_factory.factory_deselected.connect(deselect_factory)
 	new_factory.created_extractor.connect(create_extractor)
 	new_factory.created_probe.connect(send_probe)
-	new_factory.orbital_radius = factory_orbital_radius
-	
+	new_factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
+	new_factory.add_resource(10)
 	factories.append(new_factory)
 	
 	if not active:
@@ -232,7 +209,7 @@ func create_factory_orbit_line() -> void:
 	#FACTORY ORBIT SHOULD BE SLIGHTLY LARGER THAN THE MAX DISTANCE A PLANET CAN GET FROM THE STAR
 	var max_orbit_sqr = 0.0
 	for p in planets.size():
-		var planet_max_sqr = planets[p].orbital_offset.length_squared() + (planets[p].orbital_radius*planets[p].orbital_radius)
+		var planet_max_sqr = planets[p].orbital_focus.length_squared() + (planets[p].orbital_radius_0*planets[p].orbital_radius_0)
 		if planet_max_sqr > max_orbit_sqr:
 			max_orbit_sqr = planet_max_sqr
 	factory_orbital_radius = sqrt(max_orbit_sqr) + 500
@@ -298,14 +275,6 @@ func send_probe() -> void:
 	
 	
 	
-
-
-#func update_followers():
-	#for f in followers.size():
-		#followers[f].update()
-	#
-	#for f in factory_followers.size():
-		#factory_followers[f].update()
 
 #region HOVER, SELECTION, ACTIVE
 func _on_hover(): 

@@ -15,26 +15,30 @@ signal factory_deselected
 
 signal added_resource
 signal update_new_extractor_progress
-signal update_new_probe_progbar
+signal update_new_probe_progress
 
 signal created_extractor
 signal created_probe
 
 
-var making_extractors: bool = false
+var making_extractors: bool = true
 var processing_new_extractor: bool = false
 var next_extractor_timer: float
 
 var making_probes: bool = false
+var processing_new_probe: bool = false
+var next_probe_timer: float
 
-func _ready() -> void:
+func _init() -> void:
 	anim_sprite = AnimatedSprite2D.new()
 	anim_sprite.sprite_frames = load("res://Images/factory/factory.tres")
+
+func _ready() -> void:
 	anim_sprite.scale = Vector2.ONE * 10
 	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_child(anim_sprite)
 	
-	orbital_offset = Vector2.ZERO
+	orbital_focus = Vector2.ZERO
 	rotational_velocity = 0
 	
 	area2d = Area2D.new()
@@ -48,10 +52,19 @@ func _ready() -> void:
 	add_child(area2d)
 	area2d.position = Vector2.ZERO
 
-func _process(delta: float) -> void:
+func update_factory() -> void:
 	anim_sprite.look_at(Vector2.ZERO)
 	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
 		make_extractor()
+	if making_probes and resource >= Globals.resource_to_make_probe and not processing_new_probe:
+		make_probe()
+
+func update_factory_deselected() -> void:
+	anim_sprite.look_at(Vector2.ZERO)
+	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
+		make_extractor()
+	if making_probes and resource >= Globals.resource_to_make_probe and not processing_new_probe:
+		make_probe()
 
 func add_resource(pResource: int = 1) -> void:
 	
@@ -68,20 +81,40 @@ func add_resource(pResource: int = 1) -> void:
 func make_extractor() -> void:
 	processing_new_extractor = true
 	var resources_added: int = 0
+	resource -= Globals.resource_to_make_extractor
 	var time_per_resource: float = Globals.time_factory_make_extractor / Globals.resource_to_make_extractor
 	while resources_added < Globals.resource_to_make_extractor:
-		var timer = 0.0
+		var timer: float = 0.0
 		while timer < time_per_resource:
 			timer += Globals.deltaTime
 			update_new_extractor_progress.emit(resources_added,(timer/time_per_resource))
-			await get_tree().process_frame
+			await Engine.get_main_loop().process_frame
 		
 		resources_added += 1
-		resource -= 1
+		
 		update_new_extractor_progress.emit(resources_added,0)
 	created_extractor.emit()
 	update_new_extractor_progress.emit(0,0)
 	processing_new_extractor = false
+
+func make_probe() -> void:
+	processing_new_probe = true
+	var resources_added: int = 0
+	resource -= Globals.resource_to_make_probe
+	var time_per_resource: float = Globals.time_factory_make_probe / Globals.resource_to_make_probe
+	while resources_added < Globals.resource_to_make_probe:
+		var timer: float = 0.0
+		while timer <= time_per_resource:
+			timer += Globals.deltaTime
+			update_new_probe_progress.emit(resources_added,(timer/time_per_resource))
+			await Engine.get_main_loop().process_frame
+		
+		resources_added += 1
+		
+		update_new_probe_progress.emit(resources_added,0)
+	created_probe.emit()
+	update_new_probe_progress.emit(0,0)
+	processing_new_probe = false
 
 func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click"):

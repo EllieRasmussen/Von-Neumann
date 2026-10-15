@@ -16,6 +16,7 @@ signal planet_deselected
 
 var extractors: int = 0
 var max_extractors: int = 10
+signal added_extractor
 
 var time_per_extraction: float = 1.0
 var extraction_timer: float = 0.0
@@ -39,25 +40,26 @@ func _ready() -> void:
 	area2D.add_child(collisionShape)
 	add_child(area2D)
 	
-func _process(delta: float) -> void:
+func update_extraction() -> void:
 	if extractors > 0:
-		extraction_timer += delta
+		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
 			extract_resource(1)
 			
-func unselected_process(delta: float) -> void:
+func update_extraction_deselected() -> void:
 	if extractors > 0:
-		extraction_timer += delta
+		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
 			extract_resource(1)
 	
 
 
-func  add_extractors(pExtractors: int = 1) -> void:
+func add_extractors(pExtractors: int = 1) -> void:
 	extractors += pExtractors
 	time_per_extraction = 10.0 / float(extractors)
+	added_extractor.emit()
 
 func extract_resource(pResource) -> void:
 	extracted.emit()

@@ -20,6 +20,7 @@ func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("Right Click") and not dragging:
 		dragging = true
+		mouse_pos_last_frame = subviewport.get_mouse_position()
 	if event.is_action_released("Right Click"):
 		dragging = false
 		

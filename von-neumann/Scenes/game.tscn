@@ -13,7 +13,7 @@ vertical = true
 
 [sub_resource type="Curve2D" id="Curve2D_i6g32"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "window_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "window_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe_next_resource", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
 script = ExtResource("1_v158k")
 cam_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
 cam_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
@@ -35,6 +35,7 @@ btn_factory_make_probes = NodePath("factory_info/VBoxContainer/HBoxContainer/VBo
 progbar_factory_make_extractor_next_resource = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor_next_resource")
 progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor")
 lbl_progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor/lbl_progbar_make_extractor")
+progbar_factory_make_probe_next_resource = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probe_next_resource")
 progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes")
 lbl_progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes/lbl_progbar_make_probes")
 
@@ -287,12 +288,6 @@ stretch_mode = 5
 [node name="VBoxContainer" type="VBoxContainer" parent="planet_info/HBoxContainer"]
 layout_mode = 2
 
-[node name="lbl planet name" type="Label" parent="planet_info/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "Planet Name"
-
 [node name="lbl planet resource multiplier" type="Label" parent="planet_info/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
@@ -339,12 +334,6 @@ theme = ExtResource("2_1l0tm")
 [node name="VBoxContainer" type="VBoxContainer" parent="factory_info"]
 offset_right = 40.0
 offset_bottom = 40.0
-
-[node name="lbl_factory_name" type="Label" parent="factory_info/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
-theme_override_font_sizes/font_size = 24
-text = "FACTORY"
 
 [node name="lbl_factory_total_resource" type="Label" parent="factory_info/VBoxContainer"]
 layout_mode = 2
@@ -420,6 +409,11 @@ theme_override_font_sizes/font_size = 24
 toggle_mode = true
 action_mode = 0
 text = "MAKE PROBES"
+
+[node name="prog_make_probe_next_resource" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 1.0
+show_percentage = false
 
 [node name="prog_make_probes" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
 custom_minimum_size = Vector2(0, 30)
