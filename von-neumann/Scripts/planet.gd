@@ -1,11 +1,8 @@
-extends Sprite2D
+extends Orbiter
+
+var sprite: Sprite2D
 
 var resource: float = randf_range(0.25,1.75)
-
-var orbital_position: float
-var orbital_radius: float
-var orbital_velocity: float
-var orbital_offset: Vector2
 
 var area2D: Area2D
 
@@ -26,21 +23,16 @@ signal extracted
 
 func _ready() -> void:	
 	#SET TEXTURE
-	var planet_imgs = []
-	planet_imgs.append(load("res://Images/planet0.png"))
-	planet_imgs.append(load("res://Images/planet1.png"))
-	planet_imgs.append(load("res://Images/planet2.png"))
-	planet_imgs.append(load("res://Images/planet3.png"))
-	self.texture = planet_imgs[randi()%len(planet_imgs)]
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	scale = Vector2.ONE * 10
-	
-	orbital_position = randf_range(0.0,6.2831)
+	sprite = Sprite2D.new()
+	sprite.texture = load("res://Images/planet" + str(randi_range(0,3)) + ".png")
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.scale = Vector2.ONE * 10
+	add_child(sprite)
 	
 	area2D = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
 	collisionShape.shape = CircleShape2D.new()
-	collisionShape.shape.radius = 10
+	collisionShape.shape.radius = 100
 	area2D.mouse_entered.connect(_on_hover)
 	area2D.mouse_exited.connect(_exit_hover)
 	area2D.input_event.connect(handle_area2d_input)
@@ -48,14 +40,6 @@ func _ready() -> void:
 	add_child(area2D)
 	
 func _process(delta: float) -> void:
-	orbital_position += orbital_velocity * delta
-	if orbital_position > 6.2832:
-		orbital_position -= 6.2832
-	position = Vector2(
-		cos(orbital_position),
-		sin(orbital_position)
-	) * orbital_radius + orbital_offset
-	
 	if extractors > 0:
 		extraction_timer += delta
 		if extraction_timer >= time_per_extraction:
@@ -63,22 +47,15 @@ func _process(delta: float) -> void:
 			extract_resource(1)
 			
 func unselected_process(delta: float) -> void:
-	
 	if extractors > 0:
 		extraction_timer += delta
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
 			extract_resource(1)
 	
-func set_orbital_radius(pRadius) -> void:
-	orbital_radius = pRadius
-	orbital_offset = Vector2(
-			randf_range(-orbital_radius * 0.25, orbital_radius * 0.25),
-			randf_range(-orbital_radius * 0.25, orbital_radius * 0.25)
-	)
-	orbital_velocity = randf_range((1.0/pRadius)*10,(1.0/pRadius)*100)
 
-func  add_extractors(pExtractors) -> void:
+
+func  add_extractors(pExtractors: int = 1) -> void:
 	extractors += pExtractors
 	time_per_extraction = 10.0 / float(extractors)
 

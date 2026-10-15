@@ -20,7 +20,6 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export_group("Planet Info Window")
 @export var window_planet_info: Window
 @export var texture_planet_sprite: TextureRect
-@export var lbl_planet_name: Label
 @export var lbl_planet_resource_multiplier: Label
 @export var lbl_planet_extractors: Label
 @export var progbar_planet_next_extraction: ProgressBar
@@ -28,7 +27,6 @@ const Extractor = preload("res://Scripts/extractor.gd")
 
 @export_group("Factory Info Window")
 @export var window_factory_info: Window
-@export var lbl_factory_name: Label
 @export var lbl_factory_total_resource: Label
 @export var btn_factory_make_extractors: Button
 @export var btn_factory_make_probes: Button
@@ -235,8 +233,8 @@ func set_selected_planet(pPlanet: Planet) -> void:
 		clear_selected_planet()
 	sel_planet = pPlanet
 	window_planet_info.visible = true
-	texture_planet_sprite.texture = pPlanet.texture
-	lbl_planet_name.text = pPlanet.name
+	texture_planet_sprite.texture = pPlanet.sprite.texture
+	window_planet_info.title = pPlanet.name
 	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % pPlanet.resource)
 	lbl_planet_extractors.text = "EXTRACTORS: " + str(pPlanet.extractors)
 	
@@ -247,7 +245,6 @@ func clear_selected_planet() -> void:
 	
 	manual_extract_tracker = 0.0
 	texture_planet_sprite.texture = null
-	lbl_planet_name.text = ""
 	lbl_planet_resource_multiplier.text = ""
 	lbl_planet_extractors.text = ""
 	
@@ -281,7 +278,7 @@ func update_factory_window() -> void:
 	else:
 		btn_factory_make_probes.text = "MAKE PROBES"
 	
-	lbl_factory_name.text = "FACTORY AT " + sel_star.name
+	window_factory_info.title = "FACTORY AT " + sel_star.name
 	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource)
 
 
@@ -314,7 +311,6 @@ func clear_selected_factory() -> void:
 		sel_factory.update_new_extractor_progress.disconnect(update_factory_make_extractor_progbar)
 		sel_factory.set_selected(false)
 		sel_factory = null
-	lbl_factory_name.text = ""
 	lbl_factory_total_resource.text = ""
 	
 #endregion

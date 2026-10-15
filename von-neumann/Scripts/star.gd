@@ -115,18 +115,14 @@ func _process(delta: float) -> void:
 			#followers[f].process_off_screen(planets[f].orbital_velocity * delta)
 		#for f in factory_followers.size():
 			#factory_followers[f].process_off_screen(factory_orbit_speed * delta)
-	
-	
-	for e in range(extractors.size()-1,-1,-1):
-			if extractors[e].travel(delta):
-				extractors[e].arrive()
-				extractors[e].queue_free()
-				extractors.remove_at(e)
-	for c in range(cargo.size()-1,-1,-1):
-		if cargo[c].travel(delta):
-			cargo[c].arrive()
-			cargo[c].queue_free()
-			cargo.remove_at(c)
+	for p in planets.size():
+		planets[p].update_position(delta)
+	for f in factories.size():
+		factories[f].update_position(delta)
+	#for e in range(extractors.size()-1,-1,-1):
+		#extractors[e].update_position(delta)
+	#for c in range(cargo.size()-1,-1,-1):
+		#cargo[c].update_position(delta)
 
 func _draw():
 	pass
@@ -139,7 +135,6 @@ func create_planets(num_planets: int) -> void:
 	for p in num_planets:
 		#PLANET
 		var new_planet = Planet.new()
-		new_planet.centered = true
 		new_planet.set_orbital_radius(randf_range((p+1)*1000,(p+1)*1500))
 		new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
 		new_planet.planet_dehovered.connect(dehover_planet)
@@ -156,10 +151,12 @@ func create_planets(num_planets: int) -> void:
 		new_line.width = 5
 		
 		var angle = 0.0
+		var eccentricity_x: float = randf_range(0.25,1.25)
+		var eccentricity_y: float = randf_range(0.25,1.25)
 		for point in num_points_per_path:
 			var new_point = Vector2(
-				cos(angle) * new_planet.orbital_radius,
-				sin(angle) * new_planet.orbital_radius
+				cos(angle) * new_planet.orbital_radius * eccentricity_x,
+				sin(angle) * new_planet.orbital_radius * eccentricity_y
 			)
 			new_line.add_point(new_point)
 			angle += 6.2832 / (num_points_per_path - 1)
@@ -261,21 +258,30 @@ func create_factory_orbit_line() -> void:
 func create_extractor() -> void:
 	var new_extractor = Extractor.new()
 	new_extractor.position = factories[0].position
-	new_extractor.set_target_planet(planets[0])
+	new_extractor.set_target(planets[0])
+	new_extractor.arrived.connect(planets[0].add_extractors)
+	new_extractor.arrived.connect(remove_extractor.bind(new_extractor))
 	extractors.append(new_extractor)
 	if selected:
 		viewport_planets.add_child(new_extractor)
 	
+func remove_extractor(pExtractor: Extractor) -> void:
+	extractors.erase(pExtractor)
+	pExtractor.queue_free()
 	
 func create_cargo(pPlanet: Planet) -> void:
 	var new_cargo = Cargo.new()
 	new_cargo.position = pPlanet.position
-	new_cargo.set_target_factory(factories[0])
+	new_cargo.set_target(factories[0])
+	new_cargo.arrived.connect(factories[0].add_resource)
+	new_cargo.arrived.connect(remove_cargo.bind(new_cargo))
 	cargo.append(new_cargo)
 	if selected:
 		viewport_planets.add_child(new_cargo)
 	
-
+func remove_cargo(pCargo: Cargo) -> void:
+	cargo.erase(pCargo)
+	pCargo.queue_free()
 
 func send_probe() -> void:
 	var target = adj[0]

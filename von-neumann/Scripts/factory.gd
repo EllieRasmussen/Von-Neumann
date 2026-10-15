@@ -1,9 +1,6 @@
-extends AnimatedSprite2D
+extends Orbiter
 
-var orbital_position: float
-var orbital_radius: float
-var orbital_velocity: float
-var orbital_offset: Vector2
+var anim_sprite: AnimatedSprite2D
 
 var resource = 0
 
@@ -31,13 +28,14 @@ var next_extractor_timer: float
 var making_probes: bool = false
 
 func _ready() -> void:
-	sprite_frames = load("res://Images/factory/factory.tres")
-	scale = Vector2.ONE * 10
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	anim_sprite = AnimatedSprite2D.new()
+	anim_sprite.sprite_frames = load("res://Images/factory/factory.tres")
+	anim_sprite.scale = Vector2.ONE * 10
+	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	add_child(anim_sprite)
 	
 	orbital_offset = Vector2.ZERO
-	orbital_position = randf_range(0.0,6.2832)
-	orbital_velocity = 0.01
+	rotational_velocity = 0
 	
 	area2d = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
@@ -51,23 +49,16 @@ func _ready() -> void:
 	area2d.position = Vector2.ZERO
 
 func _process(delta: float) -> void:
-	orbital_position += orbital_velocity * delta
-	if orbital_position > 6.2832:
-		orbital_position -= 6.2832
-	position = Vector2(
-		cos(orbital_position),
-		sin(orbital_position)
-	) * orbital_radius + orbital_offset
-	
+	anim_sprite.look_at(Vector2.ZERO)
 	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
 		make_extractor()
 
-func add_resource(pResource) -> void:
+func add_resource(pResource: int = 1) -> void:
 	
 	resource += pResource
 	added_resource.emit()
 	
-	frame = int((resource / float(Globals.max_resource_stored_in_factory)) * sprite_frames.get_frame_count("default"))
+	anim_sprite.frame = int((resource / float(Globals.max_resource_stored_in_factory)) * anim_sprite.sprite_frames.get_frame_count("default"))
 	
 	if resource >= 1000:
 		created_probe.emit()
