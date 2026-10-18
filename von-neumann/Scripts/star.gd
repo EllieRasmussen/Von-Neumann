@@ -42,8 +42,9 @@ var spr_factory_hover: Sprite2D
 var spr_factory_selected: Sprite2D
 
 var adj = []
+var adj_lines: Array[Line2D] = []
 
-func _ready() -> void:
+func _init() -> void:
 	hostility = randf_range(0.1,0.5)
 	
 	#SET TEXTURE
@@ -95,9 +96,13 @@ func _ready() -> void:
 	spr_factory_selected.visible = false
 	spr_factory_selected.scale  = Vector2.ONE * 10
 	add_child(spr_factory_selected)
+	
+
+func _ready() -> void:
+	pass
 
 
-
+var has_valid_planet: bool = true
 func _process(delta: float) -> void:
 	## A BUNCH OF STUFF HERE LEFTOVER FROM THE PATH FOLLOWER DAYS. USEFUL PATTERN TO COME BACK TO WHEN IT'S TIME FOR BATCHING
 	#if selected:
@@ -118,7 +123,7 @@ func _process(delta: float) -> void:
 		planets[p].update_extraction()
 	for f in factories.size():
 		factories[f].update_position(delta)
-		factories[f].update_factory()
+		factories[f].update_factory(has_valid_planet)
 
 func create_planets(num_planets: int) -> void:
 	for p in num_planets:
@@ -166,51 +171,43 @@ func create_planets(num_planets: int) -> void:
 		planets.append(new_planet)
 		orbit_lines.append(new_line)
 
-var adj_lines: Array[Line2D] = []
-func add_adjacent(pStar: Star, p_line: Line2D) -> void:
-	if not adj.has(pStar):
-		adj.append(pStar)
-		
-		
-	if p_line == null:
-		p_line = Line2D.new()
-		p_line.position = position
-		p_line.z_index = -10
-		p_line.add_point(Vector2.ZERO)
-		p_line.add_point(pStar.position - position)
-		p_line.default_color = Color.DIM_GRAY
-		p_line.width = 2
-		
-		adj_lines.append(p_line)
-		
-		pStar.add_adjacent(self, p_line)
-	elif not adj_lines.has(p_line):
-		adj_lines.append(p_line)
-	
+func find_planet_with_room_for_extractor() -> Planet:
+	for p in planets.size():
+		if planets[p].extractors + planets[p].queued_extractors < Globals.max_extractors_per_planet:
+			return planets[p]
+	return null
+
+
+
+var game_manager #TODO KILL KILL KILL KILL THIS IT MUST DIE BEFORE RELEASE KILL
+func get_adjacent_stars() -> Array[Star]:
+	var arr: Array[Star] = []
+	for s in game_manager.stars.size():
+		var dist_to_star: Vector2 = game_manager.stars[s].position - position
+		if dist_to_star.length_squared() <= Globals.star_adjacency_max * Globals.star_adjacency_max and game_manager.stars[s] != self:
+			arr.append(game_manager.stars[s])
+	return arr
 
 func create_probe() -> void:
-	var target: Star = adj[0]
-	var target_index = 0
-	var has_valid_target: bool = true
-	while target.factories.size() > 0 and has_valid_target:
-		target_index += 1
-		if target_index == adj.size():
-			has_valid_target = false
-		else:
-			target = adj[target_index]
-	
-	var dist_to_target = adj[0].position.distance_squared_to(position)
-	var shortest_dist = dist_to_target
+	adj = get_adjacent_stars()
+	var closest: Star = null
+	var min_dist: float = 100000000000
 	for a in adj.size():
-		dist_to_target = adj[a].position.distance_squared_to(position)
-		if dist_to_target < shortest_dist:
-			shortest_dist = dist_to_target
-			target = adj[a]
-	var new_probe = Probe.new()
-	new_probe.travel(position, target)
-	add_child(new_probe)
+		if adj[a].factories.size() == 0:
+			var dist_between: float = (adj[a].position - position).length_squared()
+			if dist_between < min_dist:
+				min_dist = dist_between
+				closest = adj[a]
+			
+	
+	if closest != null:
+		var new_probe = Probe.new()
+		new_probe.travel(position, closest)
+		add_child(new_probe)
 
 func create_factory() -> void:
+	set_active(true)
+	
 	if factories.size() == 0:
 		create_factory_orbit_line()
 	
@@ -222,15 +219,14 @@ func create_factory() -> void:
 	new_factory.created_extractor.connect(create_extractor)
 	new_factory.created_probe.connect(create_probe)
 	new_factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
-	new_factory.add_resource(10)
+	new_factory.add_resource(Globals.starting_resource_in_factroy)
 	factories.append(new_factory)
 	
 	if selected:
 		viewport_planets.add_child(new_factory)
 	
-	if not active:
-		set_active(true)
-		
+
+
 func create_factory_orbit_line() -> void:
 	#FACTORY ORBIT SHOULD BE SLIGHTLY LARGER THAN THE MAX DISTANCE A PLANET CAN GET FROM THE STAR
 	var max_orbit_sqr = 0.0
@@ -259,37 +255,43 @@ func create_factory_orbit_line() -> void:
 	orbit_lines.append(new_line)
 
 func create_extractor() -> void:
+	var target: Planet = find_planet_with_room_for_extractor()
+	if target == null:
+		has_valid_planet = false
+		return
+	target.queued_extractors += 1
 	var new_extractor = Extractor.new()
 	new_extractor.position = factories[0].position
-	new_extractor.set_target(planets[0])
-	new_extractor.arrived.connect(planets[0].add_extractors)
+	new_extractor.arrived.connect(target.add_extractors)
 	new_extractor.arrived.connect(remove_extractor.bind(new_extractor))
+	new_extractor.set_target(target)
+	
 	extractors.append(new_extractor)
 	if selected:
 		viewport_planets.add_child(new_extractor)
 	
+
 func remove_extractor(pExtractor: Extractor) -> void:
 	extractors.erase(pExtractor)
 	pExtractor.queue_free()
-	
+
 func create_cargo(pPlanet: Planet,pResource:int=1) -> void:
-	var new_cargo = Cargo.new()
-	new_cargo.position = pPlanet.position
-	new_cargo.set_target(factories[0])
-	new_cargo.arrived.connect(factories[0].add_resource)
-	new_cargo.arrived.connect(remove_cargo.bind(new_cargo))
-	cargo.append(new_cargo)
-	if selected:
-		viewport_planets.add_child(new_cargo)
+	if factories.size() > 0:
+		var new_cargo = Cargo.new()
+		new_cargo.position = pPlanet.position
+		new_cargo.set_target(factories[0])
+		new_cargo.arrived.connect(factories[0].add_resource)
+		new_cargo.arrived.connect(remove_cargo.bind(new_cargo))
+		cargo.append(new_cargo)
+		if selected:
+			viewport_planets.add_child(new_cargo)
+	
 	
 func remove_cargo(pCargo: Cargo) -> void:
 	cargo.erase(pCargo)
 	pCargo.queue_free()
 
 
-	
-	
-	
 
 #region HOVER, SELECTION, ACTIVE
 func _on_hover(): 
@@ -322,6 +324,19 @@ func select():
 	for c in cargo.size():
 		viewport_planets.add_child(cargo[c])
 		
+	adj = get_adjacent_stars()
+	for l in adj.size():
+		var new_line = Line2D.new()
+		new_line.position = position
+		new_line.z_index = -10
+		new_line.add_point(Vector2.ZERO)
+		new_line.add_point(adj[l].position - position)
+		new_line.default_color = Color.DIM_GRAY
+		new_line.width = 2
+		
+		adj_lines.append(new_line)
+		game_manager.viewport_stars.add_child(new_line)
+		
 func deselect():
 	selected = false
 	hover = false
@@ -338,6 +353,11 @@ func deselect():
 		viewport_planets.remove_child(extractors[e])
 	for c in cargo.size():
 		viewport_planets.remove_child(cargo[c])
+		
+	for l in range(adj_lines.size() - 1, -1, -1):
+		if not adj_lines[l].is_queued_for_deletion():
+			adj_lines[l].queue_free()
+			adj_lines.remove_at(l)
 	
 signal activated
 func set_active(pActive: bool) -> void:

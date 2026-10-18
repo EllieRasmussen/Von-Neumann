@@ -8,6 +8,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 
 @export var cam_stars: Cam
 @export var cam_planets: Camera2D
+@export var lbl_no_star_selected: Label
 
 @export var viewport_stars: SubViewport
 @export var viewport_planets: SubViewport
@@ -24,6 +25,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var lbl_planet_extractors: Label
 @export var progbar_planet_next_extraction: ProgressBar
 @export var progbar_planet_manual_extraction: ProgressBar
+@export var btn_manual_extraction: Button
 
 @export_group("Factory Info Window")
 @export var window_factory_info: Window
@@ -39,7 +41,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 
 
 var stars: Array[Star] = []
-var max_stars = 25
+var max_stars = 250
 
 var max_factories_per_star = 10
 var max_extractors_per_star = 1
@@ -61,13 +63,21 @@ var probe_replication_success_rate = 0.1 # % CHANCE
 
 func _ready() -> void:
 	#GENERATE STARS + ADJACENCY
+	var max_star_dist = 10000.0
 	for i in max_stars:
-		create_star(Vector2((randf() * 1860) + 30, (randf() * 880) + 200))
-	
+		var star_pos = Vector2(
+			randf_range(-max_star_dist,max_star_dist),
+			randf_range(-max_star_dist,max_star_dist)
+		)
+		star_pos *= (star_pos.length_squared() / (max_star_dist*max_star_dist))
+		if star_pos.length_squared() < max_star_dist * max_star_dist:
+			create_star(star_pos)
+		
 	stars[0].create_factory()
 	cam_stars.center(stars[0].position)
 	
-	Prim()
+	for s in stars.size():
+		viewport_stars.add_child(stars[s])
 	
 	spr_star_selected = Sprite2D.new()
 	spr_star_selected.name = "spr_star_selected"
@@ -93,10 +103,6 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	
-	if split_container_dragging:
-		split_container.split_offset = clamp(split_container.split_offset,split_container_min,split_container_max)
-		
 	if sel_planet != null:
 		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
 		if manual_extract_tracker > 0.0:
@@ -121,13 +127,10 @@ func create_star(pPos: Vector2):
 	s.set_sel_factory.connect(set_selected_factory)
 	s.desel_factory.connect(clear_selected_factory)
 	
-	s.activated.connect(add_star_adj_lines_to_viewport.bind(s))
-	
 	s.viewport_planets = viewport_planets
+	s.game_manager = self
 	
 	stars.append(s)
-	viewport_stars.add_child(s)
-
 
 func set_hovered_star(pStar: Star) -> void:
 	spr_star_hover.position = pStar.position
@@ -140,11 +143,13 @@ func set_selected_star(pStar: Star) -> void:
 	clear_selected_star()
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
-	
+	lbl_no_star_selected.visible = false
 	if not sel_star.active:
 		for l in sel_star.adj_lines.size():
 			viewport_stars.add_child(sel_star.adj_lines[l])
 	
+	if split_container.split_offset > get_viewport_rect().size.x * 0.9:
+		popout_planet_viewer()
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
@@ -160,6 +165,7 @@ func clear_selected_star() -> void:
 		return
 	clear_selected_factory()
 	clear_selected_planet()
+	lbl_no_star_selected.visible = true
 	
 	if not sel_star.active:
 		for l in sel_star.adj_lines.size():
@@ -172,9 +178,6 @@ func clear_selected_star() -> void:
 	sel_star = null
 	spr_star_selected.visible = false
 	
-func add_star_adj_lines_to_viewport(pStar: Star) -> void:
-	for l in pStar.adj_lines.size():
-		viewport_stars.add_child(pStar.adj_lines[l])
 
 ## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
 func Prim() -> void:
@@ -225,10 +228,12 @@ func Prim() -> void:
 func set_selected_planet(pPlanet: Planet) -> void:
 	if sel_planet != null:
 		clear_selected_planet()
+	
 	sel_planet = pPlanet
 	window_planet_info.visible = true
 	texture_planet_sprite.texture = pPlanet.sprite.texture
 	window_planet_info.title = pPlanet.name
+	btn_manual_extraction.disabled = sel_star == null or sel_star.factories.size() == 0
 	sel_planet.added_extractor.connect(update_planet_window)
 	update_planet_window()
 	
@@ -323,15 +328,24 @@ func update_factory_make_probe_progbar(pResource: int, pNextProgress: float) -> 
 
 #region UI
 
-var split_container_min = 200
-var split_container_max = 1800
-var split_container_dragging = false
-func _on_h_split_container_2_drag_ended() -> void:
-	split_container_dragging = false
+func _on_split_container_drag_ended() -> void:
+	var split_container_max = int(get_viewport_rect().size.x * 0.995)
+	if split_container.split_offset < 0:
+		split_container.split_offset = 0
+	elif split_container.split_offset > split_container_max:
+		split_container.split_offset = split_container_max
 
-
-func _on_h_split_container_2_drag_started() -> void:
-	split_container_dragging = true
+func popout_planet_viewer() -> void:
+	var origin = split_container.split_offset
+	var target = get_viewport_rect().size.x * 0.9
+	
+	var timer = 0.0
+	var duration = 0.1
+	while timer <= duration:
+		timer += Globals.deltaTime
+		split_container.split_offset = lerp(origin,int(target),lerpf(0.0,1.0,timer/duration))
+		await Engine.get_main_loop().process_frame
+	
 
 func toggle_upgrade_window():
 	UpgradeWindow.visible = !UpgradeWindow.visible;

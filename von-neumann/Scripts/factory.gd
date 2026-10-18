@@ -25,7 +25,7 @@ var making_extractors: bool = true
 var processing_new_extractor: bool = false
 var next_extractor_timer: float
 
-var making_probes: bool = true
+var making_probes: bool = false
 var processing_new_probe: bool = false
 var next_probe_timer: float
 
@@ -44,7 +44,7 @@ func _ready() -> void:
 	area2d = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
 	collisionShape.shape = CircleShape2D.new()
-	collisionShape.shape.radius = 50
+	collisionShape.shape.radius = 200
 	area2d.mouse_entered.connect(_on_hover)
 	area2d.mouse_exited.connect(_on_exit)
 	area2d.input_event.connect(handle_area2d_input)
@@ -54,12 +54,23 @@ func _ready() -> void:
 	
 	
 
-func update_factory() -> void:
+func update_factory(p_has_valid_planet: bool) -> void:
+	var can_make_extractors = making_extractors and p_has_valid_planet
 	anim_sprite.look_at(Vector2.ZERO)
-	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
-		make_extractor()
-	if making_probes and resource >= Globals.resource_to_make_probe and not processing_new_probe:
-		make_probe()
+	#DO NOT LOVE THIS SEQUENCE OF IFs
+	if can_make_extractors and making_probes:
+		if not processing_new_extractor and not processing_new_probe:
+			if resource >= Globals.resource_to_make_extractor + Globals.resource_to_make_probe:
+				make_extractor()
+				make_probe()
+	elif can_make_extractors:
+		if not processing_new_extractor:
+			if resource >= Globals.resource_to_make_extractor:
+				make_extractor()
+	elif making_probes:
+		if not processing_new_probe:
+			if resource >= Globals.resource_to_make_probe:
+				make_probe()
 
 func update_factory_deselected() -> void:
 	anim_sprite.look_at(Vector2.ZERO)

@@ -7,7 +7,7 @@ var sprite: Sprite2D
 var onscreen: bool = true
 var frames_until_next_update: int = 1 #FOR FUTURE BATCHING, DON'T USE YET
 
-var speed = 1000 #1000 feels actually good
+var speed = 5000 #1000 feels actually good
 var target: Orbiter
 
 signal arrived

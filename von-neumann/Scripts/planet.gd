@@ -16,6 +16,7 @@ signal planet_deselected
 
 var extractors: int = 0
 var max_extractors: int = 10
+var queued_extractors: int = 0
 signal added_extractor
 
 var time_per_extraction: float = 1.0
@@ -33,7 +34,7 @@ func _ready() -> void:
 	area2D = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
 	collisionShape.shape = CircleShape2D.new()
-	collisionShape.shape.radius = 100
+	collisionShape.shape.radius = 200
 	area2D.mouse_entered.connect(_on_hover)
 	area2D.mouse_exited.connect(_exit_hover)
 	area2D.input_event.connect(handle_area2d_input)
@@ -58,6 +59,7 @@ func update_extraction_deselected() -> void:
 
 func add_extractors(pExtractors: int = 1) -> void:
 	extractors += pExtractors
+	queued_extractors -= pExtractors
 	time_per_extraction = 10.0 / float(extractors)
 	added_extractor.emit()
 

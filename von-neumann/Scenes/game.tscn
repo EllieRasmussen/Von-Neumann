@@ -13,21 +13,23 @@ vertical = true
 
 [sub_resource type="Curve2D" id="Curve2D_i6g32"]
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "window_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe_next_resource", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction", "window_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe_next_resource", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
 script = ExtResource("1_v158k")
-cam_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
-cam_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
-viewport_stars = NodePath("star planet h split container/SubViewportContainer Stars/SubViewport Stars")
-viewport_planets = NodePath("star planet h split container/SubViewportContainer Planets/SubViewport Planets")
-UpgradeButton = NodePath("star planet h split container/SubViewportContainer Stars/UpgradeButton")
+cam_stars = NodePath("split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
+cam_planets = NodePath("split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
+lbl_no_star_selected = NodePath("split container/SubViewportContainer Planets/SubViewport Planets/cam_planets/lbl_no_star_selected")
+viewport_stars = NodePath("split container/SubViewportContainer Stars/SubViewport Stars")
+viewport_planets = NodePath("split container/SubViewportContainer Planets/SubViewport Planets")
+UpgradeButton = NodePath("split container/SubViewportContainer Stars/UpgradeButton")
 UpgradeWindow = NodePath("Window - Upgrades")
-split_container = NodePath("star planet h split container")
+split_container = NodePath("split container")
 window_planet_info = NodePath("planet_info")
 texture_planet_sprite = NodePath("planet_info/HBoxContainer/texture planet")
 lbl_planet_resource_multiplier = NodePath("planet_info/HBoxContainer/VBoxContainer/lbl planet resource multiplier")
 lbl_planet_extractors = NodePath("planet_info/HBoxContainer/VBoxContainer/lbl planet extractors")
 progbar_planet_next_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer/prog planet next extraction")
 progbar_planet_manual_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer2/prog planet manual extraction")
+btn_manual_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer2/btn planet manual extracation")
 window_factory_info = NodePath("factory_info")
 lbl_factory_total_resource = NodePath("factory_info/VBoxContainer/lbl_factory_total_resource")
 btn_factory_make_extractors = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/btn_make_extractors")
@@ -212,7 +214,7 @@ layout_mode = 2
 layout_mode = 2
 text = "10 Research"
 
-[node name="star planet h split container" type="HSplitContainer" parent="."]
+[node name="split container" type="HSplitContainer" parent="."]
 offset_right = 1920.0
 offset_bottom = 1080.0
 focus_mode = 2
@@ -221,45 +223,55 @@ theme_override_styles/split_bar_background = SubResource("StyleBoxLine_wowpa")
 split_offset = 960
 script = ExtResource("4_wowpa")
 
-[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="star planet h split container"]
+[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="split container"]
 layout_mode = 2
 stretch = true
 mouse_target = true
 
-[node name="UpgradeButton" type="Button" parent="star planet h split container/SubViewportContainer Stars"]
+[node name="UpgradeButton" type="Button" parent="split container/SubViewportContainer Stars"]
 layout_mode = 2
 text = "Upgrades"
 
-[node name="SubViewport Stars" type="SubViewport" parent="star planet h split container/SubViewportContainer Stars"]
+[node name="SubViewport Stars" type="SubViewport" parent="split container/SubViewportContainer Stars"]
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(960, 1080)
 render_target_update_mode = 4
 
-[node name="cam_stars" type="Camera2D" parent="star planet h split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
+[node name="cam_stars" type="Camera2D" parent="split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
 offset = Vector2(960, 540)
 script = ExtResource("5_1l0tm")
 subviewport = NodePath("..")
 zoom_interval = Vector2(0.05, 0.05)
 
-[node name="SubViewportContainer Planets" type="SubViewportContainer" parent="star planet h split container"]
+[node name="SubViewportContainer Planets" type="SubViewportContainer" parent="split container"]
 layout_mode = 2
 focus_mode = 2
 stretch = true
 mouse_target = true
 
-[node name="SubViewport Planets" type="SubViewport" parent="star planet h split container/SubViewportContainer Planets"]
+[node name="SubViewport Planets" type="SubViewport" parent="split container/SubViewportContainer Planets"]
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(948, 1080)
 render_target_update_mode = 4
 
-[node name="cam_planets" type="Camera2D" parent="star planet h split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
+[node name="cam_planets" type="Camera2D" parent="split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
 script = ExtResource("5_1l0tm")
 subviewport = NodePath("..")
 zoom_interval = Vector2(0.05, 0.05)
+
+[node name="lbl_no_star_selected" type="Label" parent="split container/SubViewportContainer Planets/SubViewport Planets/cam_planets"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme = ExtResource("2_1l0tm")
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "[ NO STAR SELECTED ]"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Path2D" type="Path2D" parent="."]
 curve = SubResource("Curve2D_i6g32")
@@ -437,7 +449,8 @@ theme_override_font_sizes/font_size = 24
 text = "Probes: 0/Min"
 
 [connection signal="close_requested" from="Window - Upgrades" to="." method="_on_window__upgrades_close_requested"]
-[connection signal="gui_input" from="star planet h split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
+[connection signal="drag_ended" from="split container" to="." method="_on_split_container_drag_ended"]
+[connection signal="gui_input" from="split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
 [connection signal="close_requested" from="planet_info" to="." method="_on_planet_info_close_requested"]
 [connection signal="mouse_entered" from="planet_info" to="." method="_on_planet_info_mouse_entered"]
 [connection signal="mouse_exited" from="planet_info" to="." method="_on_planet_info_mouse_exited"]
