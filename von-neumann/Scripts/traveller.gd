@@ -30,26 +30,31 @@ func set_target(pTarget: Orbiter) -> void:
 		sin(randf() * 6.2832)
 	)
 	var initial_velocity = randf_range(100.0,200.0)
-	sprite.look_at(position + dir)
-	while initial_velocity > 1:
-		position += dir * initial_velocity
-		initial_velocity *= 0.9
-		await Engine.get_main_loop().process_frame
 	
 	#ROTATE TOWARDS TARGET
-	var start_angle = sprite.rotation
-	var target_angle = position.angle_to_point(target.position)
-	var lerp_val = 0.0
-	while lerp_val < 1.0:
-		lerp_val += Globals.deltaTime
-		sprite.rotation = lerp_angle(start_angle,target_angle,lerp_val)
+	sprite.look_at(position + dir)
+	lerp_rotate_toward_target(0.5)
+	
+	while initial_velocity > 1:
+		if initial_velocity > 1:
+			position += dir * initial_velocity
+			initial_velocity *= 0.9
 		await Engine.get_main_loop().process_frame
+
 	
 	#TRAVEL TO TARGET
 	while(true):
 		update_position(Globals.deltaTime)
 		await Engine.get_main_loop().process_frame
 	
+func lerp_rotate_toward_target(pDuration: float) -> void:
+	var start_angle: float = sprite.rotation
+	var target_angle = get_angle_to(target.position)
+	var lerp_val: float = 0
+	while lerp_val < pDuration:
+		lerp_val += Globals.deltaTime
+		sprite.rotation = lerp_angle(start_angle, target_angle,lerp_val)
+		await Engine.get_main_loop().process_frame
 	
 func update_position(delta: float) -> void:
 	var dir = (target.position - position).normalized()

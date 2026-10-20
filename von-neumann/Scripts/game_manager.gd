@@ -32,12 +32,11 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var lbl_factory_total_resource: Label
 @export var btn_factory_make_extractors: Button
 @export var btn_factory_make_probes: Button
-@export var progbar_factory_make_extractor_next_resource: ProgressBar
-@export var progbar_factory_make_extractor: ProgressBar
-@export var lbl_progbar_factory_make_extractor: Label
-@export var progbar_factory_make_probe_next_resource: ProgressBar
-@export var progbar_factory_make_probe: ProgressBar
-@export var lbl_progbar_factory_make_probe: Label
+@export var progbar_fund: ProgressBar
+@export var progbar_next_extractor: ProgressBar
+@export var lbl_progbar_next_extractor: Label
+@export var progbar_next_probe: ProgressBar
+@export var lbl_progbar_next_probe: Label
 
 
 var stars: Array[Star] = []
@@ -62,6 +61,11 @@ var probe_replication_success_rate = 0.1 # % CHANCE
 
 
 func _ready() -> void:
+	
+	Globals.split_container_offset_max = int(get_viewport_rect().size.x * 0.995)
+	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.2)
+	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.8)
+	
 	#GENERATE STARS + ADJACENCY
 	var max_star_dist = 10000.0
 	for i in max_stars:
@@ -98,8 +102,8 @@ func _ready() -> void:
 	UpgradeButton.pressed.connect(toggle_upgrade_window)
 	
 	
-	lbl_progbar_factory_make_extractor.text = "0/" + str(Globals.resource_to_make_extractor)
-	lbl_progbar_factory_make_probe.text = "0/" + str(Globals.resource_to_make_probe)
+	lbl_progbar_next_extractor.text = "0/" + str(Globals.resource_to_make_extractor)
+	lbl_progbar_next_probe.text = "0/" + str(Globals.resource_to_make_probe)
 
 
 func _process(delta: float) -> void:
@@ -148,8 +152,8 @@ func set_selected_star(pStar: Star) -> void:
 		for l in sel_star.adj_lines.size():
 			viewport_stars.add_child(sel_star.adj_lines[l])
 	
-	if split_container.split_offset > get_viewport_rect().size.x * 0.9:
-		popout_planet_viewer()
+	if split_container.split_offset > Globals.split_container_offset_planet_viewer_open:
+		lerp_split_container_offset(split_container.split_offset, Globals.split_container_offset_planet_viewer_open,0.15)
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
@@ -228,12 +232,13 @@ func Prim() -> void:
 func set_selected_planet(pPlanet: Planet) -> void:
 	if sel_planet != null:
 		clear_selected_planet()
+	close_star_viewer()
 	
 	sel_planet = pPlanet
 	window_planet_info.visible = true
 	texture_planet_sprite.texture = pPlanet.sprite.texture
 	window_planet_info.title = pPlanet.name
-	btn_manual_extraction.disabled = sel_star == null or sel_star.factories.size() == 0
+	btn_manual_extraction.disabled = sel_star == null or sel_star.factory == null
 	sel_planet.added_extractor.connect(update_planet_window)
 	update_planet_window()
 	
@@ -258,22 +263,33 @@ func update_planet_window() -> void:
 	lbl_planet_extractors.text = "EXTRACTORS: " + str(sel_planet.extractors)
 #endregion
 
+@export var factory_window_sprite: TextureRect
 #region FACTORIES
 func set_selected_factory(pFactory: Factory) -> void:
 	if sel_factory != null:
 		clear_selected_factory()
+	
+	close_star_viewer()
+	
 	sel_factory = pFactory
 	window_factory_info.visible = true
 	update_factory_window()
 	
-	sel_factory.added_resource.connect(update_factory_window)
-	sel_factory.update_new_extractor_progress.connect(update_factory_make_extractor_progbar)
-	sel_factory.update_new_probe_progress.connect(update_factory_make_probe_progbar)
+	sel_factory.added_resource_to_main.connect(update_factory_resource_main)
+	sel_factory.added_resource_to_next_extractor.connect(update_factory_resource_next_extractor)
+	sel_factory.added_resource_to_next_probe.connect(update_factory_resource_next_probe)
+	update_factory_resource_main(sel_factory.resource_pool_main)
+	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
+	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
+	
+	
+	sel_star.update_funding_timer.connect(update_factory_fund_progbar)
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
-		sel_factory.added_resource.disconnect(update_factory_window)
-		sel_factory.update_new_extractor_progress.disconnect(update_factory_make_extractor_progbar)
+		sel_factory.added_resource_to_main.disconnect(update_factory_resource_main)
+		sel_factory.added_resource_to_next_extractor.disconnect(update_factory_resource_next_extractor)
+		sel_factory.added_resource_to_next_probe.disconnect(update_factory_resource_next_probe)
 		sel_factory.set_selected(false)
 		sel_factory = null
 	lbl_factory_total_resource.text = ""
@@ -298,29 +314,30 @@ func update_factory_window() -> void:
 		btn_factory_make_probes.text = "MAKE PROBES"
 	
 	window_factory_info.title = "FACTORY AT " + sel_star.name
-	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource)
+	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource_pool_main)
 
-
-
-func update_factory_make_extractor_progbar(pResource: int, pNextProgress: float) -> void: 
-	progbar_factory_make_extractor.max_value = Globals.resource_to_make_extractor
+func update_factory_resource_main(pResource: float) -> void:
+	factory_window_sprite.texture = sel_factory.anim_sprite.sprite_frames.get_frame_texture("default",sel_factory.anim_sprite.frame)
+	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % pResource)
 	
-	progbar_factory_make_extractor_next_resource.value = pNextProgress
 	
-	progbar_factory_make_extractor.value = pResource
-	lbl_progbar_factory_make_extractor.text = str(pResource) + "/" + str(Globals.resource_to_make_extractor)
-	update_factory_window()
+func update_factory_resource_next_extractor(pResource: float) -> void:
+	lbl_progbar_next_extractor.text = str("%.2f" % pResource) + "/" + str(str("%.2f" % Globals.resource_to_make_extractor))
+	progbar_next_extractor.max_value = Globals.resource_to_make_extractor
+	progbar_next_extractor.value = pResource
+
+func update_factory_resource_next_probe(pResource: float) -> void:
+	lbl_progbar_next_probe.text = str("%.2f" % pResource) + "/" + str("%.2f" % Globals.resource_to_make_probe)
+	progbar_next_probe.max_value = Globals.resource_to_make_probe
+	progbar_next_probe.value = pResource
+
+func update_factory_fund_progbar(pProgress: float) -> void:
+	progbar_fund.max_value = Globals.factory_funding_interval
+	progbar_fund.value = Globals.factory_funding_interval - pProgress
+	
 
 
 
-func update_factory_make_probe_progbar(pResource: int, pNextProgress: float) -> void:
-	progbar_factory_make_probe.max_value = Globals.resource_to_make_probe
-	
-	progbar_factory_make_probe_next_resource.value = pNextProgress
-	
-	progbar_factory_make_probe.value = pResource
-	lbl_progbar_factory_make_probe.text = str(pResource) + "/" + str(Globals.resource_to_make_probe)
-	update_factory_window()
 
 
 
@@ -329,21 +346,23 @@ func update_factory_make_probe_progbar(pResource: int, pNextProgress: float) -> 
 #region UI
 
 func _on_split_container_drag_ended() -> void:
-	var split_container_max = int(get_viewport_rect().size.x * 0.995)
-	if split_container.split_offset < 0:
-		split_container.split_offset = 0
-	elif split_container.split_offset > split_container_max:
-		split_container.split_offset = split_container_max
+	split_container.split_offset = clamp(split_container.split_offset, Globals.split_container_offset_min, Globals.split_container_offset_max)
 
-func popout_planet_viewer() -> void:
-	var origin = split_container.split_offset
-	var target = get_viewport_rect().size.x * 0.9
+func open_planet_viewer() -> void:
+	lerp_split_container_offset(split_container.split_offset,Globals.split_container_offset_planet_viewer_open,0.15)
+func close_planet_viewer() -> void:
+	lerp_split_container_offset(split_container.split_offset, Globals.split_container_offset_max,0.15)
 	
+func open_star_viewer() -> void:
+	lerp_split_container_offset(split_container.split_offset,Globals.split_container_offset_star_viewer_open,0.15)
+func close_star_viewer() -> void:
+	lerp_split_container_offset(split_container.split_offset, Globals.split_container_offset_min,0.15)
+	
+func lerp_split_container_offset(pFrom: float, pTo: float, pDuration: float = 1.0) -> void:
 	var timer = 0.0
-	var duration = 0.1
-	while timer <= duration:
+	while timer <= pDuration:
 		timer += Globals.deltaTime
-		split_container.split_offset = lerp(origin,int(target),lerpf(0.0,1.0,timer/duration))
+		split_container.split_offset = lerp(pFrom,pTo,lerpf(0.0,1.0,timer/pDuration))
 		await Engine.get_main_loop().process_frame
 	
 
@@ -385,3 +404,10 @@ func _on_btn_make_probes_toggled(toggled_on: bool) -> void:
 	if sel_factory != null:
 		sel_factory.making_probes = toggled_on
 		update_factory_window()
+
+
+func _on_area_2d_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			if split_container.split_offset < Globals.split_container_offset_star_viewer_open:
+				open_star_viewer()

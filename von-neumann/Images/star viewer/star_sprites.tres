@@ -1,0 +1,22 @@
+[gd_resource type="SpriteFrames" load_steps=4 format=3 uid="uid://b86rdqu3b1wko"]
+
+[ext_resource type="Texture2D" uid="uid://cfak2b6sp8bnn" path="res://Images/star viewer/star_unmapped.png" id="1_0r1eg"]
+[ext_resource type="Texture2D" uid="uid://clnpwd6h8cpvd" path="res://Images/star viewer/star_mapped.png" id="2_girhy"]
+[ext_resource type="Texture2D" uid="uid://bashkm6ehi08s" path="res://Images/star viewer/star_populated.png" id="3_n8glk"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_0r1eg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_girhy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_n8glk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]

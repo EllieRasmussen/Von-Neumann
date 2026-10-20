@@ -1,8 +1,7 @@
-extends Sprite2D
+extends AnimatedSprite2D
 
 const Star = preload("res://Scripts/star.gd")
 const Planet = preload("res://Scripts/planet.gd")
-const ProgBar = preload("res://Scripts/prog_bar.gd")
 const Probe = preload("res://Scripts/probe.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
@@ -13,7 +12,7 @@ var hostility: float
 var viewport_planets: SubViewport
 
 var planets: Array[Planet]
-var factories: Array[Factory]
+var factory: Factory
 var extractors: Array[Extractor]
 var cargo: Array[Cargo]
 
@@ -40,6 +39,7 @@ var spr_planet_selected: Sprite2D
 
 var spr_factory_hover: Sprite2D
 var spr_factory_selected: Sprite2D
+signal factory_fund
 
 var adj = []
 var adj_lines: Array[Line2D] = []
@@ -48,13 +48,16 @@ func _init() -> void:
 	hostility = randf_range(0.1,0.5)
 	
 	#SET TEXTURE
-	var star_imgs = []
-	star_imgs.append(load("res://Images/Star_0.png"))
-	star_imgs.append(load("res://Images/Star_1.png"))
-	star_imgs.append(load("res://Images/Star_2.png"))
-	star_imgs.append(load("res://Images/Star_3.png"))
-	self.texture = star_imgs[randi()%len(star_imgs)]
+	#var star_imgs = []
+	#star_imgs.append(load("res://Images/Star_0.png"))
+	#star_imgs.append(load("res://Images/Star_1.png"))
+	#star_imgs.append(load("res://Images/Star_2.png"))
+	#star_imgs.append(load("res://Images/Star_3.png"))
+	#self.texture = star_imgs[randi()%len(star_imgs)]
+	sprite_frames = load("res://Images/star viewer/star_sprites.tres")
+	frame = 1
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	scale = Vector2.ONE * 5
 	
 	create_planets(randi_range(1,Globals.max_planets_per_star))
 	
@@ -99,31 +102,32 @@ func _init() -> void:
 	
 
 func _ready() -> void:
-	pass
+	factory_funding_timer()
 
 
 var has_valid_planet: bool = true
 func _process(delta: float) -> void:
-	## A BUNCH OF STUFF HERE LEFTOVER FROM THE PATH FOLLOWER DAYS. USEFUL PATTERN TO COME BACK TO WHEN IT'S TIME FOR BATCHING
-	#if selected:
-		#for f in followers.size():
-			#followers[f].process_on_screen(planets[f].orbital_velocity * delta)
-		#for f in factory_followers.size():
-			#factory_followers[f].process_on_screen(factory_orbit_speed * delta)
-		#
-	#else:
-		#for p in planets.size():
-			#planets[p].unselected_process(delta)
-		#for f in followers.size():
-			#followers[f].process_off_screen(planets[f].orbital_velocity * delta)
-		#for f in factory_followers.size():
-			#factory_followers[f].process_off_screen(factory_orbit_speed * delta)
 	for p in planets.size():
 		planets[p].update_position(delta)
 		planets[p].update_extraction()
-	for f in factories.size():
-		factories[f].update_position(delta)
-		factories[f].update_factory(has_valid_planet)
+	if factory != null:
+		factory.update_position(delta)
+		factory.update_factory()
+
+signal update_funding_timer
+func factory_funding_timer() -> void:
+	var timer = Globals.factory_funding_interval
+	while(true):
+		
+		timer -= Globals.deltaTime
+		if timer <= 0:
+			timer += Globals.factory_funding_interval
+			factory_fund.emit()
+		if factory != null and factory.resource_pool_main < Globals.factory_funding_amount:
+			update_funding_timer.emit(0)
+		else:
+			update_funding_timer.emit(timer)
+		await Engine.get_main_loop().process_frame
 
 func create_planets(num_planets: int) -> void:
 	for p in num_planets:
@@ -139,7 +143,7 @@ func create_planets(num_planets: int) -> void:
 		#LINE
 		var new_line = Line2D.new()
 		new_line.position = Vector2.ZERO
-		new_line.z_index = 1
+		new_line.z_index = -10
 		new_line.closed = true
 		new_line.default_color = Color.DIM_GRAY
 		new_line.width = 5
@@ -207,23 +211,24 @@ func create_probe() -> void:
 
 func create_factory() -> void:
 	set_active(true)
+	frame = 2
 	
-	if factories.size() == 0:
+	if factory == null:
 		create_factory_orbit_line()
 	
-	var new_factory = Factory.new()
-	new_factory.factory_hovered.connect(set_hovered_factory.bind(new_factory))
-	new_factory.factory_dehovered.connect(dehover_factory)
-	new_factory.factory_selected.connect(set_selected_factory.bind(new_factory))
-	new_factory.factory_deselected.connect(deselect_factory)
-	new_factory.created_extractor.connect(create_extractor)
-	new_factory.created_probe.connect(create_probe)
-	new_factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
-	new_factory.add_resource(Globals.starting_resource_in_factroy)
-	factories.append(new_factory)
+	factory = Factory.new()
+	factory.factory_hovered.connect(set_hovered_factory.bind(factory))
+	factory.factory_dehovered.connect(dehover_factory)
+	factory.factory_selected.connect(set_selected_factory.bind(factory))
+	factory.factory_deselected.connect(deselect_factory)
+	factory.created_extractor.connect(create_extractor)
+	factory.created_probe.connect(create_probe)
+	factory_fund.connect(factory.update_queue)
+	factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
+	factory.add_resource(Globals.starting_resource_in_factroy)
 	
 	if selected:
-		viewport_planets.add_child(new_factory)
+		viewport_planets.add_child(factory)
 	
 
 
@@ -253,6 +258,9 @@ func create_factory_orbit_line() -> void:
 		angle += 6.2832 / (num_points_per_path - 1)
 	
 	orbit_lines.append(new_line)
+	
+
+	
 
 func create_extractor() -> void:
 	var target: Planet = find_planet_with_room_for_extractor()
@@ -261,7 +269,7 @@ func create_extractor() -> void:
 		return
 	target.queued_extractors += 1
 	var new_extractor = Extractor.new()
-	new_extractor.position = factories[0].position
+	new_extractor.position = factory.position
 	new_extractor.arrived.connect(target.add_extractors)
 	new_extractor.arrived.connect(remove_extractor.bind(new_extractor))
 	new_extractor.set_target(target)
@@ -275,12 +283,12 @@ func remove_extractor(pExtractor: Extractor) -> void:
 	extractors.erase(pExtractor)
 	pExtractor.queue_free()
 
-func create_cargo(pPlanet: Planet,pResource:int=1) -> void:
-	if factories.size() > 0:
+func create_cargo(pPlanet: Planet,pResource:float=1.0) -> void:
+	if factory != null:
 		var new_cargo = Cargo.new()
 		new_cargo.position = pPlanet.position
-		new_cargo.set_target(factories[0])
-		new_cargo.arrived.connect(factories[0].add_resource)
+		new_cargo.set_target(factory)
+		new_cargo.arrived.connect(factory.add_resource.bind(pResource))
 		new_cargo.arrived.connect(remove_cargo.bind(new_cargo))
 		cargo.append(new_cargo)
 		if selected:
@@ -313,12 +321,11 @@ func select():
 	queue_redraw()
 	star_selected.emit()
 	
+	viewport_planets.add_child(factory)
 	for l in orbit_lines.size():
 		viewport_planets.add_child(orbit_lines[l])
 	for p in planets.size():
-		viewport_planets.add_child(planets[p])
-	for f in factories.size():
-		viewport_planets.add_child(factories[f])
+		viewport_planets.add_child(planets[p])		
 	for e in extractors.size():
 		viewport_planets.add_child(extractors[e])
 	for c in cargo.size():
@@ -343,12 +350,11 @@ func deselect():
 	queue_redraw()
 	star_deselected.emit()
 	
+	viewport_planets.remove_child(factory)
 	for l in orbit_lines.size():
 		viewport_planets.remove_child(orbit_lines[l])
 	for p in planets.size():
 		viewport_planets.remove_child(planets[p])
-	for f in factories.size():
-		viewport_planets.remove_child(factories[f])
 	for e in extractors.size():
 		viewport_planets.remove_child(extractors[e])
 	for c in cargo.size():

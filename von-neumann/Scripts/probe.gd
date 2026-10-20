@@ -2,7 +2,7 @@ extends Sprite2D
 
 const Star = preload("res://Scripts/star.gd")
 
-var speed = 500
+var speed = 50
 
 func _ready():
 	texture = load("res://Images/probe0.png")

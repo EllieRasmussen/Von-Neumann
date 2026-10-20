@@ -2,7 +2,9 @@ extends Orbiter
 
 var anim_sprite: AnimatedSprite2D
 
-var resource = 0
+var resource_pool_main: float = 0.0
+var resource_pool_extractors: float = 0.0
+var resource_pool_probes: float = 0.0
 
 var area2d: Area2D
 
@@ -13,21 +15,17 @@ signal factory_dehovered
 signal factory_selected
 signal factory_deselected
 
-signal added_resource
-signal update_new_extractor_progress
-signal update_new_probe_progress
+#THESE ARE KINDA MISNAMED, SHOULD BE UPDATE INSTEAD OF ADDED
+signal added_resource_to_main
+signal added_resource_to_next_extractor
+signal added_resource_to_next_probe
 
 signal created_extractor
 signal created_probe
 
 
 var making_extractors: bool = true
-var processing_new_extractor: bool = false
-var next_extractor_timer: float
-
-var making_probes: bool = false
-var processing_new_probe: bool = false
-var next_probe_timer: float
+var making_probes: bool = true
 
 func _init() -> void:
 	anim_sprite = AnimatedSprite2D.new()
@@ -54,80 +52,47 @@ func _ready() -> void:
 	
 	
 
-func update_factory(p_has_valid_planet: bool) -> void:
-	var can_make_extractors = making_extractors and p_has_valid_planet
+func update_factory() -> void:
 	anim_sprite.look_at(Vector2.ZERO)
-	#DO NOT LOVE THIS SEQUENCE OF IFs
-	if can_make_extractors and making_probes:
-		if not processing_new_extractor and not processing_new_probe:
-			if resource >= Globals.resource_to_make_extractor + Globals.resource_to_make_probe:
-				make_extractor()
-				make_probe()
-	elif can_make_extractors:
-		if not processing_new_extractor:
-			if resource >= Globals.resource_to_make_extractor:
-				make_extractor()
-	elif making_probes:
-		if not processing_new_probe:
-			if resource >= Globals.resource_to_make_probe:
-				make_probe()
 
-func update_factory_deselected() -> void:
-	anim_sprite.look_at(Vector2.ZERO)
-	if making_extractors and resource >= Globals.resource_to_make_extractor and not processing_new_extractor:
-		make_extractor()
-	if making_probes and resource >= Globals.resource_to_make_probe and not processing_new_probe:
-		make_probe()
-
-func add_resource(pResource: int = 1) -> void:
+#RUNS ONCE PER Globals.factory_funding_interval SECONDS, CALLED FROM STAR
+func update_queue() -> void:
+	var num_projects = 0
+	if making_extractors: num_projects += 1
+	if making_probes: num_projects += 1
 	
-	resource += pResource
-	added_resource.emit()
-	
-	anim_sprite.frame = int((resource / float(Globals.max_resource_stored_in_factory)) * anim_sprite.sprite_frames.get_frame_count("default"))
-	
-	if resource >= 1000:
-		created_probe.emit()
-		resource -= 1
+	if resource_pool_main < Globals.factory_funding_amount:
+		return
+		
+	resource_pool_main -= Globals.factory_funding_amount
+	added_resource_to_main.emit(resource_pool_main)
+	var resource_per_project = Globals.factory_funding_amount / num_projects
+	if making_extractors:
+		resource_pool_extractors += resource_per_project
+		if resource_pool_extractors >= Globals.resource_to_make_extractor:
+			resource_pool_extractors -= Globals.resource_to_make_extractor
+			resource_pool_main += resource_pool_extractors
+			resource_pool_extractors = 0
+			created_extractor.emit()
+		added_resource_to_next_extractor.emit(resource_pool_extractors)
+	if making_probes:
+		resource_pool_probes += resource_per_project
+		if resource_pool_probes > Globals.resource_to_make_probe:
+			resource_pool_probes -= Globals.resource_to_make_probe
+			resource_pool_main += resource_pool_probes
+			resource_pool_probes = 0
+			created_probe.emit()
+		added_resource_to_next_probe.emit(resource_pool_probes)
 		
 
-func make_extractor() -> void:
-	processing_new_extractor = true
-	var resources_added: int = 0
-	resource -= Globals.resource_to_make_extractor
-	var time_per_resource: float = Globals.time_factory_make_extractor / Globals.resource_to_make_extractor
-	while resources_added < Globals.resource_to_make_extractor:
-		var timer: float = 0.0
-		while timer < time_per_resource:
-			timer += Globals.deltaTime
-			update_new_extractor_progress.emit(resources_added,(timer/time_per_resource))
-			await Engine.get_main_loop().process_frame
-		
-		resources_added += 1
-		
-		update_new_extractor_progress.emit(resources_added,0)
-	created_extractor.emit()
-	update_new_extractor_progress.emit(0,0)
-	processing_new_extractor = false
-
-func make_probe() -> void:
-	processing_new_probe = true
-	var resources_added: int = 0
-	resource -= Globals.resource_to_make_probe
-	var time_per_resource: float = Globals.time_factory_make_probe / Globals.resource_to_make_probe
-	while resources_added < Globals.resource_to_make_probe:
-		var timer: float = 0.0
-		while timer <= time_per_resource:
-			timer += Globals.deltaTime
-			update_new_probe_progress.emit(resources_added,(timer/time_per_resource))
-			await Engine.get_main_loop().process_frame
-		
-		resources_added += 1
-		
-		update_new_probe_progress.emit(resources_added,0)
-	created_probe.emit()
-	update_new_probe_progress.emit(0,0)
-	processing_new_probe = false
+func add_resource(pResource: float = 1) -> void:
+	resource_pool_main += pResource
+	if resource_pool_main > Globals.max_resource_stored_in_factory:
+		resource_pool_main = Globals.max_resource_stored_in_factory
+	added_resource_to_main.emit(resource_pool_main)
+	
+	anim_sprite.frame = int((resource_pool_main / float(Globals.max_resource_stored_in_factory)) * anim_sprite.sprite_frames.get_frame_count("default"))
+	
 
 func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event.is_action_pressed("Click"):

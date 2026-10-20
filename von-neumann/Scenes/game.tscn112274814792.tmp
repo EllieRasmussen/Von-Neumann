@@ -1,0 +1,472 @@
+[gd_scene load_steps=8 format=3 uid="uid://dmbx04csi10wu"]
+
+[ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
+[ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
+[ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
+[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="6_i6g32"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_wowpa"]
+color = Color(0.46666667, 0.46666667, 0.46666667, 1)
+thickness = 16
+vertical = true
+
+[sub_resource type="GDScript" id="GDScript_3dryh"]
+script/source = "extends HSplitContainer
+
+
+
+func _on_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		print(\"mouse\")
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			print(\"right click\")
+			grab_focus()
+"
+
+[sub_resource type="Curve2D" id="Curve2D_i6g32"]
+
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "window_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction", "window_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_factory_make_extractor_next_resource", "progbar_factory_make_extractor", "lbl_progbar_factory_make_extractor", "progbar_factory_make_probe_next_resource", "progbar_factory_make_probe", "lbl_progbar_factory_make_probe")]
+script = ExtResource("1_v158k")
+cam_stars = NodePath("split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
+cam_planets = NodePath("split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
+lbl_no_star_selected = NodePath("split container/SubViewportContainer Planets/SubViewport Planets/cam_planets/lbl_no_star_selected")
+viewport_stars = NodePath("split container/SubViewportContainer Stars/SubViewport Stars")
+viewport_planets = NodePath("split container/SubViewportContainer Planets/SubViewport Planets")
+UpgradeButton = NodePath("split container/SubViewportContainer Stars/UpgradeButton")
+UpgradeWindow = NodePath("Window - Upgrades")
+split_container = NodePath("split container")
+window_planet_info = NodePath("planet_info")
+texture_planet_sprite = NodePath("planet_info/HBoxContainer/texture planet")
+lbl_planet_resource_multiplier = NodePath("planet_info/HBoxContainer/VBoxContainer/lbl planet resource multiplier")
+lbl_planet_extractors = NodePath("planet_info/HBoxContainer/VBoxContainer/lbl planet extractors")
+progbar_planet_next_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer/prog planet next extraction")
+progbar_planet_manual_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer2/prog planet manual extraction")
+btn_manual_extraction = NodePath("planet_info/HBoxContainer/VBoxContainer/HBoxContainer2/btn planet manual extracation")
+window_factory_info = NodePath("factory_info")
+lbl_factory_total_resource = NodePath("factory_info/VBoxContainer/lbl_factory_total_resource")
+btn_factory_make_extractors = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/btn_make_extractors")
+btn_factory_make_probes = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/btn_make_probes")
+progbar_factory_make_extractor_next_resource = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor_next_resource")
+progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor")
+lbl_progbar_factory_make_extractor = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor/lbl_progbar_make_extractor")
+progbar_factory_make_probe_next_resource = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probe_next_resource")
+progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes")
+lbl_progbar_factory_make_probe = NodePath("factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes/lbl_progbar_make_probes")
+
+[node name="Window - Upgrades" type="Window" parent="."]
+oversampling_override = 1.0
+title = "Upgrades"
+position = Vector2i(300, 100)
+size = Vector2i(400, 400)
+visible = false
+unresizable = true
+min_size = Vector2i(300, 400)
+theme = ExtResource("2_1l0tm")
+
+[node name="TabContainer" type="TabContainer" parent="Window - Upgrades"]
+custom_minimum_size = Vector2(400, 0)
+offset_right = 40.0
+offset_bottom = 40.0
+current_tab = 0
+
+[node name="Extractors" type="MarginContainer" parent="Window - Upgrades/TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window - Upgrades/TabContainer/Extractors"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Property Name" type="Label" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Speed: "
+
+[node name="lbl Property Value" type="Label" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "0.1 AU/Sec"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade Effect" type="Label" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="lbl Upgrade Cost" type="Label" parent="Window - Upgrades/TabContainer/Extractors/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="Factories" type="MarginContainer" parent="Window - Upgrades/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window - Upgrades/TabContainer/Factories"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Factories/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="Probes" type="MarginContainer" parent="Window - Upgrades/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window - Upgrades/TabContainer/Probes"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl Upgrade" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "Property: 0.123"
+
+[node name="Button" type="Button" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+
+[node name="lbl Cost" type="Label" parent="Window - Upgrades/TabContainer/Probes/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "10 Research"
+
+[node name="split container" type="HSplitContainer" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+focus_mode = 2
+theme = ExtResource("2_1l0tm")
+theme_override_styles/split_bar_background = SubResource("StyleBoxLine_wowpa")
+split_offset = 960
+script = SubResource("GDScript_3dryh")
+
+[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="split container"]
+layout_mode = 2
+stretch = true
+mouse_target = true
+
+[node name="UpgradeButton" type="Button" parent="split container/SubViewportContainer Stars"]
+layout_mode = 2
+text = "Upgrades"
+
+[node name="SubViewport Stars" type="SubViewport" parent="split container/SubViewportContainer Stars"]
+own_world_3d = true
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(960, 1080)
+render_target_update_mode = 4
+
+[node name="cam_stars" type="Camera2D" parent="split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
+offset = Vector2(960, 540)
+script = ExtResource("5_1l0tm")
+subviewport = NodePath("..")
+zoom_interval = Vector2(0.05, 0.05)
+
+[node name="SubViewportContainer Planets" type="SubViewportContainer" parent="split container"]
+layout_mode = 2
+focus_mode = 2
+stretch = true
+mouse_target = true
+
+[node name="SubViewport Planets" type="SubViewport" parent="split container/SubViewportContainer Planets"]
+own_world_3d = true
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(948, 1080)
+render_target_update_mode = 4
+
+[node name="cam_planets" type="Camera2D" parent="split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
+script = ExtResource("5_1l0tm")
+subviewport = NodePath("..")
+zoom_interval = Vector2(0.05, 0.05)
+
+[node name="lbl_no_star_selected" type="Label" parent="split container/SubViewportContainer Planets/SubViewport Planets/cam_planets"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme = ExtResource("2_1l0tm")
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "[ NO STAR SELECTED ]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Path2D" type="Path2D" parent="."]
+curve = SubResource("Curve2D_i6g32")
+
+[node name="planet_info" type="Window" parent="."]
+oversampling_override = 1.0
+position = Vector2i(130, 125)
+size = Vector2i(650, 350)
+visible = false
+unresizable = true
+minimize_disabled = true
+maximize_disabled = true
+theme = ExtResource("2_1l0tm")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="planet_info"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="texture planet" type="TextureRect" parent="planet_info/HBoxContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(350, 350)
+layout_mode = 2
+texture = ExtResource("6_i6g32")
+stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="planet_info/HBoxContainer"]
+layout_mode = 2
+
+[node name="lbl planet resource multiplier" type="Label" parent="planet_info/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "Resource: x1"
+
+[node name="lbl planet extractors" type="Label" parent="planet_info/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "Extractors: 0"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="planet_info/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl planet next extraction" type="Label" parent="planet_info/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "Next Extraction:"
+
+[node name="prog planet next extraction" type="ProgressBar" parent="planet_info/HBoxContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="planet_info/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="btn planet manual extracation" type="Button" parent="planet_info/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Extract Resource"
+
+[node name="prog planet manual extraction" type="ProgressBar" parent="planet_info/HBoxContainer/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="factory_info" type="Window" parent="."]
+oversampling_override = 1.0
+position = Vector2i(400, 470)
+size = Vector2i(650, 350)
+visible = false
+theme = ExtResource("2_1l0tm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="factory_info"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="lbl_factory_total_resource" type="Label" parent="factory_info/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "TOTAL RESOURCE: "
+
+[node name="MarginContainer" type="MarginContainer" parent="factory_info/VBoxContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="factory_info/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="factory_info/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="factory_info/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+alignment = 1
+
+[node name="btn_make_extractors" type="Button" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+action_mode = 0
+text = "MAKE EXTRACTORS"
+
+[node name="prog_make_extractor_next_resource" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+max_value = 1.0
+show_percentage = false
+
+[node name="prog_make_extractor" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+show_percentage = false
+
+[node name="lbl_progbar_make_extractor" type="Label" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer/prog_make_extractor"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 1
+offset_right = 39.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 24
+text = "0/10"
+vertical_alignment = 1
+
+[node name="lbl_extractors_per_minute" type="Label" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "Extractors: 0/Min"
+
+[node name="MarginContainer" type="MarginContainer" parent="factory_info/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="factory_info/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureButton" type="TextureButton" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+visible = false
+layout_mode = 2
+toggle_mode = true
+
+[node name="btn_make_probes" type="Button" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+action_mode = 0
+text = "MAKE PROBES"
+
+[node name="prog_make_probe_next_resource" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 1.0
+show_percentage = false
+
+[node name="prog_make_probes" type="ProgressBar" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+show_percentage = false
+
+[node name="lbl_progbar_make_probes" type="Label" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/prog_make_probes"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 24
+text = "0/100"
+vertical_alignment = 1
+
+[node name="lbl_probes_per_minute" type="Label" parent="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "Probes: 0/Min"
+
+[connection signal="close_requested" from="Window - Upgrades" to="." method="_on_window__upgrades_close_requested"]
+[connection signal="drag_ended" from="split container" to="." method="_on_split_container_drag_ended"]
+[connection signal="gui_input" from="split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
+[connection signal="close_requested" from="planet_info" to="." method="_on_planet_info_close_requested"]
+[connection signal="mouse_entered" from="planet_info" to="." method="_on_planet_info_mouse_entered"]
+[connection signal="mouse_exited" from="planet_info" to="." method="_on_planet_info_mouse_exited"]
+[connection signal="button_down" from="planet_info/HBoxContainer/VBoxContainer/HBoxContainer2/btn planet manual extracation" to="." method="_on_btn_planet_manual_extracation_button_down"]
+[connection signal="close_requested" from="factory_info" to="." method="_on_factory_info_close_requested"]
+[connection signal="toggled" from="factory_info/VBoxContainer/HBoxContainer/VBoxContainer/btn_make_extractors" to="." method="_on_btn_make_extractors_toggled"]
+[connection signal="toggled" from="factory_info/VBoxContainer/HBoxContainer/VBoxContainer2/btn_make_probes" to="." method="_on_btn_make_probes_toggled"]

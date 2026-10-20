@@ -46,14 +46,14 @@ func update_extraction() -> void:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(resource_multiplier)
+			extract_resource(1)
 			
 func update_extraction_deselected() -> void:
 	if extractors > 0:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(resource_multiplier)
+			extract_resource(1)
 	
 
 
@@ -64,7 +64,7 @@ func add_extractors(pExtractors: int = 1) -> void:
 	added_extractor.emit()
 
 func extract_resource(pResource) -> void:
-	extracted.emit(self, pResource)
+	extracted.emit(self, pResource * resource_multiplier)
 	
 func get_extraction_progress() -> float:
 	return extraction_timer / time_per_extraction
