@@ -73,7 +73,7 @@ func _ready() -> void:
 			randf_range(-max_star_dist,max_star_dist),
 			randf_range(-max_star_dist,max_star_dist)
 		)
-		star_pos *= (star_pos.length_squared() / (max_star_dist*max_star_dist))
+		#star_pos *= (star_pos.length_squared() / (max_star_dist*max_star_dist))
 		if star_pos.length_squared() < max_star_dist * max_star_dist:
 			create_star(star_pos)
 		
@@ -86,7 +86,7 @@ func _ready() -> void:
 	spr_star_selected = Sprite2D.new()
 	spr_star_selected.name = "spr_star_selected"
 	spr_star_selected.texture = load("res://Images/circle_selected0.png")
-	spr_star_selected.scale = Vector2.ONE
+	spr_star_selected.scale = Vector2.ONE * 5
 	spr_star_selected.z_index = 1
 	spr_star_selected.visible = false
 	viewport_stars.add_child(spr_star_selected)
@@ -94,7 +94,7 @@ func _ready() -> void:
 	spr_star_hover = Sprite2D.new()
 	spr_star_hover.name = "spr_star_hover"
 	spr_star_hover.texture = load("res://Images/circle_hover.png")
-	spr_star_hover.scale = Vector2.ONE
+	spr_star_hover.scale = Vector2.ONE * 5
 	spr_star_hover.z_index = 2
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
@@ -278,18 +278,18 @@ func set_selected_factory(pFactory: Factory) -> void:
 	sel_factory.added_resource_to_main.connect(update_factory_resource_main)
 	sel_factory.added_resource_to_next_extractor.connect(update_factory_resource_next_extractor)
 	sel_factory.added_resource_to_next_probe.connect(update_factory_resource_next_probe)
+	sel_factory.update_funding_timer.connect(update_factory_fund_progbar)
 	update_factory_resource_main(sel_factory.resource_pool_main)
 	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
 	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
 	
-	
-	sel_star.update_funding_timer.connect(update_factory_fund_progbar)
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
 		sel_factory.added_resource_to_main.disconnect(update_factory_resource_main)
 		sel_factory.added_resource_to_next_extractor.disconnect(update_factory_resource_next_extractor)
 		sel_factory.added_resource_to_next_probe.disconnect(update_factory_resource_next_probe)
+		sel_factory.update_funding_timer.disconnect(update_factory_fund_progbar)
 		sel_factory.set_selected(false)
 		sel_factory = null
 	lbl_factory_total_resource.text = ""
@@ -314,7 +314,7 @@ func update_factory_window() -> void:
 		btn_factory_make_probes.text = "MAKE PROBES"
 	
 	window_factory_info.title = "FACTORY AT " + sel_star.name
-	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str(sel_factory.resource_pool_main)
+	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % sel_factory.resource_pool_main)
 
 func update_factory_resource_main(pResource: float) -> void:
 	factory_window_sprite.texture = sel_factory.anim_sprite.sprite_frames.get_frame_texture("default",sel_factory.anim_sprite.frame)
@@ -333,7 +333,7 @@ func update_factory_resource_next_probe(pResource: float) -> void:
 
 func update_factory_fund_progbar(pProgress: float) -> void:
 	progbar_fund.max_value = Globals.factory_funding_interval
-	progbar_fund.value = Globals.factory_funding_interval - pProgress
+	progbar_fund.value = pProgress
 	
 
 
@@ -411,3 +411,19 @@ func _on_area_2d_input_event(_viewport: Node, event: InputEvent, _shape_idx: int
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if split_container.split_offset < Globals.split_container_offset_star_viewer_open:
 				open_star_viewer()
+
+
+func _on_window__upgrades_close_requested() -> void:
+	UpgradeWindow.visible = false
+
+
+@export var btn_show_hostility: Button
+var show_hostility: bool = false
+func _on_btn_show_hostility_button_down() -> void:
+	show_hostility = not show_hostility
+	for s in stars.size():
+		stars[s].hostility_label.visible = show_hostility
+	if show_hostility:
+		btn_show_hostility.text = "Hide Star Hostility"
+	else:
+		btn_show_hostility.text = "Show Star Hostility"

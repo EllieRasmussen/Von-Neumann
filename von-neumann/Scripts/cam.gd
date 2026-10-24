@@ -13,9 +13,9 @@ func _process(_delta: float) -> void:
 	if dragging:
 		mouse_pos_last_frame = subviewport.get_mouse_position()
 
-var min_zoom = 0.00001
-var max_zoom = 1.5
-@export var zoom_interval: Vector2
+var min_zoom: float = 0.01
+var max_zoom: float = 1.5
+var zoom_interval: float = 0.025
 func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("Right Click") and not dragging:
@@ -27,15 +27,14 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and dragging:
 		#position -= mouse_pos - mouse_pos_last_frame
 		position -= (event.position - mouse_pos_last_frame) / zoom
-		
+	
+	var new_zoom: float = zoom.x
 	if event.is_action_pressed("Scroll Up"):
-		if zoom.x < max_zoom:
-			zoom += zoom_interval
-			
-	if event.is_action_pressed("Scroll Down"):
-		if zoom.x - zoom_interval.x >= min_zoom:
-			zoom -= zoom_interval
-		
+		new_zoom += zoom_interval
+	elif event.is_action_pressed("Scroll Down"):
+		new_zoom -= zoom_interval
+	new_zoom = clamp(new_zoom, min_zoom, max_zoom)
+	zoom = Vector2(new_zoom,new_zoom)
 
 func center(center_point: Vector2) -> void:
 	position = center_point - offset

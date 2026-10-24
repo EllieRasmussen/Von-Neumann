@@ -30,6 +30,8 @@ var making_probes: bool = true
 func _init() -> void:
 	anim_sprite = AnimatedSprite2D.new()
 	anim_sprite.sprite_frames = load("res://Images/factory/factory.tres")
+	
+	factory_funding_timer()
 
 func _ready() -> void:
 	anim_sprite.scale = Vector2.ONE * 10
@@ -54,9 +56,25 @@ func _ready() -> void:
 
 func update_factory() -> void:
 	anim_sprite.look_at(Vector2.ZERO)
+	
+signal update_funding_timer
+func factory_funding_timer() -> void:
+	var timer = 0
+	while(true):
+		while resource_pool_main > Globals.factory_funding_amount and (making_extractors or making_probes):
+			timer += Globals.deltaTime
+			if timer >= Globals.factory_funding_interval:
+				timer -= Globals.factory_funding_interval
+				fund_queue()
+			update_funding_timer.emit(timer)
+			await Engine.get_main_loop().process_frame
+		timer = 0
+		if selected:
+			update_funding_timer.emit(0)
+		await Engine.get_main_loop().process_frame
 
-#RUNS ONCE PER Globals.factory_funding_interval SECONDS, CALLED FROM STAR
-func update_queue() -> void:
+#RUNS ONCE PER Globals.factory_funding_interval SECONDS, CALLED FROM factory_funding_timer()
+func fund_queue() -> void:
 	var num_projects = 0
 	if making_extractors: num_projects += 1
 	if making_probes: num_projects += 1
@@ -77,7 +95,7 @@ func update_queue() -> void:
 		added_resource_to_next_extractor.emit(resource_pool_extractors)
 	if making_probes:
 		resource_pool_probes += resource_per_project
-		if resource_pool_probes > Globals.resource_to_make_probe:
+		if resource_pool_probes >= Globals.resource_to_make_probe:
 			resource_pool_probes -= Globals.resource_to_make_probe
 			resource_pool_main += resource_pool_probes
 			resource_pool_probes = 0

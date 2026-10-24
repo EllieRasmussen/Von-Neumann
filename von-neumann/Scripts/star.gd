@@ -43,9 +43,14 @@ signal factory_fund
 
 var adj = []
 var adj_lines: Array[Line2D] = []
-
+var hostility_label: Label
 func _init() -> void:
 	hostility = randf_range(0.1,0.5)
+	hostility_label = Label.new()
+	hostility_label.visible = false
+	hostility_label.text = str("%.2f" % hostility)
+	add_child(hostility_label)
+	hostility_label.position = Vector2(-10,30)
 	
 	#SET TEXTURE
 	#var star_imgs = []
@@ -101,9 +106,6 @@ func _init() -> void:
 	add_child(spr_factory_selected)
 	
 
-func _ready() -> void:
-	factory_funding_timer()
-
 
 var has_valid_planet: bool = true
 func _process(delta: float) -> void:
@@ -113,21 +115,6 @@ func _process(delta: float) -> void:
 	if factory != null:
 		factory.update_position(delta)
 		factory.update_factory()
-
-signal update_funding_timer
-func factory_funding_timer() -> void:
-	var timer = Globals.factory_funding_interval
-	while(true):
-		
-		timer -= Globals.deltaTime
-		if timer <= 0:
-			timer += Globals.factory_funding_interval
-			factory_fund.emit()
-		if factory != null and factory.resource_pool_main < Globals.factory_funding_amount:
-			update_funding_timer.emit(0)
-		else:
-			update_funding_timer.emit(timer)
-		await Engine.get_main_loop().process_frame
 
 func create_planets(num_planets: int) -> void:
 	for p in num_planets:
@@ -197,7 +184,7 @@ func create_probe() -> void:
 	var closest: Star = null
 	var min_dist: float = 100000000000
 	for a in adj.size():
-		if adj[a].factories.size() == 0:
+		if adj[a].factory == null:
 			var dist_between: float = (adj[a].position - position).length_squared()
 			if dist_between < min_dist:
 				min_dist = dist_between
@@ -223,7 +210,6 @@ func create_factory() -> void:
 	factory.factory_deselected.connect(deselect_factory)
 	factory.created_extractor.connect(create_extractor)
 	factory.created_probe.connect(create_probe)
-	factory_fund.connect(factory.update_queue)
 	factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
 	factory.add_resource(Globals.starting_resource_in_factroy)
 	

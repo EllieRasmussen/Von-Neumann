@@ -14,6 +14,7 @@ func _init() -> void:
 	rotational_velocity = 1.0
 
 func update_position(delta: float) -> void:
+	
 	orbital_position += orbital_velocity * delta
 	if orbital_position > 6.2832:
 		orbital_position -= 6.2832
