@@ -19,7 +19,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var split_container: HSplitContainer
 
 @export_group("Planet Info Window")
-@export var window_planet_info: Window
+@export var folder_planet_info: FoldableContainer
 @export var texture_planet_sprite: TextureRect
 @export var lbl_planet_resource_multiplier: Label
 @export var lbl_planet_extractors: Label
@@ -28,7 +28,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var btn_manual_extraction: Button
 
 @export_group("Factory Info Window")
-@export var window_factory_info: Window
+@export var folder_factory_info: FoldableContainer
 @export var lbl_factory_total_resource: Label
 @export var btn_factory_make_extractors: Button
 @export var btn_factory_make_probes: Button
@@ -64,7 +64,7 @@ func _ready() -> void:
 	
 	Globals.split_container_offset_max = int(get_viewport_rect().size.x * 0.995)
 	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.2)
-	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.8)
+	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.7)
 	
 	#GENERATE STARS + ADJACENCY
 	var max_star_dist = 10000.0
@@ -112,7 +112,20 @@ func _process(delta: float) -> void:
 		if manual_extract_tracker > 0.0:
 			manual_extract_tracker -= delta * 7.5
 		progbar_planet_manual_extraction.value = manual_extract_tracker
-		
+	
+	if split_container_dragging:
+		if split_container.split_offset > Globals.split_container_offset_planet_viewer_open and (folder_factory_info.visible or folder_planet_info.visible):
+			folder_factory_info.fold()
+			folder_planet_info.fold()
+			
+			folder_factory_info.visible = false
+			folder_planet_info.visible = false
+			
+			if sel_factory != null: sel_factory.deselect()
+			if sel_planet != null: sel_planet.deselect()
+		elif split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (not folder_factory_info.visible or not folder_planet_info.visible):
+			folder_factory_info.visible = true
+			folder_planet_info.visible = true
 
 
 #region STARS
@@ -232,16 +245,18 @@ func Prim() -> void:
 func set_selected_planet(pPlanet: Planet) -> void:
 	if sel_planet != null:
 		clear_selected_planet()
-	close_star_viewer()
+	#close_star_viewer()
 	
 	sel_planet = pPlanet
-	window_planet_info.visible = true
+	
 	texture_planet_sprite.texture = pPlanet.sprite.texture
-	window_planet_info.title = pPlanet.name
+	folder_planet_info.title = pPlanet.name
 	btn_manual_extraction.disabled = sel_star == null or sel_star.factory == null
 	sel_planet.added_extractor.connect(update_planet_window)
 	update_planet_window()
 	
+	folder_planet_info.expand()
+
 func clear_selected_planet() -> void:
 	if sel_planet != null:
 		sel_planet.set_selected(false)
@@ -252,9 +267,8 @@ func clear_selected_planet() -> void:
 	lbl_planet_resource_multiplier.text = ""
 	lbl_planet_extractors.text = ""
 	
-	window_planet_info.visible = false
-	
-	
+	folder_planet_info.fold()
+
 func update_planet_window() -> void:
 	if sel_planet == null:
 		return
@@ -269,10 +283,10 @@ func set_selected_factory(pFactory: Factory) -> void:
 	if sel_factory != null:
 		clear_selected_factory()
 	
-	close_star_viewer()
+	#close_star_viewer()
 	
 	sel_factory = pFactory
-	window_factory_info.visible = true
+	
 	update_factory_window()
 	
 	sel_factory.added_resource_to_main.connect(update_factory_resource_main)
@@ -283,6 +297,7 @@ func set_selected_factory(pFactory: Factory) -> void:
 	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
 	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
 	
+	folder_factory_info.expand()
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
@@ -294,7 +309,7 @@ func clear_selected_factory() -> void:
 		sel_factory = null
 	lbl_factory_total_resource.text = ""
 	
-	window_factory_info.visible = false
+	folder_factory_info.fold()
 	
 
 func update_factory_window() -> void:
@@ -313,7 +328,7 @@ func update_factory_window() -> void:
 	else:
 		btn_factory_make_probes.text = "MAKE PROBES"
 	
-	window_factory_info.title = "FACTORY AT " + sel_star.name
+	folder_factory_info.title = "FACTORY AT " + sel_star.name
 	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % sel_factory.resource_pool_main)
 
 func update_factory_resource_main(pResource: float) -> void:
@@ -345,7 +360,12 @@ func update_factory_fund_progbar(pProgress: float) -> void:
 
 #region UI
 
+var split_container_dragging: bool = false
+func _on_split_container_drag_started() -> void:
+	split_container_dragging = true
+	
 func _on_split_container_drag_ended() -> void:
+	split_container_dragging = false
 	split_container.split_offset = clamp(split_container.split_offset, Globals.split_container_offset_min, Globals.split_container_offset_max)
 
 func open_planet_viewer() -> void:
@@ -371,16 +391,14 @@ func toggle_upgrade_window():
 
 
 
-func _on_planet_info_close_requested() -> void:
-	window_planet_info.visible = false
-	if sel_planet != null:
-		sel_planet.deselect()
-		
-func _on_factory_info_close_requested() -> void:
-	window_factory_info.visible = false
-	if sel_factory != null:
-		sel_factory.deselect()
 
+func _on_foldable_container_folding_changed(is_folded: bool) -> void:
+	if is_folded and sel_factory != null:
+		sel_factory.deselect()
+		
+func _on_folder_planet_info_folding_changed(is_folded: bool) -> void:
+	if is_folded and sel_planet != null:
+		sel_planet.deselect()
 
 var manual_extract_tracker: float = 0.0
 func _on_btn_planet_manual_extracation_button_down() -> void:
