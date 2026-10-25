@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://dmbx04csi10wu"]
+[gd_scene load_steps=10 format=3 uid="uid://dmbx04csi10wu"]
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
+[ext_resource type="Texture2D" uid="uid://m12mssxymvsu" path="res://Images/star.png" id="4_i6g32"]
 [ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
 [ext_resource type="Texture2D" uid="uid://dca76na8a2lfl" path="res://Images/factory/Factory-1.png" id="5_wowpa"]
 [ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="6_i6g32"]
@@ -25,9 +26,9 @@ func _on_gui_input(event: InputEvent) -> void:
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_i6g32"]
-radius = 75.0
+radius = 30.0
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "folder_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction", "folder_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_fund", "progbar_next_extractor", "lbl_progbar_next_extractor", "progbar_next_probe", "lbl_progbar_next_probe", "factory_window_sprite", "btn_show_hostility")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "UpgradeButton", "UpgradeWindow", "split_container", "star_viewer_sprite_star", "folder_planet_info", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction", "folder_factory_info", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "progbar_fund", "progbar_next_extractor", "lbl_progbar_next_extractor", "progbar_next_probe", "lbl_progbar_next_probe", "factory_window_sprite", "btn_show_hostility")]
 script = ExtResource("1_v158k")
 cam_stars = NodePath("CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
 cam_planets = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
@@ -37,6 +38,7 @@ viewport_planets = NodePath("CanvasLayer/split container/SubViewportContainer Pl
 UpgradeButton = NodePath("CanvasLayer/split container/SubViewportContainer Stars/UpgradeButton")
 UpgradeWindow = NodePath("Window - Upgrades")
 split_container = NodePath("CanvasLayer/split container")
+star_viewer_sprite_star = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun")
 folder_planet_info = NodePath("CanvasLayer/folder_planet_info")
 texture_planet_sprite = NodePath("CanvasLayer/folder_planet_info/HBoxContainer/texture planet")
 lbl_planet_resource_multiplier = NodePath("CanvasLayer/folder_planet_info/HBoxContainer/VBoxContainer/lbl planet resource multiplier")
@@ -257,43 +259,6 @@ theme_override_styles/split_bar_background = SubResource("StyleBoxLine_wowpa")
 split_offset = 960
 script = SubResource("GDScript_3dryh")
 
-[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="CanvasLayer/split container"]
-layout_mode = 2
-stretch = true
-mouse_target = true
-
-[node name="UpgradeButton" type="Button" parent="CanvasLayer/split container/SubViewportContainer Stars"]
-visible = false
-layout_mode = 2
-text = "Upgrades"
-
-[node name="btn_show_hostility" type="Button" parent="CanvasLayer/split container/SubViewportContainer Stars"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Show Star Hostility"
-
-[node name="SubViewport Stars" type="SubViewport" parent="CanvasLayer/split container/SubViewportContainer Stars"]
-own_world_3d = true
-handle_input_locally = false
-physics_object_picking = true
-size = Vector2i(960, 1080)
-render_target_update_mode = 4
-
-[node name="cam_stars" type="Camera2D" parent="CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
-offset = Vector2(960, 540)
-ignore_rotation = false
-script = ExtResource("5_1l0tm")
-subviewport = NodePath("..")
-
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars/cam_stars"]
-visible = false
-offset_left = -20000.0
-offset_top = -12000.0
-offset_right = 20000.0
-offset_bottom = 12000.0
-mouse_filter = 1
-color = Color(0.048851527, 0.10060438, 0.12406183, 1)
-
 [node name="SubViewportContainer Planets" type="SubViewportContainer" parent="CanvasLayer/split container"]
 layout_mode = 2
 focus_mode = 2
@@ -305,10 +270,11 @@ mouse_target = true
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
-size = Vector2i(948, 1080)
+size = Vector2i(960, 1080)
 render_target_update_mode = 4
 
 [node name="cam_planets" type="Camera2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
+zoom = Vector2(0.25, 0.25)
 script = ExtResource("5_1l0tm")
 subviewport = NodePath("..")
 
@@ -331,24 +297,72 @@ text = "[ NO STAR SELECTED ]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Area2D" type="Area2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets"]
+[node name="spr_sun" type="Sprite2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets"]
+visible = false
+texture_filter = 1
+scale = Vector2(10, 10)
+texture = ExtResource("4_i6g32")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/Area2D"]
+[node name="Area2D" type="Area2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D"]
 shape = SubResource("CircleShape2D_i6g32")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/split container/SubViewportContainer Planets"]
 layout_direction = 3
 layout_mode = 2
 
+[node name="SubViewportContainer Stars" type="SubViewportContainer" parent="CanvasLayer/split container"]
+layout_mode = 2
+stretch = true
+mouse_target = true
+
+[node name="UpgradeButton" type="Button" parent="CanvasLayer/split container/SubViewportContainer Stars"]
+visible = false
+layout_mode = 2
+text = "Upgrades"
+
+[node name="btn_show_hostility" type="Button" parent="CanvasLayer/split container/SubViewportContainer Stars"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Show Star Hostility"
+
+[node name="SubViewport Stars" type="SubViewport" parent="CanvasLayer/split container/SubViewportContainer Stars"]
+own_world_3d = true
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(948, 1080)
+render_target_update_mode = 4
+
+[node name="cam_stars" type="Camera2D" parent="CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
+offset = Vector2(960, 540)
+ignore_rotation = false
+script = ExtResource("5_1l0tm")
+subviewport = NodePath("..")
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars/cam_stars"]
+visible = false
+offset_left = -20000.0
+offset_top = -12000.0
+offset_right = 20000.0
+offset_bottom = 12000.0
+mouse_filter = 1
+color = Color(0.048851527, 0.10060438, 0.12406183, 1)
+
 [node name="folder_factory_info" type="FoldableContainer" parent="CanvasLayer"]
 layout_direction = 3
-offset_right = 540.0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -540.0
 offset_bottom = 241.0
+grow_horizontal = 0
 rotation = -6.2831855
 theme = ExtResource("2_1l0tm")
 theme_override_font_sizes/font_size = 24
 folded = true
 title = "FACTORY VIEWER"
+title_alignment = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/folder_factory_info"]
 visible = false
@@ -448,16 +462,20 @@ text = "MAKE PROBES"
 
 [node name="folder_planet_info" type="FoldableContainer" parent="CanvasLayer"]
 layout_direction = 3
-anchors_preset = 2
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -469.0
 offset_top = -241.0
-offset_right = 469.0
+grow_horizontal = 0
 grow_vertical = 0
 theme = ExtResource("2_1l0tm")
 theme_override_font_sizes/font_size = 24
 folded = true
 title = "PLANET VIEWER"
+title_alignment = 2
 title_position = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/folder_planet_info"]
@@ -523,10 +541,10 @@ layout_mode = 2
 [connection signal="close_requested" from="factory_info" to="." method="_on_factory_info_close_requested"]
 [connection signal="drag_ended" from="CanvasLayer/split container" to="." method="_on_split_container_drag_ended"]
 [connection signal="drag_started" from="CanvasLayer/split container" to="." method="_on_split_container_drag_started"]
-[connection signal="button_down" from="CanvasLayer/split container/SubViewportContainer Stars/btn_show_hostility" to="." method="_on_btn_show_hostility_button_down"]
 [connection signal="gui_input" from="CanvasLayer/split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
-[connection signal="input_event" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/Area2D" to="." method="_on_area_2d_input_event"]
-[connection signal="mouse_entered" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/Area2D" to="." method="_on_area_2d_mouse_entered"]
+[connection signal="input_event" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D" to="." method="_on_area_2d_input_event"]
+[connection signal="mouse_entered" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D" to="." method="_on_area_2d_mouse_entered"]
+[connection signal="button_down" from="CanvasLayer/split container/SubViewportContainer Stars/btn_show_hostility" to="." method="_on_btn_show_hostility_button_down"]
 [connection signal="folding_changed" from="CanvasLayer/folder_factory_info" to="." method="_on_foldable_container_folding_changed"]
 [connection signal="toggled" from="CanvasLayer/folder_factory_info/HBoxContainer/VBoxContainer/HBoxContainer/VBoxContainer/btn_make_extractors" to="." method="_on_btn_make_extractors_toggled"]
 [connection signal="toggled" from="CanvasLayer/folder_factory_info/HBoxContainer/VBoxContainer/HBoxContainer/VBoxContainer2/btn_make_probes" to="." method="_on_btn_make_probes_toggled"]

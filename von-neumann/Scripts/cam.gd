@@ -1,7 +1,8 @@
 extends Camera2D
 
 var mouse_pos_last_frame: Vector2
-var dragging = false
+var dragging: bool = false
+var centered_on_node: bool = false
 
 @export var subviewport: SubViewport
 
@@ -15,10 +16,10 @@ func _process(_delta: float) -> void:
 
 var min_zoom: float = 0.01
 var max_zoom: float = 1.5
-var zoom_interval: float = 0.025
+var zoom_interval: float = 0.005
 func _input(event: InputEvent) -> void:
 	
-	if event.is_action_pressed("Right Click") and not dragging:
+	if event.is_action_pressed("Right Click") and not dragging and not centered_on_node:
 		dragging = true
 		mouse_pos_last_frame = subviewport.get_mouse_position()
 	if event.is_action_released("Right Click"):

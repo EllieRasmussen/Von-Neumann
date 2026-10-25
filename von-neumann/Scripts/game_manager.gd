@@ -7,7 +7,7 @@ const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 
 @export var cam_stars: Cam
-@export var cam_planets: Camera2D
+@export var cam_planets: Cam
 @export var lbl_no_star_selected: Label
 
 @export var viewport_stars: SubViewport
@@ -17,6 +17,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var UpgradeWindow: Window
 
 @export var split_container: HSplitContainer
+@export var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
 @export_group("Planet Info Window")
 @export var folder_planet_info: FoldableContainer
@@ -53,7 +54,7 @@ var sel_factory: Factory
 var spr_star_hover: Sprite2D
 var spr_star_selected: Sprite2D
 
-var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
+
 
 var probe_travel_dist = 50 # LIGHTYEARS
 var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
@@ -63,8 +64,8 @@ var probe_replication_success_rate = 0.1 # % CHANCE
 func _ready() -> void:
 	
 	Globals.split_container_offset_max = int(get_viewport_rect().size.x * 0.995)
-	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.2)
-	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.7)
+	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.8)
+	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.3)
 	
 	#GENERATE STARS + ADJACENCY
 	var max_star_dist = 10000.0
@@ -79,6 +80,7 @@ func _ready() -> void:
 		
 	stars[0].create_factory()
 	cam_stars.center(stars[0].position)
+	
 	
 	for s in stars.size():
 		viewport_stars.add_child(stars[s])
@@ -104,8 +106,8 @@ func _ready() -> void:
 	
 	lbl_progbar_next_extractor.text = "0/" + str(Globals.resource_to_make_extractor)
 	lbl_progbar_next_probe.text = "0/" + str(Globals.resource_to_make_probe)
-
-
+	
+	
 func _process(delta: float) -> void:
 	if sel_planet != null:
 		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
@@ -114,7 +116,7 @@ func _process(delta: float) -> void:
 		progbar_planet_manual_extraction.value = manual_extract_tracker
 	
 	if split_container_dragging:
-		if split_container.split_offset > Globals.split_container_offset_planet_viewer_open and (folder_factory_info.visible or folder_planet_info.visible):
+		if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (folder_factory_info.visible or folder_planet_info.visible):
 			folder_factory_info.fold()
 			folder_planet_info.fold()
 			
@@ -123,7 +125,7 @@ func _process(delta: float) -> void:
 			
 			if sel_factory != null: sel_factory.deselect()
 			if sel_planet != null: sel_planet.deselect()
-		elif split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (not folder_factory_info.visible or not folder_planet_info.visible):
+		elif split_container.split_offset > Globals.split_container_offset_planet_viewer_open and (not folder_factory_info.visible or not folder_planet_info.visible):
 			folder_factory_info.visible = true
 			folder_planet_info.visible = true
 
@@ -157,25 +159,23 @@ func clear_hovered_star() -> void:
 	spr_star_hover.visible = false
 
 func set_selected_star(pStar: Star) -> void:
-	clear_selected_star()
+	if sel_star != null:
+		clear_selected_star()
 	#cam_planets.position = Vector2.ZERO
 	sel_star = pStar
 	lbl_no_star_selected.visible = false
+	star_viewer_sprite_star.visible = true
+	
 	if not sel_star.active:
 		for l in sel_star.adj_lines.size():
 			viewport_stars.add_child(sel_star.adj_lines[l])
 	
-	if split_container.split_offset > Globals.split_container_offset_planet_viewer_open:
+	if split_container.split_offset < Globals.split_container_offset_planet_viewer_open:
 		lerp_split_container_offset(split_container.split_offset, Globals.split_container_offset_planet_viewer_open,0.15)
 	
 	spr_star_selected.position = sel_star.position
 	spr_star_selected.visible = true
 	
-	star_viewer_sprite_star = Sprite2D.new()
-	star_viewer_sprite_star.texture = load("res://Images/star.png")
-	star_viewer_sprite_star.scale = Vector2.ONE * 10
-	star_viewer_sprite_star.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	viewport_planets.add_child(star_viewer_sprite_star)
 
 func clear_selected_star() -> void:
 	if sel_star == null:
@@ -183,13 +183,11 @@ func clear_selected_star() -> void:
 	clear_selected_factory()
 	clear_selected_planet()
 	lbl_no_star_selected.visible = true
+	star_viewer_sprite_star.visible = false
 	
 	if not sel_star.active:
 		for l in sel_star.adj_lines.size():
 			viewport_stars.remove_child(sel_star.adj_lines[l])
-	
-	
-	star_viewer_sprite_star.queue_free()
 	
 	sel_star.deselect()
 	sel_star = null
@@ -248,6 +246,9 @@ func set_selected_planet(pPlanet: Planet) -> void:
 	#close_star_viewer()
 	
 	sel_planet = pPlanet
+	cam_planets.reparent(sel_planet)
+	cam_planets.position = Vector2.ZERO
+	cam_planets.centered_on_node = true
 	
 	texture_planet_sprite.texture = pPlanet.sprite.texture
 	folder_planet_info.title = pPlanet.name
@@ -261,6 +262,9 @@ func clear_selected_planet() -> void:
 	if sel_planet != null:
 		sel_planet.set_selected(false)
 		sel_planet = null
+	
+	cam_planets.reparent(viewport_planets,true)
+	cam_planets.centered_on_node = false
 	
 	manual_extract_tracker = 0.0
 	texture_planet_sprite.texture = null
@@ -283,9 +287,11 @@ func set_selected_factory(pFactory: Factory) -> void:
 	if sel_factory != null:
 		clear_selected_factory()
 	
-	#close_star_viewer()
-	
 	sel_factory = pFactory
+	
+	cam_planets.reparent(sel_factory)
+	cam_planets.position = Vector2.ZERO
+	cam_planets.centered_on_node = true
 	
 	update_factory_window()
 	
@@ -308,6 +314,9 @@ func clear_selected_factory() -> void:
 		sel_factory.set_selected(false)
 		sel_factory = null
 	lbl_factory_total_resource.text = ""
+	
+	cam_planets.reparent(viewport_planets)
+	cam_planets.centered_on_node = false
 	
 	folder_factory_info.fold()
 	
