@@ -5,6 +5,7 @@ const Star = preload("res://Scripts/star.gd")
 const Planet = preload("res://Scripts/planet.gd")
 const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
+const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
 
 @export var cam_stars: Cam
 @export var cam_planets: Cam
@@ -20,7 +21,7 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
 @export_group("Planet Info Window")
-@export var folder_planet_info: FoldableContainer
+@export var panel_planet: SlidingPanel
 @export var texture_planet_sprite: TextureRect
 @export var lbl_planet_resource_multiplier: Label
 @export var lbl_planet_extractors: Label
@@ -29,11 +30,14 @@ const Extractor = preload("res://Scripts/extractor.gd")
 @export var btn_manual_extraction: Button
 
 @export_group("Factory Info Window")
-@export var folder_factory_info: FoldableContainer
+@export var panel_factory: SlidingPanel
 @export var lbl_factory_total_resource: Label
-@export var btn_factory_make_extractors: Button
-@export var btn_factory_make_probes: Button
+@export var btn_factory_make_extractors: TextureButton
+@export var btn_factory_make_probes: TextureButton
+@export var lbl_factory_making_extractors: Label
+@export var lbl_factory_making_probes: Label
 @export var progbar_fund: ProgressBar
+@export var lbl_fund: Label
 @export var progbar_next_extractor: ProgressBar
 @export var lbl_progbar_next_extractor: Label
 @export var progbar_next_probe: ProgressBar
@@ -116,18 +120,11 @@ func _process(delta: float) -> void:
 		progbar_planet_manual_extraction.value = manual_extract_tracker
 	
 	if split_container_dragging:
-		if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (folder_factory_info.visible or folder_planet_info.visible):
-			folder_factory_info.fold()
-			folder_planet_info.fold()
-			
-			folder_factory_info.visible = false
-			folder_planet_info.visible = false
-			
+		if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (panel_factory.open):
+			panel_factory._close()
+			panel_planet._close()
 			if sel_factory != null: sel_factory.deselect()
 			if sel_planet != null: sel_planet.deselect()
-		elif split_container.split_offset > Globals.split_container_offset_planet_viewer_open and (not folder_factory_info.visible or not folder_planet_info.visible):
-			folder_factory_info.visible = true
-			folder_planet_info.visible = true
 
 
 #region STARS
@@ -251,12 +248,11 @@ func set_selected_planet(pPlanet: Planet) -> void:
 	cam_planets.centered_on_node = true
 	
 	texture_planet_sprite.texture = pPlanet.sprite.texture
-	folder_planet_info.title = pPlanet.name
 	btn_manual_extraction.disabled = sel_star == null or sel_star.factory == null
 	sel_planet.added_extractor.connect(update_planet_window)
 	update_planet_window()
 	
-	folder_planet_info.expand()
+	panel_planet._open()
 
 func clear_selected_planet() -> void:
 	if sel_planet != null:
@@ -271,7 +267,7 @@ func clear_selected_planet() -> void:
 	lbl_planet_resource_multiplier.text = ""
 	lbl_planet_extractors.text = ""
 	
-	folder_planet_info.fold()
+	panel_planet._close()
 
 func update_planet_window() -> void:
 	if sel_planet == null:
@@ -303,7 +299,7 @@ func set_selected_factory(pFactory: Factory) -> void:
 	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
 	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
 	
-	folder_factory_info.expand()
+	panel_factory._open()
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
@@ -318,26 +314,27 @@ func clear_selected_factory() -> void:
 	cam_planets.reparent(viewport_planets)
 	cam_planets.centered_on_node = false
 	
-	folder_factory_info.fold()
+	panel_factory._close()
 	
 
 func update_factory_window() -> void:
 	if sel_factory == null: 
 		return
-		
+	
+	lbl_fund.text = "Allocating " + str("%.2f"%Globals.factory_funding_amount)+" every "+str("%.2f"%Globals.factory_funding_interval)+" seconds"
+	
 	btn_factory_make_extractors.button_pressed = sel_factory.making_extractors
 	if sel_factory.making_extractors:
-		btn_factory_make_extractors.text = "MAKING EXTRACTORS"
+		lbl_factory_making_extractors.text = "MAKING EXTRACTORS"
 	else:
-		btn_factory_make_extractors.text = "MAKE EXTRACTORS"
+		lbl_factory_making_extractors.text = "MAKE EXTRACTORS"
 		
 	btn_factory_make_probes.button_pressed = sel_factory.making_probes
 	if sel_factory.making_probes:
-		btn_factory_make_probes.text = "MAKING PROBES"
+		lbl_factory_making_probes.text = "MAKING PROBES"
 	else:
-		btn_factory_make_probes.text = "MAKE PROBES"
+		lbl_factory_making_probes.text = "MAKE PROBES"
 	
-	folder_factory_info.title = "FACTORY AT " + sel_star.name
 	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % sel_factory.resource_pool_main)
 
 func update_factory_resource_main(pResource: float) -> void:
@@ -421,11 +418,11 @@ func _on_btn_planet_manual_extracation_button_down() -> void:
 #endregion
 
 
-func _on_btn_make_extractors_toggled(toggled_on: bool) -> void:
+
+func _on_btn_make_drills_toggled(toggled_on: bool) -> void:
 	if sel_factory != null:
 		sel_factory.making_extractors = toggled_on
 		update_factory_window()
-
 
 func _on_btn_make_probes_toggled(toggled_on: bool) -> void:
 	if sel_factory != null:

@@ -64,7 +64,7 @@ func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	scale = Vector2.ONE * 5
 	
-	create_planets(randi_range(1,Globals.max_planets_per_star))
+	create_planets(Globals.max_planets_per_star,0.5)
 	
 	area2D = Area2D.new()
 	var collisionShape = CollisionShape2D.new()
@@ -116,51 +116,52 @@ func _process(delta: float) -> void:
 		factory.update_position(delta)
 		factory.update_factory()
 
-func create_planets(num_planets: int) -> void:
-	for p in num_planets:
-		#PLANET
-		var new_planet = Planet.new()
-		new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
-		new_planet.planet_dehovered.connect(dehover_planet)
-		new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
-		new_planet.planet_deselected.connect(deselect_planet)
-		new_planet.extracted.connect(create_cargo)
-		
-		
-		#LINE
-		var new_line = Line2D.new()
-		new_line.position = Vector2.ZERO
-		new_line.z_index = -10
-		new_line.closed = true
-		new_line.default_color = Color.DIM_GRAY
-		new_line.width = 5
-		
-		
-		var r0 = (p+1) * 2000
-		var r1 = randf_range(0.65,1.0) * (p+1) * 2000
-		var orbit_angle = randf() * 6.2832
-		var focus_distance = sqrt(abs((r0*r0)-(r1*r1)))
-		var focus = Vector2(
-			cos(orbit_angle) * focus_distance,
-			sin(orbit_angle) * focus_distance
-		)
-		new_planet.set_orbit(r0,r1,focus_distance,orbit_angle)
-		
-		var t = 0.0
-		for point in num_points_per_path:
-			var new_point = Vector2(
-				r0 * cos(orbit_angle) * cos(t) - r1 * sin(orbit_angle) * sin(t) + focus.x,
-				r0 * sin(orbit_angle) * cos(t) + r1 * cos(orbit_angle) * sin(t) + focus.y
-			)
-			new_line.add_point(new_point)
-			t += 6.2832 / (num_points_per_path - 1)
+func create_planets(max_planets: int, planet_spawn_chance: float) -> void:
+	for p in max_planets:
+		if randf() < planet_spawn_chance:
+			#PLANET
+			var new_planet = Planet.new()
+			new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
+			new_planet.planet_dehovered.connect(dehover_planet)
+			new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
+			new_planet.planet_deselected.connect(deselect_planet)
+			new_planet.extracted.connect(create_cargo)
 			
+			
+			#LINE
+			var new_line = Line2D.new()
+			new_line.position = Vector2.ZERO
+			new_line.z_index = -10
+			new_line.closed = true
+			new_line.default_color = Color.DIM_GRAY
+			new_line.width = 5
+			
+			
+			var r0 = (p+2) * 5000
+			var r1 = randf_range(0.65,1.0) * (p+2) * 5000
+			var orbit_angle = randf() * 6.2832
+			var focus_distance = sqrt(abs((r0*r0)-(r1*r1)))
+			var focus = Vector2(
+				cos(orbit_angle) * focus_distance,
+				sin(orbit_angle) * focus_distance
+			)
+			new_planet.set_orbit(r0,r1,focus_distance,orbit_angle)
+			
+			var t = 0.0
+			for point in num_points_per_path:
+				var new_point = Vector2(
+					r0 * cos(orbit_angle) * cos(t) - r1 * sin(orbit_angle) * sin(t) + focus.x,
+					r0 * sin(orbit_angle) * cos(t) + r1 * cos(orbit_angle) * sin(t) + focus.y
+				)
+				new_line.add_point(new_point)
+				t += 6.2832 / (num_points_per_path - 1)
+			planets.append(new_planet)
+			orbit_lines.append(new_line)
 		
 		
 		
 		
-		planets.append(new_planet)
-		orbit_lines.append(new_line)
+		
 
 func find_planet_with_room_for_extractor() -> Planet:
 	for p in planets.size():
@@ -219,13 +220,7 @@ func create_factory() -> void:
 
 
 func create_factory_orbit_line() -> void:
-	#FACTORY ORBIT SHOULD BE SLIGHTLY LARGER THAN THE MAX DISTANCE A PLANET CAN GET FROM THE STAR
-	var max_orbit_sqr = 0.0
-	for p in planets.size():
-		var planet_max_sqr = planets[p].orbital_focus.length_squared() + (planets[p].orbital_radius_0*planets[p].orbital_radius_0)
-		if planet_max_sqr > max_orbit_sqr:
-			max_orbit_sqr = planet_max_sqr
-	factory_orbital_radius = sqrt(max_orbit_sqr) + 500
+	factory_orbital_radius = 1500
 	
 	
 	var new_line = Line2D.new()
@@ -307,7 +302,8 @@ func select():
 	queue_redraw()
 	star_selected.emit()
 	
-	viewport_planets.add_child(factory)
+	if factory != null:
+		viewport_planets.add_child(factory)
 	for l in orbit_lines.size():
 		viewport_planets.add_child(orbit_lines[l])
 	for p in planets.size():
@@ -336,7 +332,8 @@ func deselect():
 	queue_redraw()
 	star_deselected.emit()
 	
-	viewport_planets.remove_child(factory)
+	if factory != null:
+		viewport_planets.remove_child(factory)
 	for l in orbit_lines.size():
 		viewport_planets.remove_child(orbit_lines[l])
 	for p in planets.size():

@@ -19,7 +19,10 @@ var max_zoom: float = 1.5
 var zoom_interval: float = 0.005
 func _input(event: InputEvent) -> void:
 	
-	if event.is_action_pressed("Right Click") and not dragging and not centered_on_node:
+	if event.is_action_pressed("Right Click") and not dragging:
+		if centered_on_node:
+			reparent(subviewport,true)
+			centered_on_node = false
 		dragging = true
 		mouse_pos_last_frame = subviewport.get_mouse_position()
 	if event.is_action_released("Right Click"):

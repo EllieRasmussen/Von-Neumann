@@ -61,7 +61,7 @@ signal update_funding_timer
 func factory_funding_timer() -> void:
 	var timer = 0
 	while(true):
-		while resource_pool_main > Globals.factory_funding_amount and (making_extractors or making_probes):
+		while resource_pool_main >= Globals.factory_funding_amount and (making_extractors or making_probes):
 			timer += Globals.deltaTime
 			if timer >= Globals.factory_funding_interval:
 				timer -= Globals.factory_funding_interval
