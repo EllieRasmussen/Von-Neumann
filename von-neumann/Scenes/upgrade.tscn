@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3 uid="uid://on5x85r8o052"]
+
+[ext_resource type="Texture2D" uid="uid://bw6ldms0sy2fa" path="res://Images/upgrade buttons/upgrade_btn_small_normal.png" id="1_d2ffm"]
+[ext_resource type="Script" uid="uid://dl0laus8aunc4" path="res://Scripts/upgrade.gd" id="1_uudjn"]
+[ext_resource type="Texture2D" uid="uid://evs4sh4arr23" path="res://Images/upgrade buttons/upgrade_btn_small_pressed.png" id="2_uudjn"]
+[ext_resource type="Texture2D" uid="uid://clryh8obkpa5j" path="res://Images/upgrade buttons/upgrade_btn_small_hovered.png" id="3_nxtxw"]
+[ext_resource type="Texture2D" uid="uid://d0sjsys2hhsqg" path="res://Images/upgrade buttons/upgrade_btn_small_disabled.png" id="4_2j2lw"]
+
+[node name="Upgrade" type="HBoxContainer" node_paths=PackedStringArray("lbl_property", "lbl_value", "lbl_unit", "lbl_next")]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_uudjn")
+lbl_property = NodePath("lbl_property")
+lbl_value = NodePath("lbl_value")
+lbl_unit = NodePath("lbl_unit")
+lbl_next = NodePath("lbl_next")
+
+[node name="btn_purchase" type="TextureButton" parent="."]
+layout_mode = 2
+texture_normal = ExtResource("1_d2ffm")
+texture_pressed = ExtResource("2_uudjn")
+texture_hover = ExtResource("3_nxtxw")
+texture_disabled = ExtResource("4_2j2lw")
+
+[node name="lbl_property" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = " PROPERTY: "
+
+[node name="lbl_value" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "1"
+
+[node name="lbl_unit" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "blips / blop"
+
+[node name="lbl_next" type="Label" parent="."]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2394, 0.57, 0.25593, 1)
+theme_override_font_sizes/font_size = 24
+text = "+1"
+
+[connection signal="button_down" from="btn_purchase" to="." method="_on_btn_purchase_button_down"]
+[connection signal="mouse_entered" from="btn_purchase" to="." method="_on_btn_purchase_mouse_entered"]
+[connection signal="mouse_exited" from="btn_purchase" to="." method="_on_btn_purchase_mouse_exited"]

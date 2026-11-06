@@ -94,7 +94,7 @@ region_rect = Rect2(0, 0, 5, 5)
 [sub_resource type="StyleBoxEmpty" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wqjei"]
-bg_color = Color(0.761719, 0.777344, 0.792969, 1)
+bg_color = Color(0.6661928, 0.6694208, 0.69130456, 1)
 
 [sub_resource type="StyleBoxFlat" id="4"]
 bg_color = Color(0, 0, 0.501961, 1)
@@ -161,7 +161,7 @@ region_rect = Rect2(0, 0, 7, 7)
 
 [resource]
 default_font = ExtResource("56_381eq")
-default_font_size = 16
+default_font_size = 24
 AcceptDialog/styles/panel = SubResource("StyleBoxFlat_6nn6j")
 Button/colors/font_color = Color(0, 0, 0, 1)
 Button/colors/font_color_pressed = Color(0, 0, 0, 1)

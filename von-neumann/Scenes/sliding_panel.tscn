@@ -1,27 +1,18 @@
-[gd_scene load_steps=10 format=3 uid="uid://l3mjnc4kuqr0"]
+[gd_scene load_steps=6 format=3 uid="uid://l3mjnc4kuqr0"]
 
 [ext_resource type="Script" uid="uid://dv2rfwese8wmc" path="res://Scripts/sliding_panel.gd" id="1_cquve"]
 [ext_resource type="Texture2D" uid="uid://djxdwoqe1ox7a" path="res://Images/arrow button/arrow_left_normal.png" id="2_a1r24"]
 [ext_resource type="Texture2D" uid="uid://bfkym2rveewp7" path="res://Images/arrow button/arrow_left_pressed.png" id="3_bjkco"]
 [ext_resource type="Texture2D" uid="uid://oras2lgmtmk0" path="res://Images/arrow button/arrow_left_hovered.png" id="4_2r38j"]
 [ext_resource type="Texture2D" uid="uid://cnl5hfpbl78uq" path="res://Images/arrow button/arrow_left_disabled.png" id="5_2ej7c"]
-[ext_resource type="Texture2D" uid="uid://c0gjr2qswe2w1" path="res://Images/arrow button/arrow_left_back_normal.png" id="6_13epg"]
-[ext_resource type="Texture2D" uid="uid://4vgix8wnq62d" path="res://Images/arrow button/arrow_left_back_pressed.png" id="7_aky4k"]
-[ext_resource type="Texture2D" uid="uid://0mm1idxh1ip" path="res://Images/arrow button/arrow_left_back_hovered.png" id="8_qkjn0"]
-[ext_resource type="Texture2D" uid="uid://dnebuv02e6bjg" path="res://Images/arrow button/arrow_left_back_disabled.png" id="9_diyfq"]
 
-[node name="SlidingPanel" type="Node2D" node_paths=PackedStringArray("panel_container", "button_close", "button_open")]
+[node name="SlidingPanel" type="Node2D" node_paths=PackedStringArray("panel_container", "button_open")]
 position = Vector2(-450, 0)
 script = ExtResource("1_cquve")
 panel_container = NodePath("panel_container")
-button_close = NodePath("button_close")
-button_open = NodePath("button_open")
+button_open = NodePath("button")
 
-[node name="panel_container" type="PanelContainer" parent="."]
-offset_right = 450.0
-offset_bottom = 1080.0
-
-[node name="button_open" type="TextureButton" parent="."]
+[node name="button" type="TextureButton" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -36,31 +27,15 @@ grow_vertical = 2
 pivot_offset = Vector2(29, 43)
 size_flags_horizontal = 4
 size_flags_vertical = 4
+toggle_mode = true
 texture_normal = ExtResource("2_a1r24")
 texture_pressed = ExtResource("3_bjkco")
 texture_hover = ExtResource("4_2r38j")
 texture_disabled = ExtResource("5_2ej7c")
 
-[node name="button_close" type="TextureButton" parent="."]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 450.0
-offset_top = 15.0
-offset_right = 508.0
-offset_bottom = 101.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(29, 43)
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("6_13epg")
-texture_pressed = ExtResource("7_aky4k")
-texture_hover = ExtResource("8_qkjn0")
-texture_disabled = ExtResource("9_diyfq")
+[node name="panel_container" type="PanelContainer" parent="."]
+offset_right = 450.0
+offset_bottom = 1080.0
 
-[connection signal="button_down" from="button_open" to="." method="_on_button_open_button_down"]
-[connection signal="button_down" from="button_close" to="." method="_on_button_close_button_down"]
+[connection signal="button_down" from="button" to="." method="_on_button_open_button_down"]
+[connection signal="toggled" from="button" to="." method="_on_button_toggled"]

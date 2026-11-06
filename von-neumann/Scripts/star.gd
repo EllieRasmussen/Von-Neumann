@@ -137,8 +137,8 @@ func create_planets(max_planets: int, planet_spawn_chance: float) -> void:
 			new_line.width = 5
 			
 			
-			var r0 = (p+2) * 5000
-			var r1 = randf_range(0.65,1.0) * (p+2) * 5000
+			var r0 = (p+2) * 6000
+			var r1 = randf_range(0.65,1.0) * (p+2) * 6000
 			var orbit_angle = randf() * 6.2832
 			var focus_distance = sqrt(abs((r0*r0)-(r1*r1)))
 			var focus = Vector2(
@@ -220,7 +220,7 @@ func create_factory() -> void:
 
 
 func create_factory_orbit_line() -> void:
-	factory_orbital_radius = 1500
+	factory_orbital_radius = 5000
 	
 	
 	var new_line = Line2D.new()

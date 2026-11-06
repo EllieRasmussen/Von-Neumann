@@ -28,7 +28,7 @@ func _ready() -> void:
 	sprite = Sprite2D.new()
 	sprite.texture = load("res://Images/planet" + str(randi_range(0,3)) + ".png")
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.scale = Vector2.ONE * 10
+	sprite.scale = Vector2.ONE * 25
 	add_child(sprite)
 	
 	area2D = Area2D.new()

@@ -14,14 +14,12 @@ const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
 @export var viewport_stars: SubViewport
 @export var viewport_planets: SubViewport
 
-@export var UpgradeButton: Button
-@export var UpgradeWindow: Window
-
 @export var split_container: HSplitContainer
 @export var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
-@export_group("Planet Info Window")
-@export var panel_planet: SlidingPanel
+@export var panel_factory_planet: SlidingPanel
+
+@export_group("Planet Panel")
 @export var texture_planet_sprite: TextureRect
 @export var lbl_planet_resource_multiplier: Label
 @export var lbl_planet_extractors: Label
@@ -29,8 +27,7 @@ const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
 @export var progbar_planet_manual_extraction: ProgressBar
 @export var btn_manual_extraction: Button
 
-@export_group("Factory Info Window")
-@export var panel_factory: SlidingPanel
+@export_group("Factory Panel")
 @export var lbl_factory_total_resource: Label
 @export var btn_factory_make_extractors: TextureButton
 @export var btn_factory_make_probes: TextureButton
@@ -105,26 +102,26 @@ func _ready() -> void:
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
 	
-	UpgradeButton.pressed.connect(toggle_upgrade_window)
-	
 	
 	lbl_progbar_next_extractor.text = "0/" + str(Globals.resource_to_make_extractor)
 	lbl_progbar_next_probe.text = "0/" + str(Globals.resource_to_make_probe)
+	
+	
+	stars[0].select()
 	
 	
 func _process(delta: float) -> void:
 	if sel_planet != null:
 		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
 		if manual_extract_tracker > 0.0:
-			manual_extract_tracker -= delta * 7.5
+			manual_extract_tracker -= delta * 5.0
 		progbar_planet_manual_extraction.value = manual_extract_tracker
 	
-	if split_container_dragging:
-		if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (panel_factory.open):
-			panel_factory._close()
-			panel_planet._close()
-			if sel_factory != null: sel_factory.deselect()
-			if sel_planet != null: sel_planet.deselect()
+	#if split_container_dragging:
+		#if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (panel_factory_planet.open):
+			#panel_factory_planet._close()
+			#if sel_factory != null: sel_factory.deselect()
+			#if sel_planet != null: sel_planet.deselect()
 
 
 #region STARS
@@ -252,7 +249,7 @@ func set_selected_planet(pPlanet: Planet) -> void:
 	sel_planet.added_extractor.connect(update_planet_window)
 	update_planet_window()
 	
-	panel_planet._open()
+	panel_factory_planet.auto_button_press(1,true)
 
 func clear_selected_planet() -> void:
 	if sel_planet != null:
@@ -266,8 +263,7 @@ func clear_selected_planet() -> void:
 	texture_planet_sprite.texture = null
 	lbl_planet_resource_multiplier.text = ""
 	lbl_planet_extractors.text = ""
-	
-	panel_planet._close()
+
 
 func update_planet_window() -> void:
 	if sel_planet == null:
@@ -299,7 +295,7 @@ func set_selected_factory(pFactory: Factory) -> void:
 	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
 	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
 	
-	panel_factory._open()
+	panel_factory_planet.auto_button_press(0,true)
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
@@ -313,9 +309,6 @@ func clear_selected_factory() -> void:
 	
 	cam_planets.reparent(viewport_planets)
 	cam_planets.centered_on_node = false
-	
-	panel_factory._close()
-	
 
 func update_factory_window() -> void:
 	if sel_factory == null: 
@@ -392,8 +385,6 @@ func lerp_split_container_offset(pFrom: float, pTo: float, pDuration: float = 1.
 		await Engine.get_main_loop().process_frame
 	
 
-func toggle_upgrade_window():
-	UpgradeWindow.visible = !UpgradeWindow.visible;
 
 
 
@@ -407,12 +398,11 @@ func _on_folder_planet_info_folding_changed(is_folded: bool) -> void:
 		sel_planet.deselect()
 
 var manual_extract_tracker: float = 0.0
-func _on_btn_planet_manual_extracation_button_down() -> void:
+func _on_btn_manual_drill_button_down() -> void:
 	manual_extract_tracker += Globals.percentage_added_on_manual_extraction
 	if manual_extract_tracker >= 100.0 and sel_planet != null:
 		manual_extract_tracker -= 100
 		sel_planet.extract_resource(1)
-
 
 
 #endregion
@@ -435,10 +425,6 @@ func _on_area_2d_input_event(_viewport: Node, event: InputEvent, _shape_idx: int
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			if split_container.split_offset < Globals.split_container_offset_star_viewer_open:
 				open_star_viewer()
-
-
-func _on_window__upgrades_close_requested() -> void:
-	UpgradeWindow.visible = false
 
 
 @export var btn_show_hostility: Button
