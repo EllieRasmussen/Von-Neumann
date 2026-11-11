@@ -1,4 +1,5 @@
 extends Sprite2D
+class_name Probe
 
 const Star = preload("res://Scripts/star.gd")
 

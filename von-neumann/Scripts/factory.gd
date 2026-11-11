@@ -1,4 +1,5 @@
 extends Orbiter
+class_name Factory
 
 var anim_sprite: AnimatedSprite2D
 
@@ -16,9 +17,9 @@ signal factory_selected
 signal factory_deselected
 
 #THESE ARE KINDA MISNAMED, SHOULD BE UPDATE INSTEAD OF ADDED
-signal added_resource_to_main
-signal added_resource_to_next_extractor
-signal added_resource_to_next_probe
+signal changed_resource_main
+signal changed_resource_next_extractor
+signal changed_resource_next_probe
 
 signal created_extractor
 signal created_probe
@@ -51,8 +52,7 @@ func _ready() -> void:
 	area2d.add_child(collisionShape)
 	add_child(area2d)
 	area2d.position = Vector2.ZERO
-	
-	
+
 
 func update_factory() -> void:
 	anim_sprite.look_at(Vector2.ZERO)
@@ -65,7 +65,7 @@ func factory_funding_timer() -> void:
 			timer += Globals.deltaTime
 			if timer >= Globals.factory_funding_interval:
 				timer -= Globals.factory_funding_interval
-				fund_queue()
+				fund_projects()
 			update_funding_timer.emit(timer)
 			await Engine.get_main_loop().process_frame
 		timer = 0
@@ -74,7 +74,7 @@ func factory_funding_timer() -> void:
 		await Engine.get_main_loop().process_frame
 
 #RUNS ONCE PER Globals.factory_funding_interval SECONDS, CALLED FROM factory_funding_timer()
-func fund_queue() -> void:
+func fund_projects() -> void:
 	var num_projects = 0
 	if making_extractors: num_projects += 1
 	if making_probes: num_projects += 1
@@ -83,7 +83,7 @@ func fund_queue() -> void:
 		return
 		
 	resource_pool_main -= Globals.factory_funding_amount
-	added_resource_to_main.emit(resource_pool_main)
+	changed_resource_main.emit(resource_pool_main)
 	var resource_per_project = Globals.factory_funding_amount / num_projects
 	if making_extractors:
 		resource_pool_extractors += resource_per_project
@@ -92,7 +92,7 @@ func fund_queue() -> void:
 			resource_pool_main += resource_pool_extractors
 			resource_pool_extractors = 0
 			created_extractor.emit()
-		added_resource_to_next_extractor.emit(resource_pool_extractors)
+		changed_resource_next_extractor.emit(resource_pool_extractors)
 	if making_probes:
 		resource_pool_probes += resource_per_project
 		if resource_pool_probes >= Globals.resource_to_make_probe:
@@ -100,14 +100,14 @@ func fund_queue() -> void:
 			resource_pool_main += resource_pool_probes
 			resource_pool_probes = 0
 			created_probe.emit()
-		added_resource_to_next_probe.emit(resource_pool_probes)
+		changed_resource_next_probe.emit(resource_pool_probes)
 		
 
 func add_resource(pResource: float = 1) -> void:
 	resource_pool_main += pResource
 	if resource_pool_main > Globals.max_resource_stored_in_factory:
 		resource_pool_main = Globals.max_resource_stored_in_factory
-	added_resource_to_main.emit(resource_pool_main)
+	changed_resource_main.emit(resource_pool_main)
 	
 	anim_sprite.frame = int((resource_pool_main / float(Globals.max_resource_stored_in_factory)) * anim_sprite.sprite_frames.get_frame_count("default"))
 	
@@ -128,6 +128,7 @@ func _on_exit() -> void:
 	hover = false
 	factory_dehovered.emit()
 	
+
 func select() -> void:
 	selected = true
 	factory_selected.emit()

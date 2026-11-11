@@ -17,6 +17,7 @@ func _process(_delta: float) -> void:
 var min_zoom: float = 0.01
 var max_zoom: float = 1.5
 var zoom_interval: float = 0.005
+signal zoom_changed
 func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("Right Click") and not dragging:
@@ -39,6 +40,7 @@ func _input(event: InputEvent) -> void:
 		new_zoom -= zoom_interval
 	new_zoom = clamp(new_zoom, min_zoom, max_zoom)
 	zoom = Vector2(new_zoom,new_zoom)
+	zoom_changed.emit()
 
 func center(center_point: Vector2) -> void:
 	position = center_point - offset

@@ -1,10 +1,14 @@
 extends Orbiter
+class_name Planet
 
 var sprite: Sprite2D
 
 var resource_multiplier: float = randf_range(0.25,1.75)
 
 var area2D: Area2D
+
+var spr_hovered: Sprite2D
+var spr_selected: Sprite2D
 
 var selected = false
 var hover = false
@@ -79,18 +83,32 @@ func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
 #region HOVER, SELECT
 func _on_hover():
 	hover = true
+	
+	spr_hovered = Sprite2D.new()
+	spr_hovered.texture = load("res://Images/circle_hover.png")
+	spr_hovered.scale = Vector2.ONE * 50
+	add_child(spr_hovered)
+	
 	planet_hovered.emit()
 	
 func _exit_hover():
 	hover = false
+	spr_hovered.queue_free()
 	planet_dehovered.emit()
 	
 func select():
 	selected = true
+	
+	spr_selected = Sprite2D.new()
+	spr_selected.texture = load("res://Images/circle_selected0.png")
+	spr_selected.scale  = Vector2.ONE * 50
+	add_child(spr_selected)
+	
 	planet_selected.emit()
 	
 func deselect():
 	selected = false
+	spr_selected.queue_free()
 	planet_deselected.emit()
 	
 func set_selected(pVal: bool) -> void:

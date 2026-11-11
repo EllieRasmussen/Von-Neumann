@@ -2,10 +2,10 @@ extends Node2D
 
 const Cam = preload("res://Scripts/cam.gd")
 const Star = preload("res://Scripts/star.gd")
-const Planet = preload("res://Scripts/planet.gd")
-const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
+const floating_panel_factory: PackedScene = preload("res://Scenes/floating_panel_factory.tscn")
+const floating_panel_planet: PackedScene = preload("res://Scenes/floating_panel_planet.tscn")
 
 @export var cam_stars: Cam
 @export var cam_planets: Cam
@@ -19,27 +19,6 @@ const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
 
 @export var panel_factory_planet: SlidingPanel
 
-@export_group("Planet Panel")
-@export var texture_planet_sprite: TextureRect
-@export var lbl_planet_resource_multiplier: Label
-@export var lbl_planet_extractors: Label
-@export var progbar_planet_next_extraction: ProgressBar
-@export var progbar_planet_manual_extraction: ProgressBar
-@export var btn_manual_extraction: Button
-
-@export_group("Factory Panel")
-@export var lbl_factory_total_resource: Label
-@export var btn_factory_make_extractors: TextureButton
-@export var btn_factory_make_probes: TextureButton
-@export var lbl_factory_making_extractors: Label
-@export var lbl_factory_making_probes: Label
-@export var progbar_fund: ProgressBar
-@export var lbl_fund: Label
-@export var progbar_next_extractor: ProgressBar
-@export var lbl_progbar_next_extractor: Label
-@export var progbar_next_probe: ProgressBar
-@export var lbl_progbar_next_probe: Label
-
 
 var stars: Array[Star] = []
 var max_stars = 250
@@ -49,7 +28,6 @@ var max_extractors_per_star = 1
 
 ## 'SEL' = SELECTED
 var sel_star: Star
-var sel_planet: Planet
 var sel_factory: Factory
 
 var spr_star_hover: Sprite2D
@@ -78,7 +56,7 @@ func _ready() -> void:
 		#star_pos *= (star_pos.length_squared() / (max_star_dist*max_star_dist))
 		if star_pos.length_squared() < max_star_dist * max_star_dist:
 			create_star(star_pos)
-		
+	
 	stars[0].create_factory()
 	cam_stars.center(stars[0].position)
 	
@@ -101,30 +79,44 @@ func _ready() -> void:
 	spr_star_hover.z_index = 2
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
-	
-	
-	lbl_progbar_next_extractor.text = "0/" + str(Globals.resource_to_make_extractor)
-	lbl_progbar_next_probe.text = "0/" + str(Globals.resource_to_make_probe)
-	
-	
+
 	stars[0].select()
 	
 	
-func _process(delta: float) -> void:
-	if sel_planet != null:
-		progbar_planet_next_extraction.value = sel_planet.get_extraction_progress() * 100.0
-		if manual_extract_tracker > 0.0:
-			manual_extract_tracker -= delta * 5.0
-		progbar_planet_manual_extraction.value = manual_extract_tracker
+func _process(_delta: float) -> void:
+	for planet in panels_planet.keys():
+		lines_planet_to_panel[planet].set_point_position(0,planet.position)
+		lines_planet_to_panel[planet].set_point_position(1,panels_planet[planet].position)
 	
-	#if split_container_dragging:
-		#if split_container.split_offset < Globals.split_container_offset_planet_viewer_open and (panel_factory_planet.open):
-			#panel_factory_planet._close()
-			#if sel_factory != null: sel_factory.deselect()
-			#if sel_planet != null: sel_planet.deselect()
+	if sel_factory != null:
+		line_factory_to_panel.set_point_position(0,sel_factory.position)
+		line_factory_to_panel.set_point_position(1,panel_factory_info.position)
 
 
 #region STARS
+
+func star_gen() -> void:
+	var world_bounds: Vector2 = Vector2(10000,10000)
+	
+	#GENERATE POINTS AND RADII FOR CLUSTERS
+	var cluster_positions: Array[Vector2]
+	var cluster_radii: Array[float]
+	for i in 10:
+		cluster_positions.append(Vector2(randf_range(-world_bounds.x,world_bounds.x),randf_range(-world_bounds.y,world_bounds.y)))
+		cluster_radii.append(randf_range(500,1500))
+		var pos_marker: Sprite2D = Sprite2D.new()
+		pos_marker.texture = load("res://Images/star.png")
+		viewport_stars.add_child(pos_marker)
+		pos_marker.position = cluster_positions[i]
+		
+	
+	#GENERATE STARS AROUND EACH CLUSTER
+	
+	#PRIM CLUSTERS
+	
+	#GENERATE HALLWAYS BETWEEN CLUSTERS
+	
+	pass
 
 func create_star(pPos: Vector2):
 	var s = Star.new()
@@ -134,8 +126,7 @@ func create_star(pPos: Vector2):
 	s.star_dehovered.connect(clear_hovered_star)
 	s.star_selected.connect(set_selected_star.bind(s))
 	
-	s.set_sel_planet.connect(set_selected_planet)
-	s.desel_planet.connect(clear_selected_planet)
+	s.set_sel_planet.connect(set_planet_selected)
 	
 	s.set_sel_factory.connect(set_selected_factory)
 	s.desel_factory.connect(clear_selected_factory)
@@ -175,7 +166,8 @@ func clear_selected_star() -> void:
 	if sel_star == null:
 		return
 	clear_selected_factory()
-	clear_selected_planet()
+	for planet in panels_planet.keys():
+		planet.deselect()
 	lbl_no_star_selected.visible = true
 	star_viewer_sprite_star.visible = false
 	
@@ -234,46 +226,39 @@ func Prim() -> void:
 #endregion
 
 #region PLANETS
-func set_selected_planet(pPlanet: Planet) -> void:
-	if sel_planet != null:
-		clear_selected_planet()
-	#close_star_viewer()
-	
-	sel_planet = pPlanet
-	cam_planets.reparent(sel_planet)
-	cam_planets.position = Vector2.ZERO
-	cam_planets.centered_on_node = true
-	
-	texture_planet_sprite.texture = pPlanet.sprite.texture
-	btn_manual_extraction.disabled = sel_star == null or sel_star.factory == null
-	sel_planet.added_extractor.connect(update_planet_window)
-	update_planet_window()
-	
-	panel_factory_planet.auto_button_press(1,true)
+var panels_planet: Dictionary
+var lines_planet_to_panel: Dictionary
+func set_planet_selected(pPlanet: Planet, pSelected: bool) -> void:
+	pPlanet.set_selected(pSelected)
+	if pSelected:
+		var new_planet_panel: FloatingPanelPlanet = floating_panel_planet.instantiate()
+		new_planet_panel.position = pPlanet.position + (pPlanet.position.normalized() * 10000)
+		new_planet_panel.cam = cam_planets
+		new_planet_panel.planet = pPlanet
+		viewport_planets.add_child(new_planet_panel)
+		panels_planet.set(pPlanet,new_planet_panel)
+		
+		var new_line: Line2D = Line2D.new()
+		new_line.z_index = -10
+		new_line.default_color = Color.DIM_GRAY
+		new_line.width = 100
+		new_line.add_point(pPlanet.position)
+		new_line.add_point(new_planet_panel.position)
+		
+		viewport_planets.add_child(new_line)
+		lines_planet_to_panel.set(pPlanet,new_line)
+	else:
+		panels_planet[pPlanet].queue_free()
+		panels_planet.erase(pPlanet)
+		
+		lines_planet_to_panel[pPlanet].queue_free()
+		lines_planet_to_panel.erase(pPlanet)
 
-func clear_selected_planet() -> void:
-	if sel_planet != null:
-		sel_planet.set_selected(false)
-		sel_planet = null
-	
-	cam_planets.reparent(viewport_planets,true)
-	cam_planets.centered_on_node = false
-	
-	manual_extract_tracker = 0.0
-	texture_planet_sprite.texture = null
-	lbl_planet_resource_multiplier.text = ""
-	lbl_planet_extractors.text = ""
-
-
-func update_planet_window() -> void:
-	if sel_planet == null:
-		return
-	
-	lbl_planet_resource_multiplier.text = "RESOURCE: x" + ("%.2f" % sel_planet.resource_multiplier)
-	lbl_planet_extractors.text = "EXTRACTORS: " + str(sel_planet.extractors)
 #endregion
 
-@export var factory_window_sprite: TextureRect
+
+var panel_factory_info: FloatingPanelFactory
+var line_factory_to_panel: Line2D # I HATE THAT THIS IS HERE AS MUCH AS YOU DO BUT STUPID LINES STUPID SCALE WITH THEIR STUPID PARENTS SO IT HAS TO GO HERE
 #region FACTORIES
 func set_selected_factory(pFactory: Factory) -> void:
 	if sel_factory != null:
@@ -281,79 +266,34 @@ func set_selected_factory(pFactory: Factory) -> void:
 	
 	sel_factory = pFactory
 	
-	cam_planets.reparent(sel_factory)
-	cam_planets.position = Vector2.ZERO
-	cam_planets.centered_on_node = true
 	
-	update_factory_window()
+	panel_factory_info = floating_panel_factory.instantiate()
+	panel_factory_info.cam = cam_planets
+	panel_factory_info.closed.connect(sel_factory.deselect)
+	viewport_planets.add_child(panel_factory_info)
+	panel_factory_info.position = sel_factory.position + (sel_factory.position.normalized() * 10000)
+	panel_factory_info.target = sel_factory
 	
-	sel_factory.added_resource_to_main.connect(update_factory_resource_main)
-	sel_factory.added_resource_to_next_extractor.connect(update_factory_resource_next_extractor)
-	sel_factory.added_resource_to_next_probe.connect(update_factory_resource_next_probe)
-	sel_factory.update_funding_timer.connect(update_factory_fund_progbar)
-	update_factory_resource_main(sel_factory.resource_pool_main)
-	update_factory_resource_next_extractor(sel_factory.resource_pool_extractors)
-	update_factory_resource_next_probe(sel_factory.resource_pool_probes)
+	line_factory_to_panel = Line2D.new()
+	line_factory_to_panel.z_index = -10
+	line_factory_to_panel.default_color = Color.DIM_GRAY
+	line_factory_to_panel.width = 100
+	line_factory_to_panel.add_point(sel_factory.position)
+	line_factory_to_panel.add_point(panel_factory_info.position)
 	
-	panel_factory_planet.auto_button_press(0,true)
+	viewport_planets.add_child(line_factory_to_panel)
+	panel_factory_info.factory = sel_factory
+	
+	
 
 func clear_selected_factory() -> void:
 	if sel_factory != null:
-		sel_factory.added_resource_to_main.disconnect(update_factory_resource_main)
-		sel_factory.added_resource_to_next_extractor.disconnect(update_factory_resource_next_extractor)
-		sel_factory.added_resource_to_next_probe.disconnect(update_factory_resource_next_probe)
-		sel_factory.update_funding_timer.disconnect(update_factory_fund_progbar)
 		sel_factory.set_selected(false)
 		sel_factory = null
-	lbl_factory_total_resource.text = ""
 	
-	cam_planets.reparent(viewport_planets)
-	cam_planets.centered_on_node = false
-
-func update_factory_window() -> void:
-	if sel_factory == null: 
-		return
-	
-	lbl_fund.text = "Allocating " + str("%.2f"%Globals.factory_funding_amount)+" every "+str("%.2f"%Globals.factory_funding_interval)+" seconds"
-	
-	btn_factory_make_extractors.button_pressed = sel_factory.making_extractors
-	if sel_factory.making_extractors:
-		lbl_factory_making_extractors.text = "MAKING EXTRACTORS"
-	else:
-		lbl_factory_making_extractors.text = "MAKE EXTRACTORS"
-		
-	btn_factory_make_probes.button_pressed = sel_factory.making_probes
-	if sel_factory.making_probes:
-		lbl_factory_making_probes.text = "MAKING PROBES"
-	else:
-		lbl_factory_making_probes.text = "MAKE PROBES"
-	
-	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % sel_factory.resource_pool_main)
-
-func update_factory_resource_main(pResource: float) -> void:
-	factory_window_sprite.texture = sel_factory.anim_sprite.sprite_frames.get_frame_texture("default",sel_factory.anim_sprite.frame)
-	lbl_factory_total_resource.text = "TOTAL RESOURCE: " + str("%.2f" % pResource)
-	
-	
-func update_factory_resource_next_extractor(pResource: float) -> void:
-	lbl_progbar_next_extractor.text = str("%.2f" % pResource) + "/" + str(str("%.2f" % Globals.resource_to_make_extractor))
-	progbar_next_extractor.max_value = Globals.resource_to_make_extractor
-	progbar_next_extractor.value = pResource
-
-func update_factory_resource_next_probe(pResource: float) -> void:
-	lbl_progbar_next_probe.text = str("%.2f" % pResource) + "/" + str("%.2f" % Globals.resource_to_make_probe)
-	progbar_next_probe.max_value = Globals.resource_to_make_probe
-	progbar_next_probe.value = pResource
-
-func update_factory_fund_progbar(pProgress: float) -> void:
-	progbar_fund.max_value = Globals.factory_funding_interval
-	progbar_fund.value = pProgress
-	
-
-
-
-
-
+	if panel_factory_info != null:
+		panel_factory_info.queue_free()
+		line_factory_to_panel.queue_free()
 
 #endregion
 
@@ -385,39 +325,7 @@ func lerp_split_container_offset(pFrom: float, pTo: float, pDuration: float = 1.
 		await Engine.get_main_loop().process_frame
 	
 
-
-
-
-
-func _on_foldable_container_folding_changed(is_folded: bool) -> void:
-	if is_folded and sel_factory != null:
-		sel_factory.deselect()
-		
-func _on_folder_planet_info_folding_changed(is_folded: bool) -> void:
-	if is_folded and sel_planet != null:
-		sel_planet.deselect()
-
-var manual_extract_tracker: float = 0.0
-func _on_btn_manual_drill_button_down() -> void:
-	manual_extract_tracker += Globals.percentage_added_on_manual_extraction
-	if manual_extract_tracker >= 100.0 and sel_planet != null:
-		manual_extract_tracker -= 100
-		sel_planet.extract_resource(1)
-
-
 #endregion
-
-
-
-func _on_btn_make_drills_toggled(toggled_on: bool) -> void:
-	if sel_factory != null:
-		sel_factory.making_extractors = toggled_on
-		update_factory_window()
-
-func _on_btn_make_probes_toggled(toggled_on: bool) -> void:
-	if sel_factory != null:
-		sel_factory.making_probes = toggled_on
-		update_factory_window()
 
 
 func _on_area_2d_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:

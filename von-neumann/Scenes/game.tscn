@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://dmbx04csi10wu"]
+[gd_scene load_steps=38 format=3 uid="uid://dmbx04csi10wu"]
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
@@ -25,10 +25,11 @@
 [ext_resource type="Texture2D" uid="uid://c600heehlr7rk" path="res://Images/probe button/probe_btn_hovered.png" id="22_22asu"]
 [ext_resource type="Texture2D" uid="uid://cqltkwsebpbcd" path="res://Images/planet button/planet_btn_disabled.png" id="22_fkdbe"]
 [ext_resource type="Texture2D" uid="uid://bkyfpo3ddvvwp" path="res://Images/probe button/probe_btn_disabled.png" id="23_fkdbe"]
-[ext_resource type="Texture2D" uid="uid://dwegg1sqhltd1" path="res://Images/upgrade buttons/upgrade_btn_normal.png" id="25_ese38"]
-[ext_resource type="Texture2D" uid="uid://0rk7fgt7ttjq" path="res://Images/upgrade buttons/upgrade_btn_pressed.png" id="26_oeip8"]
-[ext_resource type="Texture2D" uid="uid://bvv2cm21cjer0" path="res://Images/upgrade buttons/upgrade_btn_hovered.png" id="27_xe308"]
+[ext_resource type="Texture2D" uid="uid://djxdwoqe1ox7a" path="res://Images/arrow button/arrow_left_normal.png" id="26_xe308"]
+[ext_resource type="Texture2D" uid="uid://bfkym2rveewp7" path="res://Images/arrow button/arrow_left_pressed.png" id="27_d3cha"]
+[ext_resource type="Texture2D" uid="uid://oras2lgmtmk0" path="res://Images/arrow button/arrow_left_hovered.png" id="28_i26dy"]
 [ext_resource type="Texture2D" uid="uid://dio0qvivfqwut" path="res://Images/extractor.png" id="29_cwurv"]
+[ext_resource type="Texture2D" uid="uid://cnl5hfpbl78uq" path="res://Images/arrow button/arrow_left_disabled.png" id="29_lmoi6"]
 [ext_resource type="Curve" uid="uid://cfgfg2f2f4cqi" path="res://Resources/upgrade_curves/curve_manual_drill.tres" id="31_ese38"]
 [ext_resource type="Curve" uid="uid://daa7i8t863m38" path="res://Resources/upgrade_curves/curve_max_drills_per_planet.tres" id="32_oeip8"]
 [ext_resource type="Texture2D" uid="uid://cn7up1lb184he" path="res://Images/probe0.png" id="33_oeip8"]
@@ -55,7 +56,7 @@ func _on_gui_input(event: InputEvent) -> void:
 [sub_resource type="CircleShape2D" id="CircleShape2D_i6g32"]
 radius = 30.0
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "split_container", "star_viewer_sprite_star", "panel_factory_planet", "texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction", "lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "lbl_factory_making_extractors", "lbl_factory_making_probes", "progbar_fund", "lbl_fund", "progbar_next_extractor", "lbl_progbar_next_extractor", "progbar_next_probe", "lbl_progbar_next_probe", "factory_window_sprite", "btn_show_hostility")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "split_container", "star_viewer_sprite_star", "panel_factory_planet", "btn_show_hostility")]
 script = ExtResource("1_v158k")
 cam_stars = NodePath("CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
 cam_planets = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
@@ -65,24 +66,6 @@ viewport_planets = NodePath("CanvasLayer/split container/SubViewportContainer Pl
 split_container = NodePath("CanvasLayer/split container")
 star_viewer_sprite_star = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun")
 panel_factory_planet = NodePath("CanvasLayer/SlidingPanel_factory_planet")
-texture_planet_sprite = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/TextureRect")
-lbl_planet_resource_multiplier = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/lbl resource multiplier")
-lbl_planet_extractors = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/lbl drills")
-progbar_planet_next_extraction = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/prg_auto_drill")
-progbar_planet_manual_extraction = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/prg_manual_drill")
-btn_manual_extraction = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/btn_manual_drill")
-lbl_factory_total_resource = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/lbl_total_resource")
-btn_factory_make_extractors = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer/btn_make_drills")
-btn_factory_make_probes = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer/btn_make_probes")
-lbl_factory_making_extractors = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/lbl_make_drills")
-lbl_factory_making_probes = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/lbl_make_probes")
-progbar_fund = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/prg_next_funding")
-lbl_fund = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/prg_next_funding/lbl_next_funding")
-progbar_next_extractor = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer/prg_next_drill")
-lbl_progbar_next_extractor = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer/prg_next_drill/lbl_next_drill")
-progbar_next_probe = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer/prg_next_probe")
-lbl_progbar_next_probe = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer/prg_next_probe/lbl_next_probe")
-factory_window_sprite = NodePath("CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/TextureRect")
 btn_show_hostility = NodePath("CanvasLayer/split container/SubViewportContainer Stars/btn_show_hostility")
 
 [node name="Upgrade Manager" type="Node2D" parent="."]
@@ -96,7 +79,7 @@ offset_bottom = 1080.0
 focus_mode = 2
 theme = ExtResource("2_1l0tm")
 theme_override_styles/split_bar_background = SubResource("StyleBoxLine_wowpa")
-split_offset = 1920
+split_offset = 1500
 script = SubResource("GDScript_3dryh")
 
 [node name="SubViewportContainer Planets" type="SubViewportContainer" parent="CanvasLayer/split container"]
@@ -110,7 +93,7 @@ mouse_target = true
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
-size = Vector2i(1908, 1080)
+size = Vector2i(1500, 1080)
 render_target_update_mode = 4
 
 [node name="cam_planets" type="Camera2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets" node_paths=PackedStringArray("subviewport")]
@@ -148,10 +131,6 @@ texture = ExtResource("4_i6g32")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D"]
 shape = SubResource("CircleShape2D_i6g32")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/split container/SubViewportContainer Planets"]
-layout_direction = 3
-layout_mode = 2
-
 [node name="SubViewportContainer Stars" type="SubViewportContainer" parent="CanvasLayer/split container"]
 layout_mode = 2
 stretch = true
@@ -166,7 +145,7 @@ text = "Show Star Hostility"
 own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
-size = Vector2i(2, 1080)
+size = Vector2i(408, 1080)
 render_target_update_mode = 4
 
 [node name="cam_stars" type="Camera2D" parent="CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars" node_paths=PackedStringArray("subviewport")]
@@ -186,6 +165,7 @@ mouse_filter = 1
 color = Color(0.048851527, 0.10060438, 0.12406183, 1)
 
 [node name="SlidingPanel_factory_planet" type="Node2D" parent="CanvasLayer" node_paths=PackedStringArray("panel_containers")]
+visible = false
 position = Vector2(-288, 0)
 script = ExtResource("11_iivbl")
 panel_containers = [NodePath("panel_container"), NodePath("panel_container2")]
@@ -453,10 +433,9 @@ theme_override_font_sizes/font_size = 24
 text = "[NO PLANET SELECTED]"
 
 [node name="SlidingPanel_upgrades" type="Node2D" parent="CanvasLayer" node_paths=PackedStringArray("panel_containers")]
-position = Vector2(1920, 0)
+position = Vector2(-513, 0)
 script = ExtResource("11_iivbl")
 panel_containers = [NodePath("panel_container")]
-dir = 1
 
 [node name="btn_0" type="TextureButton" parent="CanvasLayer/SlidingPanel_upgrades"]
 anchors_preset = 8
@@ -464,8 +443,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -73.0
+offset_left = 513.0
 offset_top = 15.0
+offset_right = 586.0
 offset_bottom = 101.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -473,10 +453,10 @@ pivot_offset = Vector2(29, 43)
 size_flags_horizontal = 4
 size_flags_vertical = 4
 toggle_mode = true
-texture_normal = ExtResource("25_ese38")
-texture_pressed = ExtResource("26_oeip8")
-texture_hover = ExtResource("27_xe308")
-texture_disabled = ExtResource("26_oeip8")
+texture_normal = ExtResource("26_xe308")
+texture_pressed = ExtResource("27_d3cha")
+texture_hover = ExtResource("28_i26dy")
+texture_disabled = ExtResource("29_lmoi6")
 
 [node name="panel_container" type="PanelContainer" parent="CanvasLayer/SlidingPanel_upgrades"]
 offset_right = 467.0

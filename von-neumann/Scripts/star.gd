@@ -1,9 +1,6 @@
 extends AnimatedSprite2D
 
 const Star = preload("res://Scripts/star.gd")
-const Planet = preload("res://Scripts/planet.gd")
-const Probe = preload("res://Scripts/probe.gd")
-const Factory = preload("res://Scripts/factory.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 const Cargo = preload("res://Scripts/cargo.gd")
 
@@ -34,12 +31,8 @@ var spr_active: Sprite2D
 
 var area2D: Area2D
 
-var spr_planet_hover: Sprite2D
-var spr_planet_selected: Sprite2D
-
 var spr_factory_hover: Sprite2D
 var spr_factory_selected: Sprite2D
-signal factory_fund
 
 var adj = []
 var adj_lines: Array[Line2D] = []
@@ -81,18 +74,6 @@ func _init() -> void:
 	set_active(false)
 	add_child(spr_active)
 	
-	spr_planet_hover = Sprite2D.new()
-	spr_planet_hover.texture = load("res://Images/circle_hover.png")
-	spr_planet_hover.visible = false
-	spr_planet_hover.scale = Vector2.ONE * 10
-	add_child(spr_planet_hover)
-	
-	spr_planet_selected = Sprite2D.new()
-	spr_planet_selected.texture = load("res://Images/circle_selected0.png")
-	spr_planet_selected.visible = false
-	spr_planet_selected.scale  = Vector2.ONE * 10
-	add_child(spr_planet_selected)
-	
 	spr_factory_hover = Sprite2D.new()
 	spr_factory_hover.texture = load("res://Images/circle_hover.png")
 	spr_factory_hover.visible = false
@@ -121,10 +102,8 @@ func create_planets(max_planets: int, planet_spawn_chance: float) -> void:
 		if randf() < planet_spawn_chance:
 			#PLANET
 			var new_planet = Planet.new()
-			new_planet.planet_hovered.connect(set_hovered_planet.bind(new_planet))
-			new_planet.planet_dehovered.connect(dehover_planet)
-			new_planet.planet_selected.connect(set_selected_planet.bind(new_planet))
-			new_planet.planet_deselected.connect(deselect_planet)
+			new_planet.planet_selected.connect(set_planet_selected.bind(new_planet,true))
+			new_planet.planet_deselected.connect(set_planet_selected.bind(new_planet,false))
 			new_planet.extracted.connect(create_cargo)
 			
 			
@@ -134,7 +113,7 @@ func create_planets(max_planets: int, planet_spawn_chance: float) -> void:
 			new_line.z_index = -10
 			new_line.closed = true
 			new_line.default_color = Color.DIM_GRAY
-			new_line.width = 5
+			new_line.width = 25
 			
 			
 			var r0 = (p+2) * 6000
@@ -227,7 +206,7 @@ func create_factory_orbit_line() -> void:
 	new_line.z_index = -1
 	new_line.closed = true
 	new_line.default_color = Color.SKY_BLUE
-	new_line.width = 5
+	new_line.width = 25
 	
 	var angle = 0.0
 	for point in num_points_per_path:
@@ -353,26 +332,11 @@ func set_active(pActive: bool) -> void:
 	active = pActive
 	spr_active.visible = active
 	activated.emit()
-
-func set_hovered_planet(pPlanet: Planet) -> void:
-	spr_planet_hover.reparent(pPlanet)
-	spr_planet_hover.position = Vector2.ZERO
-	spr_planet_hover.visible = true
-
-func dehover_planet() -> void:
-	spr_planet_hover.visible = false
+	
 
 signal set_sel_planet
-signal desel_planet #HATE THIS ABBREVIATION BUT WE ALL SIN IN THE DARK
-func set_selected_planet(pPlanet: Planet) -> void:
-	spr_planet_selected.reparent(pPlanet)
-	spr_planet_selected.position = Vector2.ZERO
-	spr_planet_selected.visible = true
-	set_sel_planet.emit(pPlanet)
-
-func deselect_planet() -> void:
-	spr_planet_selected.visible = false
-	desel_planet.emit()
+func set_planet_selected(pPlanet: Planet, pSelected: bool = false) -> void:
+	set_sel_planet.emit(pPlanet,pSelected)
 
 
 func set_hovered_factory(pFactory: Factory) -> void:
