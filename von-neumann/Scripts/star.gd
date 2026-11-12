@@ -14,7 +14,6 @@ var extractors: Array[Extractor]
 var cargo: Array[Cargo]
 
 var orbit_lines: Array[Line2D]
-var factory_orbital_radius: float
 
 var num_points_per_path = 50
 
@@ -46,12 +45,6 @@ func _init() -> void:
 	hostility_label.position = Vector2(-10,30)
 	
 	#SET TEXTURE
-	#var star_imgs = []
-	#star_imgs.append(load("res://Images/Star_0.png"))
-	#star_imgs.append(load("res://Images/Star_1.png"))
-	#star_imgs.append(load("res://Images/Star_2.png"))
-	#star_imgs.append(load("res://Images/Star_3.png"))
-	#self.texture = star_imgs[randi()%len(star_imgs)]
 	sprite_frames = load("res://Images/star viewer/star_sprites.tres")
 	frame = 1
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -190,7 +183,9 @@ func create_factory() -> void:
 	factory.factory_deselected.connect(deselect_factory)
 	factory.created_extractor.connect(create_extractor)
 	factory.created_probe.connect(create_probe)
-	factory.set_orbit(factory_orbital_radius,factory_orbital_radius,sqrt(factory_orbital_radius*factory_orbital_radius+factory_orbital_radius*factory_orbital_radius),0)
+	factory.set_orbit(Globals.factory_orbital_radius,Globals.factory_orbital_radius,
+						Globals.factory_orbital_focus_dist,
+						0)
 	factory.add_resource(Globals.starting_resource_in_factroy)
 	
 	if selected:
@@ -199,7 +194,6 @@ func create_factory() -> void:
 
 
 func create_factory_orbit_line() -> void:
-	factory_orbital_radius = 5000
 	
 	
 	var new_line = Line2D.new()
@@ -211,8 +205,8 @@ func create_factory_orbit_line() -> void:
 	var angle = 0.0
 	for point in num_points_per_path:
 		var new_point = Vector2(
-			cos(angle) * factory_orbital_radius,
-			sin(angle) * factory_orbital_radius
+			cos(angle) * Globals.factory_orbital_radius,
+			sin(angle) * Globals.factory_orbital_radius
 		)
 		new_line.add_point(new_point)
 		angle += 6.2832 / (num_points_per_path - 1)

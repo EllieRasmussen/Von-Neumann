@@ -21,7 +21,6 @@ const floating_panel_planet: PackedScene = preload("res://Scenes/floating_panel_
 
 
 var stars: Array[Star] = []
-var max_stars = 250
 
 var max_factories_per_star = 10
 var max_extractors_per_star = 1
@@ -46,16 +45,8 @@ func _ready() -> void:
 	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.8)
 	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.3)
 	
-	#GENERATE STARS + ADJACENCY
-	var max_star_dist = 10000.0
-	for i in max_stars:
-		var star_pos = Vector2(
-			randf_range(-max_star_dist,max_star_dist),
-			randf_range(-max_star_dist,max_star_dist)
-		)
-		#star_pos *= (star_pos.length_squared() / (max_star_dist*max_star_dist))
-		if star_pos.length_squared() < max_star_dist * max_star_dist:
-			create_star(star_pos)
+	star_gen()
+	
 	
 	stars[0].create_factory()
 	cam_stars.center(stars[0].position)
@@ -79,7 +70,7 @@ func _ready() -> void:
 	spr_star_hover.z_index = 2
 	spr_star_hover.visible = false
 	viewport_stars.add_child(spr_star_hover)
-
+	
 	stars[0].select()
 	
 	
@@ -96,27 +87,106 @@ func _process(_delta: float) -> void:
 #region STARS
 
 func star_gen() -> void:
-	var world_bounds: Vector2 = Vector2(10000,10000)
-	
+	var world_bound: float = 50000
+
 	#GENERATE POINTS AND RADII FOR CLUSTERS
+	var num_clusters: int = 10
 	var cluster_positions: Array[Vector2]
 	var cluster_radii: Array[float]
-	for i in 10:
-		cluster_positions.append(Vector2(randf_range(-world_bounds.x,world_bounds.x),randf_range(-world_bounds.y,world_bounds.y)))
-		cluster_radii.append(randf_range(500,1500))
-		var pos_marker: Sprite2D = Sprite2D.new()
-		pos_marker.texture = load("res://Images/star.png")
-		viewport_stars.add_child(pos_marker)
-		pos_marker.position = cluster_positions[i]
+	while cluster_positions.size() < num_clusters:
+		var clangle: float = randf() * 6.2831
+		var dist: float = randf()*world_bound
+		var new_pos: Vector2 = Vector2(cos(clangle)*dist,sin(clangle)*dist)
+		var new_radius: float = randf_range(10000,20000)
+		var has_overlap: bool = false
+		for c in cluster_positions.size():
+			if (new_radius*new_radius + cluster_radii[c]*cluster_radii[c]) > (cluster_positions[c] - new_pos).length_squared():
+				has_overlap = true
+		if cluster_positions.size() == 0 or not has_overlap:
+			cluster_positions.append(new_pos)
+			cluster_radii.append(new_radius)
 		
 	
 	#GENERATE STARS AROUND EACH CLUSTER
+	for c in num_clusters:
+		var num_stars: int = 150
+		var star_positions: Array[Vector2]
+		while star_positions.size() < num_stars:
+			var stangle: float = randf() * 6.2831
+			var dist_to_cluster = randf() * cluster_radii[c]
+			var new_pos: Vector2 = Vector2(cluster_positions[c] + Vector2(cos(stangle)*dist_to_cluster,sin(stangle)*dist_to_cluster))
+			var has_overlap: bool = false
+			for s in star_positions.size():
+				if 300 > (star_positions[s] - new_pos).length():
+					has_overlap = true
+			if star_positions.size() == 0 or not has_overlap:
+				star_positions.append(new_pos)
+		for s in num_stars:
+			create_star(star_positions[s])
 	
-	#PRIM CLUSTERS
+	#GENERATE ROGUE STARS
+	var num_rogues: int = 100
+	var rogue_positions: Array[Vector2]
+	while rogue_positions.size() < num_rogues:
+		var rangle: float = randf() * 6.2831
+		var dist_from_center = randf() * world_bound
+		var new_pos: Vector2 = Vector2(cos(rangle) * dist_from_center,sin(rangle)*dist_from_center)
+		var is_in_cluster: bool = false
+		for c in cluster_positions.size():
+			if cluster_radii[c] * cluster_radii[c] > (cluster_positions[c] - new_pos).length_squared():
+				is_in_cluster = true
+		for r in rogue_positions.size():
+			#90,000 = 300^2
+			if 90000 > (rogue_positions[r] - new_pos).length_squared(): 
+				is_in_cluster = true #TECHNICALLY SHOULD BE HAS_OVERLAP BUT I WOULD RATHER DIE THAN MAKE ONE MORE BOOLEAN
+		if rogue_positions.size() == 0 or not is_in_cluster:
+			rogue_positions.append(new_pos)
+	for r in num_rogues:
+		create_star(rogue_positions[r])
+
+
+## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
+func Prim() -> void:
+	#CREATE TEMP ARRAY WITH ALL ADJACENCIES
+	var full_graph = []
+	for s0 in stars.size():
+		var edges = []
+		for s1 in stars.size():
+			if s0 == s1:
+				edges.append(9223372036854775807)
+			else:
+				edges.append(stars[s0].position.distance_squared_to(stars[s1].position))
+		full_graph.append(edges)
 	
-	#GENERATE HALLWAYS BETWEEN CLUSTERS
 	
-	pass
+	
+	#ADD FIRST STAR TO STAR LIST
+	var used_stars = []
+	used_stars.append(stars[0])
+	
+	while(used_stars.size() < stars.size()):
+		#FIND SHORTEST EDGE FROM AVAILABLE STARS
+		var shortest_edge = 9223372036854775807 
+		var star0 = null
+		var star1 = null
+		
+		
+		for s in used_stars.size():
+			var star_index = stars.find(used_stars[s])
+			for a in full_graph[star_index].size():
+					if full_graph[star_index][a] < shortest_edge and not used_stars.has(stars[a]):
+						shortest_edge = full_graph[star_index][a]
+						star0 = stars[star_index]
+						star1 = stars[a]
+		
+		#ADD ADJACENT STAR TO STAR LIST
+		if not used_stars.has(star0):
+			used_stars.append(star0)
+		if not used_stars.has(star1):
+			used_stars.append(star1)
+		
+		#SET STAR ADJACENCIES
+		star0.add_adjacent(star1,null)
 
 func create_star(pPos: Vector2):
 	var s = Star.new()
@@ -179,49 +249,6 @@ func clear_selected_star() -> void:
 	sel_star = null
 	spr_star_selected.visible = false
 	
-
-## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
-func Prim() -> void:
-	#CREATE TEMP ARRAY WITH ALL ADJACENCIES
-	var full_graph = []
-	for s0 in stars.size():
-		var edges = []
-		for s1 in stars.size():
-			if s0 == s1:
-				edges.append(9223372036854775807)
-			else:
-				edges.append(stars[s0].position.distance_squared_to(stars[s1].position))
-		full_graph.append(edges)
-	
-	
-	
-	#ADD FIRST STAR TO STAR LIST
-	var used_stars = []
-	used_stars.append(stars[0])
-	
-	while(used_stars.size() < stars.size()):
-		#FIND SHORTEST EDGE FROM AVAILABLE STARS
-		var shortest_edge = 9223372036854775807 
-		var star0 = null
-		var star1 = null
-		
-		
-		for s in used_stars.size():
-			var star_index = stars.find(used_stars[s])
-			for a in full_graph[star_index].size():
-					if full_graph[star_index][a] < shortest_edge and not used_stars.has(stars[a]):
-						shortest_edge = full_graph[star_index][a]
-						star0 = stars[star_index]
-						star1 = stars[a]
-		
-		#ADD ADJACENT STAR TO STAR LIST
-		if not used_stars.has(star0):
-			used_stars.append(star0)
-		if not used_stars.has(star1):
-			used_stars.append(star1)
-		
-		#SET STAR ADJACENCIES
-		star0.add_adjacent(star1,null)
 
 #endregion
 

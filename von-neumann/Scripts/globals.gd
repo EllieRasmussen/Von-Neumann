@@ -11,6 +11,8 @@ var starting_resource_in_factroy: float = 20.0
 var max_resource_stored_in_factory: int = 100
 var factory_funding_interval: float = 1.0 # HOW OFTEN TO FACTORIES FUND THEIR PROJECTS
 var factory_funding_amount: float = 1.0 # WHEN FACTORIES FUND THEIR PROJECTS, HOW MUCH RESOURCE DO THEY ADD
+var factory_orbital_radius: float = 5000
+var factory_orbital_focus_dist: float = sqrt(5000 * 5000 + 5000 * 5000)
 
 
 
