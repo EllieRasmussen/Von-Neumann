@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://dmbx04csi10wu"]
+[gd_scene load_steps=20 format=3 uid="uid://dmbx04csi10wu"]
 
 [ext_resource type="Script" uid="uid://c2ebw6do1x1qt" path="res://Scripts/game_manager.gd" id="1_v158k"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_1l0tm"]
@@ -6,25 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://m12mssxymvsu" path="res://Images/star.png" id="4_i6g32"]
 [ext_resource type="Script" uid="uid://0w1hkqs62iii" path="res://Scripts/cam.gd" id="5_1l0tm"]
 [ext_resource type="Texture2D" uid="uid://dca76na8a2lfl" path="res://Images/factory/Factory-1.png" id="5_wowpa"]
-[ext_resource type="Texture2D" uid="uid://b2eqsb445bbri" path="res://Images/factory buttton/factory_btn_normal.png" id="6_81klo"]
-[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="6_i6g32"]
-[ext_resource type="ButtonGroup" uid="uid://pjcqaqkgyyab" path="res://Resources/btn_group_side_panel.tres" id="6_vm72l"]
-[ext_resource type="Texture2D" uid="uid://c3uvgi26187ht" path="res://Images/factory buttton/factory_btn_pressed.png" id="7_tgy6u"]
-[ext_resource type="Texture2D" uid="uid://bvgabktq4h713" path="res://Images/factory buttton/factory_btn_hovered.png" id="8_cwurv"]
-[ext_resource type="Texture2D" uid="uid://3evlyoguekat" path="res://Images/factory buttton/factory_btn_disabled.png" id="9_mucmn"]
 [ext_resource type="Script" uid="uid://dv2rfwese8wmc" path="res://Scripts/sliding_panel.gd" id="11_iivbl"]
-[ext_resource type="Texture2D" uid="uid://b2opr1luqnnpj" path="res://Images/extractor button/extractor_btn_normal.png" id="16_iivbl"]
-[ext_resource type="Texture2D" uid="uid://banix4iemirep" path="res://Images/extractor button/extractor_btn_pressed.png" id="17_7nbq1"]
-[ext_resource type="Texture2D" uid="uid://s76mxhjwqepp" path="res://Images/extractor button/extractor_btn_hovered.png" id="18_exi56"]
-[ext_resource type="Texture2D" uid="uid://bcrydx41al47v" path="res://Images/planet button/planet_btn_normal.png" id="19_7nbq1"]
-[ext_resource type="Texture2D" uid="uid://bjb0xbkqvlx27" path="res://Images/extractor button/extractor_btn_disabled.png" id="19_7t8sx"]
-[ext_resource type="Texture2D" uid="uid://cts5dnq82ur7y" path="res://Images/probe button/probe_btn_normal.png" id="20_mg4q0"]
-[ext_resource type="Texture2D" uid="uid://dp50muuh3drru" path="res://Images/planet button/planet_btn_pressed.png" id="20_vm72l"]
-[ext_resource type="Texture2D" uid="uid://hamork2dtibi" path="res://Images/planet button/planet_btn_hovered.png" id="21_22asu"]
-[ext_resource type="Texture2D" uid="uid://ds5caanksahi1" path="res://Images/probe button/probe_btn_pressed.png" id="21_vm72l"]
-[ext_resource type="Texture2D" uid="uid://c600heehlr7rk" path="res://Images/probe button/probe_btn_hovered.png" id="22_22asu"]
-[ext_resource type="Texture2D" uid="uid://cqltkwsebpbcd" path="res://Images/planet button/planet_btn_disabled.png" id="22_fkdbe"]
-[ext_resource type="Texture2D" uid="uid://bkyfpo3ddvvwp" path="res://Images/probe button/probe_btn_disabled.png" id="23_fkdbe"]
 [ext_resource type="Texture2D" uid="uid://djxdwoqe1ox7a" path="res://Images/arrow button/arrow_left_normal.png" id="26_xe308"]
 [ext_resource type="Texture2D" uid="uid://bfkym2rveewp7" path="res://Images/arrow button/arrow_left_pressed.png" id="27_d3cha"]
 [ext_resource type="Texture2D" uid="uid://oras2lgmtmk0" path="res://Images/arrow button/arrow_left_hovered.png" id="28_i26dy"]
@@ -56,7 +38,7 @@ func _on_gui_input(event: InputEvent) -> void:
 [sub_resource type="CircleShape2D" id="CircleShape2D_i6g32"]
 radius = 30.0
 
-[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "split_container", "star_viewer_sprite_star", "panel_factory_planet", "btn_show_hostility")]
+[node name="Game" type="Node2D" node_paths=PackedStringArray("cam_stars", "cam_planets", "lbl_no_star_selected", "viewport_stars", "viewport_planets", "split_container", "star_viewer_sprite_star", "btn_show_hostility")]
 script = ExtResource("1_v158k")
 cam_stars = NodePath("CanvasLayer/split container/SubViewportContainer Stars/SubViewport Stars/cam_stars")
 cam_planets = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/cam_planets")
@@ -65,7 +47,6 @@ viewport_stars = NodePath("CanvasLayer/split container/SubViewportContainer Star
 viewport_planets = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets")
 split_container = NodePath("CanvasLayer/split container")
 star_viewer_sprite_star = NodePath("CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun")
-panel_factory_planet = NodePath("CanvasLayer/SlidingPanel_factory_planet")
 btn_show_hostility = NodePath("CanvasLayer/split container/SubViewportContainer Stars/btn_show_hostility")
 
 [node name="Upgrade Manager" type="Node2D" parent="."]
@@ -90,7 +71,6 @@ stretch = true
 mouse_target = true
 
 [node name="SubViewport Planets" type="SubViewport" parent="CanvasLayer/split container/SubViewportContainer Planets"]
-own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(1500, 1080)
@@ -142,7 +122,6 @@ theme_override_font_sizes/font_size = 24
 text = "Show Star Hostility"
 
 [node name="SubViewport Stars" type="SubViewport" parent="CanvasLayer/split container/SubViewportContainer Stars"]
-own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(408, 1080)
@@ -163,274 +142,6 @@ offset_right = 20000.0
 offset_bottom = 12000.0
 mouse_filter = 1
 color = Color(0.048851527, 0.10060438, 0.12406183, 1)
-
-[node name="SlidingPanel_factory_planet" type="Node2D" parent="CanvasLayer" node_paths=PackedStringArray("panel_containers")]
-visible = false
-position = Vector2(-288, 0)
-script = ExtResource("11_iivbl")
-panel_containers = [NodePath("panel_container"), NodePath("panel_container2")]
-button_group = ExtResource("6_vm72l")
-
-[node name="btn_0" type="TextureButton" parent="CanvasLayer/SlidingPanel_factory_planet"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 288.0
-offset_top = 15.0
-offset_right = 361.0
-offset_bottom = 73.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(29, 43)
-size_flags_horizontal = 4
-size_flags_vertical = 4
-toggle_mode = true
-button_group = ExtResource("6_vm72l")
-texture_normal = ExtResource("6_81klo")
-texture_pressed = ExtResource("7_tgy6u")
-texture_hover = ExtResource("8_cwurv")
-texture_disabled = ExtResource("9_mucmn")
-
-[node name="btn_1" type="TextureButton" parent="CanvasLayer/SlidingPanel_factory_planet"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 288.0
-offset_top = 73.0
-offset_right = 361.0
-offset_bottom = 131.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(29, 43)
-size_flags_horizontal = 4
-size_flags_vertical = 4
-toggle_mode = true
-button_group = ExtResource("6_vm72l")
-texture_normal = ExtResource("19_7nbq1")
-texture_pressed = ExtResource("20_vm72l")
-texture_hover = ExtResource("21_22asu")
-texture_disabled = ExtResource("22_fkdbe")
-
-[node name="panel_container" type="PanelContainer" parent="CanvasLayer/SlidingPanel_factory_planet"]
-offset_right = 288.0
-offset_bottom = 523.0
-theme = ExtResource("2_1l0tm")
-
-[node name="panel_root" type="HBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container"]
-visible = false
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root"]
-custom_minimum_size = Vector2(15, 0)
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root"]
-layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer"]
-texture_filter = 1
-custom_minimum_size = Vector2(250, 250)
-layout_mode = 2
-texture = ExtResource("5_wowpa")
-stretch_mode = 4
-
-[node name="lbl_total_resource" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "TOTAL RESOURCE"
-
-[node name="prg_next_funding" type="ProgressBar" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-show_percentage = false
-
-[node name="lbl_next_funding" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/prg_next_funding"]
-custom_minimum_size = Vector2(250, 20)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 16.0
-theme_override_font_sizes/font_size = 20
-text = "Allocating 1 every 5 Seconds"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-
-[node name="lbl_make_drills" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "MAKE DRILLS"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="btn_make_drills" type="TextureButton" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-toggle_mode = true
-texture_normal = ExtResource("16_iivbl")
-texture_pressed = ExtResource("17_7nbq1")
-texture_hover = ExtResource("18_exi56")
-texture_disabled = ExtResource("19_7t8sx")
-
-[node name="prg_next_drill" type="ProgressBar" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 2
-size_flags_horizontal = 3
-show_percentage = false
-
-[node name="lbl_next_drill" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer/prg_next_drill"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 0
-offset_right = 188.0
-offset_bottom = 58.0
-theme_override_font_sizes/font_size = 24
-text = "0 / 10"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-
-[node name="lbl_make_probes" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "MAKE PROBES"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2"]
-layout_mode = 2
-
-[node name="btn_make_probes" type="TextureButton" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer"]
-layout_mode = 2
-toggle_mode = true
-texture_normal = ExtResource("20_mg4q0")
-texture_pressed = ExtResource("21_vm72l")
-texture_hover = ExtResource("22_22asu")
-texture_disabled = ExtResource("23_fkdbe")
-
-[node name="prg_next_probe" type="ProgressBar" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 2
-size_flags_horizontal = 3
-show_percentage = false
-
-[node name="lbl_next_probe" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer/prg_next_probe"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 0
-offset_right = 188.0
-offset_bottom = 58.0
-theme_override_font_sizes/font_size = 24
-text = "0 / 100"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root"]
-custom_minimum_size = Vector2(15, 0)
-layout_mode = 2
-
-[node name="no_selection" type="CenterContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container/no_selection"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "[NO FACTORY SELECTED]"
-
-[node name="panel_container2" type="PanelContainer" parent="CanvasLayer/SlidingPanel_factory_planet"]
-offset_right = 288.0
-offset_bottom = 523.0
-theme = ExtResource("2_1l0tm")
-
-[node name="panel_root" type="HBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2"]
-visible = false
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root"]
-custom_minimum_size = Vector2(15, 0)
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root"]
-layout_mode = 2
-
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-texture_filter = 1
-custom_minimum_size = Vector2(250, 250)
-layout_mode = 2
-texture = ExtResource("6_i6g32")
-stretch_mode = 4
-
-[node name="btn_prioritize_planet" type="Button" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-layout_mode = 2
-text = "Prioritize"
-
-[node name="lbl resource multiplier" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Resource Multiplier: "
-
-[node name="lbl drills" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Drills: "
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 15)
-layout_mode = 2
-
-[node name="btn_manual_drill" type="Button" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-layout_mode = 2
-text = "Manual Drill"
-
-[node name="prg_manual_drill" type="ProgressBar" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-show_percentage = false
-
-[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 15)
-layout_mode = 2
-
-[node name="lbl_next_automated_drilling" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-layout_mode = 2
-text = "Next Automated Drilling:"
-
-[node name="prg_auto_drill" type="ProgressBar" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-show_percentage = false
-
-[node name="lbl_prg_auto_drill" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/prg_auto_drill"]
-custom_minimum_size = Vector2(250, 20)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 16.0
-text = "Drilling 1 every 1 seconds"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root"]
-custom_minimum_size = Vector2(15, 0)
-layout_mode = 2
-
-[node name="no_selection2" type="CenterContainer" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/SlidingPanel_factory_planet/panel_container2/no_selection2"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "[NO PLANET SELECTED]"
 
 [node name="SlidingPanel_upgrades" type="Node2D" parent="CanvasLayer" node_paths=PackedStringArray("panel_containers")]
 position = Vector2(-513, 0)
@@ -599,12 +310,16 @@ unit = "resource"
 
 [node name="Upgrade - FUND INTERVAL" parent="CanvasLayer/SlidingPanel_upgrades/panel_container/HBoxContainer/VBoxContainer/FACTORY" instance=ExtResource("35_d3cha")]
 layout_mode = 2
+property_to_alter = "factory_funding_interval"
+max_upgrades = 10
 curve = ExtResource("31_ese38")
 property_name = "Funding interval"
 unit = "seconds"
 
 [node name="Upgrade - FUND AMOUNT" parent="CanvasLayer/SlidingPanel_upgrades/panel_container/HBoxContainer/VBoxContainer/FACTORY" instance=ExtResource("35_d3cha")]
 layout_mode = 2
+property_to_alter = "factory_funding_amount"
+max_upgrades = 10
 curve = ExtResource("31_ese38")
 property_name = "Funding amount"
 unit = "resource"
@@ -654,10 +369,6 @@ layout_mode = 2
 [connection signal="gui_input" from="CanvasLayer/split container/SubViewportContainer Planets" to="." method="_on_sub_viewport_container_planets_gui_input"]
 [connection signal="input_event" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D" to="." method="_on_area_2d_input_event"]
 [connection signal="mouse_entered" from="CanvasLayer/split container/SubViewportContainer Planets/SubViewport Planets/spr_sun/Area2D" to="." method="_on_area_2d_mouse_entered"]
+[connection signal="gui_input" from="CanvasLayer/split container/SubViewportContainer Stars" to="." method="_on_sub_viewport_container_stars_gui_input"]
 [connection signal="button_down" from="CanvasLayer/split container/SubViewportContainer Stars/btn_show_hostility" to="." method="_on_btn_show_hostility_button_down"]
-[connection signal="toggled" from="CanvasLayer/SlidingPanel_factory_planet/btn_0" to="CanvasLayer/SlidingPanel_factory_planet" method="_on_btn_0_toggled"]
-[connection signal="toggled" from="CanvasLayer/SlidingPanel_factory_planet/btn_1" to="CanvasLayer/SlidingPanel_factory_planet" method="_on_btn_1_toggled"]
-[connection signal="toggled" from="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer/HBoxContainer/btn_make_drills" to="." method="_on_btn_make_drills_toggled"]
-[connection signal="toggled" from="CanvasLayer/SlidingPanel_factory_planet/panel_container/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer/btn_make_probes" to="." method="_on_btn_make_probes_toggled"]
-[connection signal="button_down" from="CanvasLayer/SlidingPanel_factory_planet/panel_container2/panel_root/VBoxContainer/btn_manual_drill" to="." method="_on_btn_manual_drill_button_down"]
 [connection signal="toggled" from="CanvasLayer/SlidingPanel_upgrades/btn_0" to="CanvasLayer/SlidingPanel_upgrades" method="_on_btn_0_toggled"]

@@ -1,44 +1,42 @@
-[gd_scene load_steps=17 format=3 uid="uid://biw83h4omu5u"]
+[gd_scene load_steps=15 format=3 uid="uid://biw83h4omu5u"]
 
 [ext_resource type="Script" uid="uid://cytr4qcb7hc1a" path="res://Scripts/floating_panel_factory.gd" id="1_377dm"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_cd1pq"]
 [ext_resource type="Texture2D" uid="uid://spqtqsgbfo3w" path="res://Images/button x/x_btn_normal.png" id="3_377dm"]
 [ext_resource type="Texture2D" uid="uid://dca76na8a2lfl" path="res://Images/factory/Factory-1.png" id="3_vk24o"]
-[ext_resource type="Texture2D" uid="uid://b2opr1luqnnpj" path="res://Images/extractor button/extractor_btn_normal.png" id="4_rpnoy"]
 [ext_resource type="Texture2D" uid="uid://dav02ivgvxl3l" path="res://Images/button x/x_btn_pressed.png" id="4_sc2tj"]
-[ext_resource type="Texture2D" uid="uid://banix4iemirep" path="res://Images/extractor button/extractor_btn_pressed.png" id="5_8h3l8"]
 [ext_resource type="Texture2D" uid="uid://r573w6uxq0vm" path="res://Images/button x/x_btn_hovered.png" id="5_cs00k"]
 [ext_resource type="Texture2D" uid="uid://lpcnn38a65dy" path="res://Images/button x/x_btn_disabled.png" id="6_htpi6"]
-[ext_resource type="Texture2D" uid="uid://s76mxhjwqepp" path="res://Images/extractor button/extractor_btn_hovered.png" id="6_uu6n1"]
-[ext_resource type="Texture2D" uid="uid://bjb0xbkqvlx27" path="res://Images/extractor button/extractor_btn_disabled.png" id="7_377dm"]
-[ext_resource type="Texture2D" uid="uid://cts5dnq82ur7y" path="res://Images/probe button/probe_btn_normal.png" id="8_sc2tj"]
-[ext_resource type="Texture2D" uid="uid://ds5caanksahi1" path="res://Images/probe button/probe_btn_pressed.png" id="9_cs00k"]
-[ext_resource type="Texture2D" uid="uid://c600heehlr7rk" path="res://Images/probe button/probe_btn_hovered.png" id="10_htpi6"]
-[ext_resource type="Texture2D" uid="uid://bkyfpo3ddvvwp" path="res://Images/probe button/probe_btn_disabled.png" id="11_4u12e"]
+[ext_resource type="Texture2D" uid="uid://mu6mva8xe84o" path="res://Images/Resource imgs/solids.png" id="8_8h3l8"]
+[ext_resource type="Texture2D" uid="uid://dio0qvivfqwut" path="res://Images/extractor.png" id="8_o3puc"]
+[ext_resource type="Texture2D" uid="uid://blqan5gm5suq2" path="res://Images/Resource imgs/liquids.png" id="9_uu6n1"]
+[ext_resource type="Texture2D" uid="uid://cn7up1lb184he" path="res://Images/probe0.png" id="9_vk24o"]
+[ext_resource type="Texture2D" uid="uid://cp012di45rebm" path="res://Images/Resource imgs/gasses.png" id="10_377dm"]
+[ext_resource type="PackedScene" uid="uid://bh6swu5ww5y8l" path="res://Scenes/Buildable.tscn" id="10_o3puc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_377dm"]
-size = Vector2(692, 32)
+size = Vector2(696, 34)
 
-[node name="FloatingPanel" type="Node2D" node_paths=PackedStringArray("lbl_factory_total_resource", "btn_factory_make_extractors", "btn_factory_make_probes", "lbl_factory_making_extractors", "lbl_factory_making_probes", "progbar_fund", "lbl_fund", "progbar_next_extractor", "lbl_progbar_next_extractor", "progbar_next_probe", "lbl_progbar_next_probe", "factory_window_sprite")]
+[node name="FloatingPanel" type="Node2D" node_paths=PackedStringArray("prg_solids", "prg_liquids", "prg_gasses", "prg_fund_solids", "prg_fund_liquids", "prg_fund_gasses", "lbl_solids", "lbl_liquids", "lbl_gasses", "lbl_fund", "factory_sprite", "grid_active_buildables", "grid_inactive_buildables", "buildables")]
 script = ExtResource("1_377dm")
-lbl_factory_total_resource = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/lbl_total_resource")
-btn_factory_make_extractors = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/btn_make_drills")
-btn_factory_make_probes = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer/btn_make_probes")
-lbl_factory_making_extractors = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/lbl_project_left")
-lbl_factory_making_probes = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/lbl_project_right")
-progbar_fund = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_next_funding")
-lbl_fund = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_next_funding/lbl_next_funding")
-progbar_next_extractor = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/prg_next_left")
-lbl_progbar_next_extractor = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/prg_next_left/lbl_next_drill")
-progbar_next_probe = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/prg_next_right")
-lbl_progbar_next_probe = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/prg_next_right/lbl_next_probe")
-factory_window_sprite = NodePath("PanelContainer/VBoxContainer/panel_root/TextureRect")
+prg_solids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2/prg_available_solids")
+prg_liquids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3/prg_available_liquids")
+prg_gasses = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4/prg_available_gasses")
+prg_fund_solids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2/prg_available_solids/prg_fund_solids")
+prg_fund_liquids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3/prg_available_liquids/prg_fund_liquids")
+prg_fund_gasses = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4/prg_available_gasses/prg_fund_gasses")
+lbl_solids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2/prg_available_solids/lbl_available_solids")
+lbl_liquids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3/prg_available_liquids/lbl_available_liquids")
+lbl_gasses = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4/prg_available_gasses/lbl_available_gasses")
+lbl_fund = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/lbl_next_funding")
+factory_sprite = NodePath("PanelContainer/VBoxContainer/panel_root/TextureRect")
+grid_active_buildables = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Active Buildables")
+grid_inactive_buildables = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables")
+buildables = [NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables/Buildable_Drill"), NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables/Buildable_Scanner"), NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables/Buildable_Factory")]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
-offset_left = -348.0
-offset_top = -180.0
-offset_right = 348.0
-offset_bottom = 226.0
+offset_right = 734.0
+offset_bottom = 541.0
 mouse_filter = 2
 theme = ExtResource("2_cd1pq")
 
@@ -50,31 +48,43 @@ mouse_filter = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(660, 0)
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Area2D" type="Area2D" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PanelContainer/VBoxContainer/HBoxContainer/Area2D"]
-position = Vector2(346, 16)
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(691.895, 0)
+layout_mode = 2
+
+[node name="Area2D" type="Area2D" parent="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer/Area2D"]
+z_index = 1
+position = Vector2(346, 15)
 shape = SubResource("RectangleShape2D_377dm")
 
-[node name="ColorRect" type="ColorRect" parent="PanelContainer/VBoxContainer/HBoxContainer/Area2D"]
-custom_minimum_size = Vector2(692, 32)
+[node name="ColorRect" type="ColorRect" parent="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer/Area2D"]
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 728.0
+offset_bottom = 32.0
 mouse_filter = 2
 color = Color(0.63375676, 0.6337568, 0.63375676, 1)
 
-[node name="btn_close" type="TextureButton" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+[node name="btn_close" type="TextureButton" parent="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
 layout_mode = 2
 texture_normal = ExtResource("3_377dm")
 texture_pressed = ExtResource("4_sc2tj")
 texture_hover = ExtResource("5_cs00k")
 texture_disabled = ExtResource("6_htpi6")
-stretch_mode = 0
 
 [node name="panel_root" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -95,66 +105,138 @@ custom_minimum_size = Vector2(16, 0)
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root"]
+custom_minimum_size = Vector2(524, 0)
 layout_mode = 2
 
-[node name="lbl_total_resource" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="lbl_next_funding" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(250, 20)
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "TOTAL RESOURCE"
+theme_override_font_sizes/font_size = 24
+text = "Allocating 1 every 5 Seconds"
+vertical_alignment = 1
 
-[node name="prg_next_funding" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+
+[node name="icon_solids" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("8_8h3l8")
+
+[node name="prg_available_solids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2"]
 texture_filter = 1
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(488, 32)
 layout_mode = 2
 show_percentage = false
 
-[node name="lbl_next_funding" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_next_funding"]
-custom_minimum_size = Vector2(250, 20)
+[node name="prg_fund_solids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2/prg_available_solids"]
+z_index = 1
 layout_mode = 0
-offset_right = 343.0
+offset_top = 24.0
+offset_right = 488.0
 offset_bottom = 32.0
-theme_override_font_sizes/font_size = 24
-text = "Allocating 1 every 5 Seconds"
-horizontal_alignment = 1
-vertical_alignment = 1
+show_percentage = false
+
+[node name="lbl_available_solids" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer2/prg_available_solids"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+offset_right = 62.0
+offset_bottom = 32.0
+text = "0 / 100"
+
+[node name="MarginContainer9" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+
+[node name="icon_liquids" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+texture = ExtResource("9_uu6n1")
+
+[node name="prg_available_liquids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3"]
+texture_filter = 1
+custom_minimum_size = Vector2(488, 32)
+layout_mode = 2
+show_percentage = false
+
+[node name="prg_fund_liquids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3/prg_available_liquids"]
+z_index = 1
+layout_mode = 0
+offset_top = 24.0
+offset_right = 488.0
+offset_bottom = 32.0
+show_percentage = false
+
+[node name="lbl_available_liquids" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer3/prg_available_liquids"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 25.0
+text = "0 / 100"
+
+[node name="MarginContainer10" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+
+[node name="icon_gasses" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+texture = ExtResource("10_377dm")
+
+[node name="prg_available_gasses" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4"]
+texture_filter = 1
+custom_minimum_size = Vector2(488, 32)
+layout_mode = 2
+show_percentage = false
+
+[node name="prg_fund_gasses" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4/prg_available_gasses"]
+z_index = 1
+layout_mode = 0
+offset_top = 24.0
+offset_right = 488.0
+offset_bottom = 32.0
+show_percentage = false
+
+[node name="lbl_available_gasses" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer4/prg_available_gasses"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 25.0
+text = "0 / 100"
+
+[node name="MarginContainer6" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="lbl_construct" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Construct: "
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 10)
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="lbl_project_left" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 29
-text = "Drills: 0.5"
-
-[node name="HBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="Project 0" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="btn_make_drills" type="TextureButton" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
-texture_filter = 1
-custom_minimum_size = Vector2(128, 128)
-layout_mode = 2
-toggle_mode = true
-texture_normal = ExtResource("4_rpnoy")
-texture_pressed = ExtResource("5_8h3l8")
-texture_hover = ExtResource("6_uu6n1")
-texture_disabled = ExtResource("7_377dm")
-stretch_mode = 0
-
-[node name="prg_next_left" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="prg_0" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 0"]
 texture_filter = 1
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 size_flags_horizontal = 3
 show_percentage = false
 
-[node name="lbl_next_drill" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/prg_next_left"]
+[node name="lbl_0" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 0/prg_0"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 0
 offset_right = 128.0
@@ -164,44 +246,32 @@ text = "0 / 10"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-
-[node name="lbl_project_right" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 29
-text = "Probes: 0.5"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2"]
-layout_mode = 2
-
-[node name="btn_make_probes" type="TextureButton" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 0"]
 texture_filter = 1
-custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-toggle_mode = true
-texture_normal = ExtResource("8_sc2tj")
-texture_pressed = ExtResource("9_cs00k")
-texture_hover = ExtResource("10_htpi6")
-texture_disabled = ExtResource("11_4u12e")
-stretch_mode = 0
+selected = 0
+item_count = 3
+popup/item_0/text = "Drill"
+popup/item_0/icon = ExtResource("8_o3puc")
+popup/item_0/id = 0
+popup/item_1/text = "Scanner Probe"
+popup/item_1/icon = ExtResource("9_vk24o")
+popup/item_1/id = 1
+popup/item_2/text = "Factory Probe"
+popup/item_2/icon = ExtResource("3_vk24o")
+popup/item_2/id = 2
 
-[node name="prg_next_right" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2"]
+[node name="Project 1" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="prg_1" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 1"]
 texture_filter = 1
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 size_flags_horizontal = 3
 show_percentage = false
 
-[node name="lbl_next_probe" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/prg_next_right"]
+[node name="lbl_1" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 1/prg_1"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 0
 offset_right = 137.0
@@ -211,27 +281,65 @@ text = "0 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MarginContainer4" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-
-[node name="HSlider" type="HSlider" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="OptionButton2" type="OptionButton" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 1"]
 texture_filter = 1
 layout_mode = 2
-max_value = 1.0
-step = 0.01
-value = 0.5
-ticks_position = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Drill"
+popup/item_0/icon = ExtResource("8_o3puc")
+popup/item_0/id = 0
+popup/item_1/text = "Scanner Probe"
+popup/item_1/icon = ExtResource("9_vk24o")
+popup/item_1/id = 1
+popup/item_2/text = "Factory Probe"
+popup/item_2/icon = ExtResource("3_vk24o")
+popup/item_2/id = 2
+
+[node name="Grid Container Active Buildables" type="GridContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+columns = 4
+
+[node name="MarginContainer8" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="Grid Container Inactive Buildables" type="GridContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+columns = 7
+
+[node name="Buildable_Drill" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables" instance=ExtResource("10_o3puc")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+sprite = ExtResource("8_o3puc")
+buildable_name = "Drill"
+uses_gasses = false
+active = false
+
+[node name="Buildable_Scanner" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables" instance=ExtResource("10_o3puc")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+buildable_type = 1
+sprite = ExtResource("9_vk24o")
+buildable_name = "Scanner"
+uses_liquids = false
+active = false
+
+[node name="Buildable_Factory" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/Grid Container Inactive Buildables" instance=ExtResource("10_o3puc")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+buildable_type = 2
+sprite = ExtResource("3_vk24o")
+buildable_name = "Factory"
+active = false
 
 [node name="MarginContainer5" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
-[node name="MarginContainer3" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root"]
-custom_minimum_size = Vector2(16, 0)
-layout_mode = 2
-
-[connection signal="input_event" from="PanelContainer/VBoxContainer/HBoxContainer/Area2D" to="." method="_on_area_2d_input_event"]
-[connection signal="button_down" from="PanelContainer/VBoxContainer/HBoxContainer/btn_close" to="." method="_on_btn_close_button_down"]
-[connection signal="toggled" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/btn_make_drills" to="." method="_on_btn_make_drills_toggled"]
-[connection signal="toggled" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer/btn_make_probes" to="." method="_on_btn_make_probes_toggled"]
+[connection signal="input_event" from="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer/Area2D" to="." method="_on_area_2d_input_event"]
+[connection signal="button_down" from="PanelContainer/VBoxContainer/HBoxContainer2/HBoxContainer/btn_close" to="." method="_on_btn_close_button_down"]
+[connection signal="item_selected" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 0/OptionButton" to="." method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/Project 1/OptionButton2" to="." method="_on_option_button_2_item_selected"]

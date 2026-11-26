@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cqkxsapv4vpfh"]
+[gd_scene load_steps=12 format=3 uid="uid://cqkxsapv4vpfh"]
 
 [ext_resource type="Script" uid="uid://dvp10iinieqa1" path="res://Scripts/floating_panel_planet.gd" id="1_j2jc1"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="2_j2jc1"]
@@ -6,25 +6,29 @@
 [ext_resource type="Texture2D" uid="uid://dav02ivgvxl3l" path="res://Images/button x/x_btn_pressed.png" id="4_e3dcn"]
 [ext_resource type="Texture2D" uid="uid://r573w6uxq0vm" path="res://Images/button x/x_btn_hovered.png" id="5_c7iov"]
 [ext_resource type="Texture2D" uid="uid://lpcnn38a65dy" path="res://Images/button x/x_btn_disabled.png" id="6_qfckw"]
-[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planet0.png" id="7_j2jc1"]
+[ext_resource type="Texture2D" uid="uid://dkqptpxyrl536" path="res://Images/planets/planet0.png" id="7_j2jc1"]
+[ext_resource type="Texture2D" uid="uid://mu6mva8xe84o" path="res://Images/Resource imgs/solids.png" id="8_qfckw"]
+[ext_resource type="Texture2D" uid="uid://blqan5gm5suq2" path="res://Images/Resource imgs/liquids.png" id="9_6iga2"]
+[ext_resource type="Texture2D" uid="uid://cp012di45rebm" path="res://Images/Resource imgs/gasses.png" id="10_gcog7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ein6f"]
 size = Vector2(538, 32)
 
-[node name="FloatingPanel" type="Node2D" node_paths=PackedStringArray("texture_planet_sprite", "lbl_planet_resource_multiplier", "lbl_planet_extractors", "progbar_planet_next_extraction", "progbar_planet_manual_extraction", "btn_manual_extraction")]
+[node name="FloatingPanel" type="Node2D" node_paths=PackedStringArray("texture_planet_sprite", "lbl_solids", "lbl_liquids", "lbl_gasses", "prg_drill_solids", "prg_drill_liquids", "prg_drill_gasses", "lbl_planet_extractors", "progbar_planet_next_extraction")]
 script = ExtResource("1_j2jc1")
 texture_planet_sprite = NodePath("PanelContainer/VBoxContainer/panel_root/TextureRect")
-lbl_planet_resource_multiplier = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/lbl resource multiplier")
+lbl_solids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/HBoxContainer2/lbl_solids")
+lbl_liquids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer2/lbl_liquids")
+lbl_gasses = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/HBoxContainer2/lbl_gasses")
+prg_drill_solids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/prg_drill_solids")
+prg_drill_liquids = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/prg_drill_liquids")
+prg_drill_gasses = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/prg_drill_gasses")
 lbl_planet_extractors = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/lbl drills")
 progbar_planet_next_extraction = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_auto_drill")
-progbar_planet_manual_extraction = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_manual_drill")
-btn_manual_extraction = NodePath("PanelContainer/VBoxContainer/panel_root/VBoxContainer/btn_manual_drill")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
-offset_left = -270.0
-offset_top = -153.0
-offset_right = 271.0
-offset_bottom = 153.0
+offset_right = 558.0
+offset_bottom = 306.0
 mouse_filter = 2
 theme = ExtResource("2_j2jc1")
 
@@ -86,22 +90,75 @@ layout_mode = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root"]
 layout_mode = 2
 
-[node name="btn_prioritize_planet" type="Button" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
 layout_mode = 2
-text = "Prioritize"
 
-[node name="lbl resource multiplier" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Resource Multiplier: "
 
-[node name="btn_manual_drill" type="Button" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
-layout_mode = 2
-text = "Manual Drill"
-
-[node name="prg_manual_drill" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="btn_drill_solids" type="Button" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/HBoxContainer2"]
 texture_filter = 1
-custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+text = "DRILL"
+
+[node name="texture_solids" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("8_qfckw")
+
+[node name="lbl_solids" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Solids: x1.0"
+
+[node name="prg_drill_solids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer"]
+texture_filter = 1
+layout_mode = 2
+show_percentage = false
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="btn_drill_liquids" type="Button" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer2"]
+texture_filter = 1
+layout_mode = 2
+text = "DRILL"
+
+[node name="texture_liquids" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("9_6iga2")
+
+[node name="lbl_liquids" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+text = "Liquids: x1.0"
+
+[node name="prg_drill_liquids" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2"]
+texture_filter = 1
+layout_mode = 2
+show_percentage = false
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3"]
+layout_mode = 2
+
+[node name="btn_drill_gasses" type="Button" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/HBoxContainer2"]
+texture_filter = 1
+layout_mode = 2
+text = "DRILL"
+
+[node name="texture_gasses" type="TextureRect" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("10_gcog7")
+
+[node name="lbl_gasses" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/HBoxContainer2"]
+layout_mode = 2
+text = "Liquids: x1.0"
+
+[node name="prg_drill_gasses" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3"]
+texture_filter = 1
 layout_mode = 2
 show_percentage = false
 
@@ -111,27 +168,20 @@ layout_mode = 2
 
 [node name="lbl drills" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 text = "Drills: "
 
-[node name="lbl_next_automated_drilling" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
+[node name="lbl_drilling_x_per_y" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
 layout_mode = 2
-text = "Next Automated Drilling:"
+text = "Drilling 1 every 1 seconds"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="prg_auto_drill" type="ProgressBar" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer"]
 texture_filter = 1
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 show_percentage = false
-
-[node name="lbl_prg_auto_drill" type="Label" parent="PanelContainer/VBoxContainer/panel_root/VBoxContainer/prg_auto_drill"]
-custom_minimum_size = Vector2(250, 20)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 16.0
-text = "Drilling 1 every 1 seconds"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="MarginContainer4" type="MarginContainer" parent="PanelContainer/VBoxContainer/panel_root"]
 custom_minimum_size = Vector2(16, 0)
@@ -144,4 +194,6 @@ layout_mode = 2
 [connection signal="input_event" from="PanelContainer/VBoxContainer/HBoxContainer/Area2D" to="." method="_on_area_2d_input_event"]
 [connection signal="mouse_exited" from="PanelContainer/VBoxContainer/HBoxContainer/Area2D" to="." method="_on_area_2d_mouse_exited"]
 [connection signal="button_down" from="PanelContainer/VBoxContainer/HBoxContainer/btn_close" to="." method="_on_btn_close_button_down"]
-[connection signal="button_down" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/btn_manual_drill" to="." method="_on_btn_manual_drill_button_down"]
+[connection signal="button_down" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer/HBoxContainer2/btn_drill_solids" to="." method="_on_btn_drill_solids_button_down"]
+[connection signal="button_down" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer2/HBoxContainer2/btn_drill_liquids" to="." method="_on_btn_drill_liquids_button_down"]
+[connection signal="button_down" from="PanelContainer/VBoxContainer/panel_root/VBoxContainer/VBoxContainer3/HBoxContainer2/btn_drill_gasses" to="." method="_on_btn_drill_gasses_button_down"]

@@ -1,0 +1,149 @@
+[gd_scene load_steps=10 format=3 uid="uid://bh6swu5ww5y8l"]
+
+[ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Themes/Classic95/Classic95.tres" id="1_j7g77"]
+[ext_resource type="StyleBox" uid="uid://bemy6i08bepqy" path="res://Resources/FactoryProject.tres" id="2_e544n"]
+[ext_resource type="Script" uid="uid://drt3kph874ibq" path="res://Scripts/buildable.gd" id="2_g5l6t"]
+[ext_resource type="Texture2D" uid="uid://cp012di45rebm" path="res://Images/Resource imgs/gasses.png" id="4_muj44"]
+[ext_resource type="Texture2D" uid="uid://mu6mva8xe84o" path="res://Images/Resource imgs/solids.png" id="5_coefk"]
+[ext_resource type="Texture2D" uid="uid://blqan5gm5suq2" path="res://Images/Resource imgs/liquids.png" id="6_wy3b2"]
+[ext_resource type="Texture2D" uid="uid://cjvfb7a7eoir6" path="res://Images/Resource imgs/gasses_small.png" id="8_twwfc"]
+[ext_resource type="Texture2D" uid="uid://biqvxi14optlr" path="res://Images/Resource imgs/solids_small.png" id="9_p2mig"]
+[ext_resource type="Texture2D" uid="uid://bcfe46tc4x87n" path="res://Images/Resource imgs/liquids_small.png" id="10_idwh1"]
+
+[node name="Buidable" type="VBoxContainer" node_paths=PackedStringArray("lbl_name", "panel", "texture_rect", "resources", "progress_bars", "icon_solids", "icon_solids_small", "icon_liquids", "icon_liquids_small", "icon_gasses", "icon_gasses_small", "prg_solids", "prg_liquids", "prg_gasses", "dim")]
+offset_right = 40.0
+offset_bottom = 40.0
+theme = ExtResource("1_j7g77")
+script = ExtResource("2_g5l6t")
+lbl_name = NodePath("Panel/TextureRect/dim/lbl_buildable_name")
+panel = NodePath("Panel")
+texture_rect = NodePath("Panel/TextureRect")
+resources = NodePath("Panel/CenterContainer")
+progress_bars = NodePath("HBoxContainer/VBoxContainer")
+icon_solids = NodePath("Panel/CenterContainer/HBoxContainer/icon solids")
+icon_solids_small = NodePath("Panel/TextureRect/dim/HBoxContainer/texture_solids_small")
+icon_liquids = NodePath("Panel/CenterContainer/HBoxContainer/icon liquids")
+icon_liquids_small = NodePath("Panel/TextureRect/dim/HBoxContainer/texture_liquids_small")
+icon_gasses = NodePath("Panel/CenterContainer/HBoxContainer/icon gasses")
+icon_gasses_small = NodePath("Panel/TextureRect/dim/HBoxContainer/texture_gasses_small")
+prg_solids = NodePath("HBoxContainer/VBoxContainer/prg_cost_solids")
+prg_liquids = NodePath("HBoxContainer/VBoxContainer/prg_cost_liquids")
+prg_gasses = NodePath("HBoxContainer/VBoxContainer/prg_cost_gasses")
+dim = NodePath("Panel/TextureRect/dim")
+
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("2_e544n")
+
+[node name="CenterContainer" type="CenterContainer" parent="Panel"]
+layout_mode = 0
+offset_top = 88.0
+offset_right = 128.0
+offset_bottom = 120.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/CenterContainer"]
+layout_mode = 2
+
+[node name="icon solids" type="TextureRect" parent="Panel/CenterContainer/HBoxContainer"]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("5_coefk")
+
+[node name="icon liquids" type="TextureRect" parent="Panel/CenterContainer/HBoxContainer"]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("6_wy3b2")
+
+[node name="icon gasses" type="TextureRect" parent="Panel/CenterContainer/HBoxContainer"]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("4_muj44")
+
+[node name="TextureRect" type="TextureRect" parent="Panel"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -48.0
+offset_right = 32.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="dim" type="ColorRect" parent="Panel/TextureRect"]
+visible = false
+z_index = 10
+layout_mode = 0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 56.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.39215687)
+
+[node name="lbl_buildable_name" type="Label" parent="Panel/TextureRect/dim"]
+layout_mode = 0
+offset_right = 66.0
+offset_bottom = 31.999996
+theme_override_colors/font_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+theme_override_font_sizes/font_size = 24
+text = "DRILL"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/TextureRect/dim"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 0
+offset_top = 44.0
+offset_right = 64.0
+offset_bottom = 61.0
+alignment = 1
+
+[node name="texture_solids_small" type="TextureRect" parent="Panel/TextureRect/dim/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("9_p2mig")
+
+[node name="texture_liquids_small" type="TextureRect" parent="Panel/TextureRect/dim/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("10_idwh1")
+
+[node name="texture_gasses_small" type="TextureRect" parent="Panel/TextureRect/dim/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("8_twwfc")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="VBoxContainer" type="HBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="prg_cost_solids" type="ProgressBar" parent="HBoxContainer/VBoxContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(32, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="prg_cost_liquids" type="ProgressBar" parent="HBoxContainer/VBoxContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(32, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="prg_cost_gasses" type="ProgressBar" parent="HBoxContainer/VBoxContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(32, 8)
+layout_mode = 2
+show_percentage = false
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="gui_input" from="Panel" to="." method="_on_panel_gui_input"]
+[connection signal="mouse_entered" from="Panel" to="." method="_on_panel_mouse_entered"]
+[connection signal="mouse_exited" from="Panel" to="." method="_on_panel_mouse_exited"]

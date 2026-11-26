@@ -52,7 +52,6 @@ func _ready() -> void:
 	add_child(quad_tree_root)
 	max_quad_lvl = get_max_quad_lvl(quad_tree_root)
 	generate_map(quad_tree_root)
-	
 
 func star_input(pStar) -> void:
 	print(pStar.name)
@@ -127,32 +126,7 @@ func get_max_quad_lvl(quad: Quad) -> int:
 
 
 
-class Star extends Sprite2D:
-	var adj = []
-	func _draw() -> void:
-		pass
-		#for s in len(adj):
-			#if position.x < adj[s].position.x:
-				#draw_line(Vector2(0,0),(adj[s].position - position) * (1/scale.x),Color.WEB_GRAY,1)
-		pass
-	func add_adjacent(pStar: Star) -> void:
-		if not(adj.has(pStar)):
-			var line = Line2D.new()
-			line.default_color = Color.AQUA
-			line.points = []
-			line.points.append(Vector2(0,0))
-			line.points.append(Vector2(pStar.position))
-			add_child(line)
-			adj.append(pStar)
-
-
-
-
-
-
-
-
-class Quad extends Node2D:
+class bad_quad extends Node2D:
 	var size
 	var lvl
 	var stars = []
@@ -225,11 +199,6 @@ class Quad extends Node2D:
 						stars[s0].add_adjacent(stars[s1])
 						stars[s1].add_adjacent(stars[s0])
 			var adj_quads = root.get_leafs_adjacent_to(self)
-			
-			#var print_str = "["+str(position.x) +","+ str(position.y) +"]: " +"LVL="+str(lvl)+" -- ADJ TO:"+ str(len(adj_quads))
-			#for q in len(adj_quads):
-				#print_str += "[" + str(adj_quads[q].position.x) + "," + str(adj_quads[q].position.y) + "]-----"
-			#print(print_str)
 			
 			
 			for q in len(adj_quads):

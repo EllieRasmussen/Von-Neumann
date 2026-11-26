@@ -18,9 +18,6 @@ func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_child(sprite)
 
-func _ready() -> void:
-	pass
-
 func set_target(pTarget: Orbiter) -> void:
 	target = pTarget
 	
@@ -40,8 +37,7 @@ func set_target(pTarget: Orbiter) -> void:
 			position += dir * initial_velocity
 			initial_velocity *= 0.9
 		await Engine.get_main_loop().process_frame
-
-	
+		
 	#TRAVEL TO TARGET
 	while(true):
 		update_position(Globals.deltaTime)

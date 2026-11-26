@@ -1,0 +1,134 @@
+[gd_resource type="SpriteFrames" load_steps=32 format=3 uid="uid://py6n3isrgo5b"]
+
+[ext_resource type="Texture2D" uid="uid://golymp6erq48" path="res://Images/planets/batch 1/Planet0.png" id="1_j827r"]
+[ext_resource type="Texture2D" uid="uid://bp12pvepbomic" path="res://Images/planets/batch 1/Planet1.png" id="2_lhjal"]
+[ext_resource type="Texture2D" uid="uid://rvpncpnlrrdd" path="res://Images/planets/batch 1/Planet2.png" id="3_n1h1l"]
+[ext_resource type="Texture2D" uid="uid://bavc1dipu7si6" path="res://Images/planets/batch 1/Planet3.png" id="4_sctgn"]
+[ext_resource type="Texture2D" uid="uid://c6t232fonivje" path="res://Images/planets/batch 1/Planet4.png" id="5_6idn6"]
+[ext_resource type="Texture2D" uid="uid://kjtcyex2u7ui" path="res://Images/planets/batch 1/Planet5.png" id="6_wavuj"]
+[ext_resource type="Texture2D" uid="uid://ch4v3t6mvdbx0" path="res://Images/planets/batch 1/Planet6.png" id="7_wuivo"]
+[ext_resource type="Texture2D" uid="uid://bio0jmjjcy86l" path="res://Images/planets/batch 1/Planet7.png" id="8_dho4w"]
+[ext_resource type="Texture2D" uid="uid://ckvyb58vrc4dm" path="res://Images/planets/batch 1/Planet8.png" id="9_k7lgh"]
+[ext_resource type="Texture2D" uid="uid://crcbt0157jf4d" path="res://Images/planets/batch 1/Planet9.png" id="10_xhomy"]
+[ext_resource type="Texture2D" uid="uid://bsf6osydkuvhb" path="res://Images/planets/batch 1/Planet10.png" id="11_k801l"]
+[ext_resource type="Texture2D" uid="uid://b8htbgnlbmni0" path="res://Images/planets/batch 1/Planet11.png" id="12_nvftd"]
+[ext_resource type="Texture2D" uid="uid://p8fnw21kwav2" path="res://Images/planets/batch 1/Planet12.png" id="13_wtvrp"]
+[ext_resource type="Texture2D" uid="uid://bf47loffscxbr" path="res://Images/planets/batch 1/Planet13.png" id="14_tre03"]
+[ext_resource type="Texture2D" uid="uid://e025va03bx6m" path="res://Images/planets/batch 1/Planet14.png" id="15_rieh2"]
+[ext_resource type="Texture2D" uid="uid://n1g5wovdmkyp" path="res://Images/planets/batch 1/Planet15.png" id="16_m3b4s"]
+[ext_resource type="Texture2D" uid="uid://c5h41xh2u8px" path="res://Images/planets/batch 1/Planet16.png" id="17_fha1g"]
+[ext_resource type="Texture2D" uid="uid://ckyxgooa02ysq" path="res://Images/planets/batch 1/Planet17.png" id="18_l8xse"]
+[ext_resource type="Texture2D" uid="uid://cvk7qols3o4rr" path="res://Images/planets/batch 1/Planet18.png" id="19_rv7i1"]
+[ext_resource type="Texture2D" uid="uid://2301bfoslifb" path="res://Images/planets/batch 1/Planet19.png" id="20_vwd33"]
+[ext_resource type="Texture2D" uid="uid://tkywspc3isph" path="res://Images/planets/batch 1/Planet20.png" id="21_5g4sr"]
+[ext_resource type="Texture2D" uid="uid://b0vcy00cj0xj8" path="res://Images/planets/batch 1/Planet21.png" id="22_6lagi"]
+[ext_resource type="Texture2D" uid="uid://btnr177opblj4" path="res://Images/planets/batch 1/Planet22.png" id="23_6op4v"]
+[ext_resource type="Texture2D" uid="uid://pbv1613blvc6" path="res://Images/planets/batch 1/Planet23.png" id="24_laral"]
+[ext_resource type="Texture2D" uid="uid://dqp0v5s1btc54" path="res://Images/planets/batch 1/Planet24.png" id="25_i1j2t"]
+[ext_resource type="Texture2D" uid="uid://drbjeyxe14sbh" path="res://Images/planets/batch 1/Planet25.png" id="26_seu61"]
+[ext_resource type="Texture2D" uid="uid://deown0phw12e" path="res://Images/planets/batch 1/Planet26.png" id="27_06duu"]
+[ext_resource type="Texture2D" uid="uid://ddgf6k220r582" path="res://Images/planets/batch 1/Planet27.png" id="28_h06o6"]
+[ext_resource type="Texture2D" uid="uid://b6bltj8qragsy" path="res://Images/planets/batch 1/Planet28.png" id="29_pspyg"]
+[ext_resource type="Texture2D" uid="uid://dgtbtp1a2qss4" path="res://Images/planets/batch 1/Planet29.png" id="30_e5d46"]
+[ext_resource type="Texture2D" uid="uid://5g8l4ve5xx16" path="res://Images/planets/batch 1/Planet30.png" id="31_o1gga"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_j827r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_lhjal")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_n1h1l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_sctgn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_6idn6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_wavuj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_wuivo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_dho4w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_k7lgh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_xhomy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_k801l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_nvftd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_wtvrp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_tre03")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_rieh2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_m3b4s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_fha1g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_l8xse")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_rv7i1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_vwd33")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_5g4sr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_6lagi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_6op4v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_laral")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_i1j2t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_seu61")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_06duu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_h06o6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_pspyg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_e5d46")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_o1gga")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]

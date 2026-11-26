@@ -1,14 +1,14 @@
 extends Orbiter
 class_name Planet
 
-var sprite: Sprite2D
+var sprite_frame: int = 0
 
-var resource_multiplier: float = randf_range(0.25,1.75)
+var solids: float 
+var liquids: float
+var gasses: float
 
-var area2D: Area2D
-
-var spr_hovered: Sprite2D
-var spr_selected: Sprite2D
+var spr_hovered: Sprite2D = null
+var spr_selected: Sprite2D = null
 
 var selected = false
 var hover = false
@@ -25,41 +25,69 @@ signal added_extractor
 
 var time_per_extraction: float = 1.0
 var extraction_timer: float = 0.0
-signal extracted
 
-func _ready() -> void:	
-	#SET TEXTURE
-	sprite = Sprite2D.new()
-	sprite.texture = load("res://Images/planet" + str(randi_range(0,3)) + ".png")
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.scale = Vector2.ONE * 25
-	add_child(sprite)
+func _init() -> void:
+	sprite_frame = randi_range(0,29)
+	scale = Vector2.ONE * randf_range(0.25,1.5)
 	
-	area2D = Area2D.new()
-	var collisionShape = CollisionShape2D.new()
-	collisionShape.shape = CircleShape2D.new()
-	collisionShape.shape.radius = 200
-	area2D.mouse_entered.connect(_on_hover)
-	area2D.mouse_exited.connect(_exit_hover)
-	area2D.input_event.connect(handle_area2d_input)
-	area2D.add_child(collisionShape)
-	add_child(area2D)
+	solids = randf_range(0.5,5.0)
+	if solids < 0.6:
+		solids = 0
+	elif solids > 4.8:
+		solids = 5
 	
+	liquids = randf_range(0.5,5.0)
+	if liquids < 0.6:
+		liquids = 0
+	elif liquids > 4.8:
+		liquids = 5
+		
+	gasses = randf_range(0.5,5.0)
+	if gasses < 0.6:
+		gasses = 0
+	elif gasses > 4.8:
+		gasses = 5
+
 func update_extraction() -> void:
 	if extractors > 0:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(1)
+			drill_solids()
+			drill_liquids()
+			drill_gasses()
 			
 func update_extraction_deselected() -> void:
 	if extractors > 0:
 		extraction_timer += Globals.deltaTime
 		if extraction_timer >= time_per_extraction:
 			extraction_timer = 0.0
-			extract_resource(1)
+			drill_solids()
+			drill_liquids()
+			drill_gasses()
 	
 
+signal created_cargo
+func drill_solids() -> void:
+	var new_cargo = Cargo.new()
+	new_cargo.type = 0
+	new_cargo.amount = solids
+	new_cargo.position = position
+	created_cargo.emit(new_cargo)
+	
+func drill_liquids() -> void:
+	var new_cargo = Cargo.new()
+	new_cargo.type = 1
+	new_cargo.amount = liquids
+	new_cargo.position = position
+	created_cargo.emit(new_cargo)
+	
+func drill_gasses() -> void:
+	var new_cargo = Cargo.new()
+	new_cargo.type = 2
+	new_cargo.amount = gasses
+	new_cargo.position = position
+	created_cargo.emit(new_cargo)
 
 func add_extractors(pExtractors: int = 1) -> void:
 	extractors += pExtractors
@@ -67,19 +95,9 @@ func add_extractors(pExtractors: int = 1) -> void:
 	time_per_extraction = 10.0 / float(extractors)
 	added_extractor.emit()
 
-func extract_resource(pResource) -> void:
-	extracted.emit(self, pResource * resource_multiplier)
-	
 func get_extraction_progress() -> float:
 	return extraction_timer / time_per_extraction
 
-func handle_area2d_input(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if event.is_action_pressed("Click"):
-		if selected:
-			deselect()
-		else:
-			select()
-			
 #region HOVER, SELECT
 func _on_hover():
 	hover = true

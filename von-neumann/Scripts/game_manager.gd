@@ -1,7 +1,6 @@
 extends Node2D
 
 const Cam = preload("res://Scripts/cam.gd")
-const Star = preload("res://Scripts/star.gd")
 const Extractor = preload("res://Scripts/extractor.gd")
 const SlidingPanel = preload("res://Scripts/sliding_panel.gd")
 const floating_panel_factory: PackedScene = preload("res://Scenes/floating_panel_factory.tscn")
@@ -17,37 +16,28 @@ const floating_panel_planet: PackedScene = preload("res://Scenes/floating_panel_
 @export var split_container: HSplitContainer
 @export var star_viewer_sprite_star: Sprite2D #A WRETCHED LITTLE VARIABLE THAT I WOULD LIKE TO SOMEDAY KILL
 
-@export var panel_factory_planet: SlidingPanel
-
 
 var stars: Array[Star] = []
-
-var max_factories_per_star = 10
-var max_extractors_per_star = 1
 
 ## 'SEL' = SELECTED
 var sel_star: Star
 var sel_factory: Factory
 
-var spr_star_hover: Sprite2D
-var spr_star_selected: Sprite2D
-
-
-
-var probe_travel_dist = 50 # LIGHTYEARS
-var probe_replication_attempt_rate = 0.5 # ATTEMPTS PER SECOND
-var probe_replication_success_rate = 0.1 # % CHANCE
-
+var num_points_per_orbit_line: int = 50
+var factory_orbit_line: Line2D
+var planet_orbit_lines: Array[Line2D]
+var planet_sprites: Array[AnimatedSprite2D]
+var planet_sprite_frames: SpriteFrames
 
 func _ready() -> void:
-	
+	Globals.viewport_stars = viewport_stars
 	Globals.split_container_offset_max = int(get_viewport_rect().size.x * 0.995)
 	Globals.split_container_offset_star_viewer_open = int(get_viewport_rect().size.x * 0.8)
 	Globals.split_container_offset_planet_viewer_open = int(get_viewport_rect().size.x * 0.3)
 	
 	star_gen()
-	
-	
+	#for s in stars.size():
+		#stars[s].create_factory()
 	stars[0].create_factory()
 	cam_stars.center(stars[0].position)
 	
@@ -55,25 +45,41 @@ func _ready() -> void:
 	for s in stars.size():
 		viewport_stars.add_child(stars[s])
 	
-	spr_star_selected = Sprite2D.new()
-	spr_star_selected.name = "spr_star_selected"
-	spr_star_selected.texture = load("res://Images/circle_selected0.png")
-	spr_star_selected.scale = Vector2.ONE * 5
-	spr_star_selected.z_index = 1
-	spr_star_selected.visible = false
-	viewport_stars.add_child(spr_star_selected)
+	factory_orbit_line = Line2D.new()
+	factory_orbit_line.z_index = -1
+	factory_orbit_line.closed = true
+	factory_orbit_line.default_color = Color.SKY_BLUE
+	factory_orbit_line.width = 25
 	
-	spr_star_hover = Sprite2D.new()
-	spr_star_hover.name = "spr_star_hover"
-	spr_star_hover.texture = load("res://Images/circle_hover.png")
-	spr_star_hover.scale = Vector2.ONE * 5
-	spr_star_hover.z_index = 2
-	spr_star_hover.visible = false
-	viewport_stars.add_child(spr_star_hover)
+	var angle = 0.0
+	for point in num_points_per_orbit_line:
+		var new_point = Vector2(
+			cos(angle) * Globals.factory_orbital_radius,
+			sin(angle) * Globals.factory_orbital_radius
+		)
+		factory_orbit_line.add_point(new_point)
+		angle += 6.2832 / (num_points_per_orbit_line - 1)
+	viewport_planets.add_child(factory_orbit_line)
+	
+	planet_sprite_frames = load("res://Images/planets/planets.tres")
+	for p in Globals.max_planets_per_star:
+		var new_line = Line2D.new()
+		new_line.z_index = -10
+		new_line.closed = true
+		new_line.default_color = Color.DIM_GRAY
+		new_line.width = 25
+		planet_orbit_lines.append(new_line)
+		viewport_planets.add_child(new_line)
+		new_line.position = Vector2.ZERO
+		
+		var new_sprite = AnimatedSprite2D.new()
+		new_sprite.sprite_frames = planet_sprite_frames
+		new_sprite.scale = Vector2.ONE * 100
+		planet_sprites.append(new_sprite)
+		viewport_planets.add_child(new_sprite)
 	
 	stars[0].select()
-	
-	
+
 func _process(_delta: float) -> void:
 	for planet in panels_planet.keys():
 		lines_planet_to_panel[planet].set_point_position(0,planet.position)
@@ -82,20 +88,25 @@ func _process(_delta: float) -> void:
 	if sel_factory != null:
 		line_factory_to_panel.set_point_position(0,sel_factory.position)
 		line_factory_to_panel.set_point_position(1,panel_factory_info.position)
+		
+	if sel_star != null:
+		for p in sel_star.planets.size():
+			planet_sprites[p].position = sel_star.planets[p].position
 
 
 #region STARS
 
+var qt_root: Quad
 func star_gen() -> void:
-	var world_bound: float = 50000
-
+	qt_root = Quad.new()
+	qt_root.set_quad(-Globals.world_bound*1.5,-Globals.world_bound*1.5,Globals.world_bound*3,0,qt_root)
 	#GENERATE POINTS AND RADII FOR CLUSTERS
 	var num_clusters: int = 10
 	var cluster_positions: Array[Vector2]
 	var cluster_radii: Array[float]
 	while cluster_positions.size() < num_clusters:
 		var clangle: float = randf() * 6.2831
-		var dist: float = randf()*world_bound
+		var dist: float = randf()*Globals.world_bound
 		var new_pos: Vector2 = Vector2(cos(clangle)*dist,sin(clangle)*dist)
 		var new_radius: float = randf_range(10000,20000)
 		var has_overlap: bool = false
@@ -122,14 +133,14 @@ func star_gen() -> void:
 			if star_positions.size() == 0 or not has_overlap:
 				star_positions.append(new_pos)
 		for s in num_stars:
-			create_star(star_positions[s])
+			qt_root.add_star(create_star(star_positions[s]),qt_root)
 	
 	#GENERATE ROGUE STARS
 	var num_rogues: int = 100
 	var rogue_positions: Array[Vector2]
 	while rogue_positions.size() < num_rogues:
 		var rangle: float = randf() * 6.2831
-		var dist_from_center = randf() * world_bound
+		var dist_from_center = randf() * Globals.world_bound
 		var new_pos: Vector2 = Vector2(cos(rangle) * dist_from_center,sin(rangle)*dist_from_center)
 		var is_in_cluster: bool = false
 		for c in cluster_positions.size():
@@ -142,7 +153,7 @@ func star_gen() -> void:
 		if rogue_positions.size() == 0 or not is_in_cluster:
 			rogue_positions.append(new_pos)
 	for r in num_rogues:
-		create_star(rogue_positions[r])
+		qt_root.add_star(create_star(rogue_positions[r]),qt_root)
 
 
 ## GENERATES A MINIMUM-SPANNING-TREE OF THE STARS STORED IN STARS[]
@@ -188,30 +199,48 @@ func Prim() -> void:
 		#SET STAR ADJACENCIES
 		star0.add_adjacent(star1,null)
 
-func create_star(pPos: Vector2):
+func create_star(pPos: Vector2) -> Star:
 	var s = Star.new()
 	s.position = pPos
 	
-	s.star_hovered.connect(set_hovered_star.bind(s))
-	s.star_dehovered.connect(clear_hovered_star)
 	s.star_selected.connect(set_selected_star.bind(s))
 	
 	s.set_sel_planet.connect(set_planet_selected)
 	
-	s.set_sel_factory.connect(set_selected_factory)
-	s.desel_factory.connect(clear_selected_factory)
 	
 	s.viewport_planets = viewport_planets
 	s.game_manager = self
 	
 	stars.append(s)
-
-func set_hovered_star(pStar: Star) -> void:
-	spr_star_hover.position = pStar.position
-	spr_star_hover.visible = true
+	return s
 	
-func clear_hovered_star() -> void:
-	spr_star_hover.visible = false
+func _on_sub_viewport_container_stars_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("Click"):
+		var mouse_position: Vector2 = cam_stars.get_global_mouse_position()
+		var clicked_quad: Quad = qt_root.get_leaf_at(mouse_position)
+		for s in clicked_quad.stars.size():
+			var dist_to_mouse = (clicked_quad.stars[s].position - mouse_position).length_squared()
+			if dist_to_mouse < 90000:
+				clicked_quad.stars[s].select()
+	if event is InputEventMouseMotion:
+		var mouse_position: Vector2 = cam_stars.get_global_mouse_position()
+		var mouse_quad: Quad = qt_root.get_leaf_at(mouse_position)
+		for s in mouse_quad.stars.size():
+			var dist_to_mouse = (mouse_quad.stars[s].position - mouse_position).length_squared()
+			if dist_to_mouse < 5000:
+				mouse_quad.stars[s]._on_hover()
+			elif mouse_quad.stars[s].hover:
+				mouse_quad.stars[s]._exit_hover()
+
+func _on_sub_viewport_container_planets_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("Click"):
+		if sel_star != null:
+			var mouse_position: Vector2 = cam_planets.get_global_mouse_position()
+			for p in sel_star.planets.size():
+				var dist_to_mouse = (sel_star.planets[p].position - mouse_position).length_squared()
+				if dist_to_mouse < 900000:
+					sel_star.planets[p].select()
+		
 
 func set_selected_star(pStar: Star) -> void:
 	if sel_star != null:
@@ -221,16 +250,30 @@ func set_selected_star(pStar: Star) -> void:
 	lbl_no_star_selected.visible = false
 	star_viewer_sprite_star.visible = true
 	
-	if not sel_star.active:
-		for l in sel_star.adj_lines.size():
-			viewport_stars.add_child(sel_star.adj_lines[l])
+	for p in Globals.max_planets_per_star:
+		if p >= pStar.planets.size():
+			planet_orbit_lines[p].visible = false
+			planet_sprites[p].visible = false
+			continue
+		
+		planet_sprites[p].frame = sel_star.planets[p].sprite_frame
+		planet_orbit_lines[p].clear_points()
+		
+		var t = 0.0
+		for point in num_points_per_orbit_line:
+			var new_point = Vector2(
+				pStar.planets[p].orbital_radius_0 * cos(pStar.planets[p].orbital_angle) * cos(t) - pStar.planets[p].orbital_radius_1 * sin(pStar.planets[p].orbital_angle) * sin(t) + pStar.planets[p].orbital_focus.x,
+				pStar.planets[p].orbital_radius_0 * sin(pStar.planets[p].orbital_angle) * cos(t) + pStar.planets[p].orbital_radius_1 * cos(pStar.planets[p].orbital_angle) * sin(t) + pStar.planets[p].orbital_focus.y
+			)
+			planet_orbit_lines[p].add_point(new_point)
+			t += 6.2832 / (num_points_per_orbit_line - 1)
+	
+	if sel_star.factory != null:
+		sel_star.factory.factory_selected.connect(set_selected_factory.bind(sel_star.factory))
+		factory_orbit_line.visible = true
 	
 	if split_container.split_offset < Globals.split_container_offset_planet_viewer_open:
 		lerp_split_container_offset(split_container.split_offset, Globals.split_container_offset_planet_viewer_open,0.15)
-	
-	spr_star_selected.position = sel_star.position
-	spr_star_selected.visible = true
-	
 
 func clear_selected_star() -> void:
 	if sel_star == null:
@@ -241,20 +284,19 @@ func clear_selected_star() -> void:
 	lbl_no_star_selected.visible = true
 	star_viewer_sprite_star.visible = false
 	
-	if not sel_star.active:
-		for l in sel_star.adj_lines.size():
-			viewport_stars.remove_child(sel_star.adj_lines[l])
+	if sel_star.factory != null:
+		sel_star.factory.factory_selected.disconnect(set_selected_factory)
+		factory_orbit_line.visible = false
 	
 	sel_star.deselect()
 	sel_star = null
-	spr_star_selected.visible = false
 	
 
 #endregion
 
 #region PLANETS
-var panels_planet: Dictionary
-var lines_planet_to_panel: Dictionary
+var panels_planet: Dictionary[Planet,FloatingPanelPlanet]
+var lines_planet_to_panel: Dictionary[Planet,Line2D]
 func set_planet_selected(pPlanet: Planet, pSelected: bool) -> void:
 	pPlanet.set_selected(pSelected)
 	if pSelected:
@@ -264,6 +306,7 @@ func set_planet_selected(pPlanet: Planet, pSelected: bool) -> void:
 		new_planet_panel.planet = pPlanet
 		viewport_planets.add_child(new_planet_panel)
 		panels_planet.set(pPlanet,new_planet_panel)
+		panels_planet[pPlanet].texture_planet_sprite.texture = planet_sprite_frames.get_frame_texture("default",pPlanet.sprite_frame)
 		
 		var new_line: Line2D = Line2D.new()
 		new_line.z_index = -10
@@ -297,6 +340,7 @@ func set_selected_factory(pFactory: Factory) -> void:
 	panel_factory_info = floating_panel_factory.instantiate()
 	panel_factory_info.cam = cam_planets
 	panel_factory_info.closed.connect(sel_factory.deselect)
+	panel_factory_info.closed.connect(clear_selected_factory)
 	viewport_planets.add_child(panel_factory_info)
 	panel_factory_info.position = sel_factory.position + (sel_factory.position.normalized() * 10000)
 	panel_factory_info.target = sel_factory
@@ -317,7 +361,6 @@ func clear_selected_factory() -> void:
 	if sel_factory != null:
 		sel_factory.set_selected(false)
 		sel_factory = null
-	
 	if panel_factory_info != null:
 		panel_factory_info.queue_free()
 		line_factory_to_panel.queue_free()

@@ -1,20 +1,28 @@
-[gd_resource type="SpriteFrames" load_steps=4 format=3 uid="uid://b86rdqu3b1wko"]
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://b86rdqu3b1wko"]
 
-[ext_resource type="Texture2D" uid="uid://cfak2b6sp8bnn" path="res://Images/star viewer/star_unmapped.png" id="1_0r1eg"]
-[ext_resource type="Texture2D" uid="uid://clnpwd6h8cpvd" path="res://Images/star viewer/star_mapped.png" id="2_girhy"]
-[ext_resource type="Texture2D" uid="uid://bashkm6ehi08s" path="res://Images/star viewer/star_populated.png" id="3_n8glk"]
+[ext_resource type="Texture2D" uid="uid://bqv23gt04377b" path="res://Images/star viewer/star_unscanned.png" id="1_girhy"]
+[ext_resource type="Texture2D" uid="uid://bgjsnl4fe758j" path="res://Images/star viewer/star_scanned.png" id="2_n8glk"]
+[ext_resource type="Texture2D" uid="uid://b3wgdftoddmoy" path="res://Images/star viewer/star_unscanned_hover.png" id="2_vodfk"]
+[ext_resource type="Texture2D" uid="uid://dksxwlhthiyos" path="res://Images/star viewer/star_scanned_hover.png" id="3_vodfk"]
+[ext_resource type="Texture2D" uid="uid://cef07txdpoak8" path="res://Images/star viewer/star_selected.png" id="4_dclik"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_0r1eg")
+"texture": ExtResource("1_girhy")
 }, {
 "duration": 1.0,
-"texture": ExtResource("2_girhy")
+"texture": ExtResource("2_vodfk")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_n8glk")
+"texture": ExtResource("2_n8glk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_vodfk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_dclik")
 }],
 "loop": true,
 "name": &"default",
